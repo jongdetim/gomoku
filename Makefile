@@ -1,27 +1,27 @@
 CC = clang++
 NAME = gomoku
-SRC = 
-OFILES = $(addprefix .objects/, $(SRC:%=%.o))
+SRCDIR = app/src/
+SRC = Board
+OFILES = $(addprefix $(SRCDIR).objects/, $(SRC:%=%.o))
 FLAGS = -Wall -Werror -Wextra --std=c++11
 
 all: $(NAME)
 
 $(NAME): $(OFILES)
-	@$(CC) -o $(NAME) $(FLAGS) $(OFILES)
+	@$(CC) -o app/$(NAME) $(FLAGS) $(OFILES)
 	@echo "compiled $(NAME)"
 
-.objects/%.o: %.cpp
+$(SRCDIR).objects/%.o: $(SRCDIR)%.cpp
 	@mkdir -p $(dir $@)
 	@$(CC) -o $@ -c $< $(FLAGS)
 	@echo "+ $@"
 
 clean:
-	@rm -rf .objects
+	@rm -rf $(SRCDIR).objects
 
 fclean: clean
-	@rm -f $(NAME)
+	@rm -f app/$(NAME)
 
 re:
 	@$(MAKE) fclean
 	@$(MAKE) all
-
