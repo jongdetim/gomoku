@@ -12,7 +12,7 @@ class TableEntry
         bool game_finished;
 };
 
-int negamax(Board node, int depth, int alpha, int beta, int color);
+int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions);
 
 
 #endif

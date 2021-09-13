@@ -3,9 +3,9 @@ NAME = gomoku
 SRCDIR = src/
 TARGETDIR = bin/
 INCLUDES = includes
-SRC = algorithm Board
+SRC = main algorithm Board
 OFILES = $(addprefix $(SRCDIR).objects/, $(SRC:%=%.o))
-FLAGS = --std=c++17
+FLAGS = --std=c++17 -Ofast
 
 all: $(NAME)
 

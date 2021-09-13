@@ -2,42 +2,20 @@
 #include <limits>
 #include <iostream>
 #include <algorithm>
+#include "algorithm.hpp"
 
 #define EXACT 0
 #define LOWERBOUND 1
 #define UPPERBOUND 2
 
-class Board
-{
-    public:
-        int x = 0;
-        int game_finished;
-        int heuristic;
-};
-
-class TableEntry
-{
-    public:
-        int value;
-        int depth;
-        int flag;
-};
-
-std::vector<Board> generate_moves(Board node)
-{
-    std::vector<Board> moves;
-
-    return moves;
-}
-
 bool transposition_table_lookup(Board node, TableEntry *tt_entry)
 {
-    return true;
+    return false;
 }
 
 void transposition_table_store(Board node, TableEntry *tt_entry)
 {
-    
+    ;
 }
 
 void order_moves(std::vector<Board> *nodes)
@@ -45,12 +23,13 @@ void order_moves(std::vector<Board> *nodes)
     ;
 }
 
-int negamax(Board node, int depth, int alpha, int beta, int color)
+int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions)
 {
     TableEntry tt_entry;
     bool found = false;
     int alpha_orig = alpha;
     int value = -std::numeric_limits<int>::max();
+    bool is_finished;
 
     // (* Transposition Table Lookup; node is the lookup key for tt_entry *)
     found = transposition_table_lookup(node, &tt_entry);
@@ -66,18 +45,27 @@ int negamax(Board node, int depth, int alpha, int beta, int color)
         if (alpha >= beta)
             return tt_entry.value;
     }
-    if (depth == 0 || node.game_finished)
-        return (color * node.heuristic);
+    is_finished = node.is_game_finished();
+    if (depth == 0 || is_finished)
+    {
+        node.print();
+        return (color * node.get_heuristic());
+    }
 
-    std::vector<Board> child_nodes = generate_moves(node);
+    filled_positions.push_back(node.last_move);
+    std::cout << "last_move: " << node.last_move << std::endl;
+    std::vector<Board> child_nodes = node.generate_children(filled_positions, color);
     order_moves(&child_nodes);
     
     for (Board child : child_nodes)
     {
-        value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color));
+        value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, filled_positions));
         alpha = std::max(alpha, value);
         if (alpha >= beta)
+        {
+            std::cout << "branch pruned!" << std::endl;
             break;
+        }
     }
 
     // (* Transposition Table Store; node is the lookup key for tt_entry *)
@@ -89,12 +77,8 @@ int negamax(Board node, int depth, int alpha, int beta, int color)
     else
         tt_entry.flag = EXACT;
     tt_entry.depth = depth;
+    tt_entry.game_finished = is_finished;
     transposition_table_store(node, &tt_entry);
 
     return value;
-}
-
-int main()
-{
-    return 0;
 }
