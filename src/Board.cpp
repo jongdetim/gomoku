@@ -6,7 +6,7 @@
 /*   By: fhignett <fhignett@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/09/10 13:39:39 by fhignett      #+#    #+#                 */
-/*   Updated: 2021/09/12 17:46:05 by flintlouis    ########   odam.nl         */
+/*   Updated: 2021/09/13 16:37:26 by fhignett      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 Board::Board(void)
 {
-	this->board.reset();
+	this->state.reset();
 }
 
 Board::~Board() {}
@@ -30,9 +30,9 @@ void			Board::print(void)
 		for (int col = 0; col < BOARDSIZE; col++)
 		{
 			int index = (row * BOARDSIZE + col) * 2;
-			if (this->is_empty(index))
+			if (this->is_empty_place(index))
 				std::cout << ". ";
-			else if (this->board[index])
+			else if (this->state[index])
 				std::cout << 'o' << ' ';
 			else
 				std::cout << 'x' << ' ';
@@ -46,10 +46,10 @@ bool			Board::place(int row, int col, int player)
 	assert(player == PLAYER1 or player == PLAYER2);
 	assert(row < BOARDSIZE and row >= 0 and col < BOARDSIZE and col >= 0);
 	int index = (row * BOARDSIZE + col) * 2;
-	if (not this->is_empty(index))
+	if (not this->is_empty_place(index))
 		return false;
 	index += player;
-	this->board[index] = true;
+	this->state[index] = true;
 	return true;
 }
 
@@ -57,14 +57,15 @@ bool			Board::place(int index, int player)
 {
 	assert(player == PLAYER1 or player == PLAYER2);
 	assert(index >= 0 and index < (BOARDSIZE*BOARDSIZE));
-	if (not this->is_empty(index))
+	index *= 2;
+	if (not this->is_empty_place(index))
 		return false;
 	index += player;
-	this->board[index] = true;
+	this->state[index] = true;
 	return true;
 }
 
-inline bool		Board::is_empty(int index)
+inline bool		Board::is_empty_place(int index)
 {
-	return (this->board[index] == false and this->board[index+1] == false);
+	return (this->state[index] == false and this->state[index+1] == false);
 }

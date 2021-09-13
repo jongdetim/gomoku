@@ -6,7 +6,7 @@
 /*   By: fhignett <fhignett@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/09/10 16:11:37 by fhignett      #+#    #+#                 */
-/*   Updated: 2021/09/12 17:41:51 by flintlouis    ########   odam.nl         */
+/*   Updated: 2021/09/13 16:36:24 by fhignett      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ public:
 	bool					place(int index, int player);
 
 private:
-	inline bool				is_empty(int index);
-	std::bitset<MASKSIZE>	board;
+	inline bool				is_empty_place(int index);
+	std::bitset<MASKSIZE>	state;
 };
 
 #endif
