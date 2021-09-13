@@ -93,8 +93,3 @@ int negamax(Board node, int depth, int alpha, int beta, int color)
 
     return value;
 }
-
-int main()
-{
-    return 0;
-}

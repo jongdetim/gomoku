@@ -7,6 +7,5 @@ int main()
     Board node;
     node.place(3, PLAYER2);
     node.print();
-
     return 0;
 }
