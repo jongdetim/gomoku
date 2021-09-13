@@ -1,6 +1,4 @@
 #include "Board.hpp"
-#include <iostream>
-#include <cassert>
 
 Board::Board(void)
 {

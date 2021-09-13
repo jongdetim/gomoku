@@ -1,6 +1,10 @@
 #ifndef ALGORITHM_HPP
 # define ALGORITHM_HPP
 
+#include <vector>
+#include <limits>
+#include <iostream>
+#include <algorithm>
 #include "Board.hpp"
 
 class TableEntry

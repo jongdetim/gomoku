@@ -6,13 +6,15 @@
 /*   By: fhignett <fhignett@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/09/10 16:11:37 by fhignett      #+#    #+#                 */
-/*   Updated: 2021/09/13 18:50:26 by tide-jon      ########   odam.nl         */
+/*   Updated: 2021/09/13 20:52:19 by tide-jon      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BOARD_HPP
 # define BOARD_HPP
 
+#include <iostream>
+#include <cassert>
 #include <bitset>
 #include <vector>
 #include <unordered_set>

@@ -1,7 +1,3 @@
-#include <vector>
-#include <limits>
-#include <iostream>
-#include <algorithm>
 #include "algorithm.hpp"
 
 #define EXACT 0
@@ -48,7 +44,7 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
     is_finished = node.is_game_finished();
     if (depth == 0 || is_finished)
     {
-        node.print();
+        // node.print();
         return (color * node.get_heuristic());
     }
 
