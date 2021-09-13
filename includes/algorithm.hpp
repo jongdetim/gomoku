@@ -1,6 +1,10 @@
 #ifndef ALGORITHM_HPP
 # define ALGORITHM_HPP
 
+#include <vector>
+#include <limits>
+#include <iostream>
+#include <algorithm>
 #include "Board.hpp"
 
 class TableEntry
@@ -12,7 +16,7 @@ class TableEntry
         bool game_finished;
 };
 
-int negamax(Board node, int depth, int alpha, int beta, int color);
+int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions);
 
 
 #endif
