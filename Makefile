@@ -1,9 +1,9 @@
 CC = clang++
 NAME = gomoku
 SRCDIR = app/src/
-SRC = Board
+SRC = algorithm
 OFILES = $(addprefix $(SRCDIR).objects/, $(SRC:%=%.o))
-FLAGS = -Wall -Werror -Wextra --std=c++11
+FLAGS = --std=c++17
 
 all: $(NAME)
 
