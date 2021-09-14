@@ -78,12 +78,20 @@ std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions)
 
 	for (int index : filled_positions)
 	{
-		// dit checkt nog niet voor edges van het bord
-		for (int neighbour : NEIGHBOURS)
+		for (int i = 0; i < 8; i++)
 		{
-			int i = index + neighbour;
-			if (0 <= i && i < BOARDSIZE*BOARDSIZE && is_empty(i) && i / 19 == index / 19)
-				moves.insert(i);
+			int n_index = index + NEIGHBOURS[i];
+			if (0 <= n_index && n_index < BOARDSIZE*BOARDSIZE && is_empty(n_index))
+			{
+				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
+					continue;
+				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
+					continue;
+				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
+					continue;
+				
+				moves.insert(n_index);
+			}
 		}
 	}
 	return moves;
