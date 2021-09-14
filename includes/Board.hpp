@@ -6,7 +6,7 @@
 /*   By: fhignett <fhignett@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/09/10 16:11:37 by fhignett      #+#    #+#                 */
-/*   Updated: 2021/09/14 15:27:14 by tide-jon      ########   odam.nl         */
+/*   Updated: 2021/09/14 16:11:48 by tide-jon      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 # define PLAYER2 1
 
 // globals
-const int neighbours[8] = {-20, -19, -18, -1, 1, 18, 19, 20};
+const int NEIGHBOURS[8] = {-20, -19, -18, -1, 1, 18, 19, 20};
 
 class Board
 {

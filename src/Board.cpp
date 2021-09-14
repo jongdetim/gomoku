@@ -37,7 +37,7 @@ bool			Board::place(int row, int col, int player)
 	index *= 2;
 	index = player == -1 ? index : index + 1;
 	this->state[index] = true;
-	this->last_move = (row * 19) + col;
+	this->last_move = (row * BOARDSIZE) + col;
 	return true;
 }
 
@@ -79,10 +79,10 @@ std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions)
 	for (int index : filled_positions)
 	{
 		// dit checkt nog niet voor edges van het bord
-		for (int neighbour : neighbours)
+		for (int neighbour : NEIGHBOURS)
 		{
 			int i = index + neighbour;
-			if (0 <= i && i < 361 && is_empty(i))
+			if (0 <= i && i < BOARDSIZE*BOARDSIZE && is_empty(i) && i / 19 == index / 19)
 				moves.insert(i);
 		}
 	}

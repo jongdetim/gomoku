@@ -47,12 +47,20 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
     if (found and tt_entry.depth >= depth)
     {
         if (tt_entry.flag == EXACT)
+        {
+            std::cout << "EXACT FLAG FOUND IN TABLE " << std::endl;
             return tt_entry.value;
+        }
         else if (tt_entry.flag == LOWERBOUND)
+        {
+            std::cout << "LOWERBOUND FLAG FOUND IN TABLE " << std::endl;
             alpha = std::max(alpha, tt_entry.value);
+        }
         else if (tt_entry.flag == UPPERBOUND)
+        {
+            std::cout << "UPPERBOUND FLAG FOUND IN TABLE " << std::endl;
             beta = std::min(beta, tt_entry.value);
-
+        }
         if (alpha >= beta)
             return tt_entry.value;
     }
