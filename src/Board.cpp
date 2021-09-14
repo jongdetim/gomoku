@@ -68,7 +68,7 @@ bool			Board::is_game_finished()
 
 int				Board::get_heuristic()
 {
-	return 0;
+	return rand() % 1000;
 }
 
 // creates a set of positions surrounding the currently occupied spaces

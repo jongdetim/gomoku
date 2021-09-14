@@ -7,6 +7,7 @@ int main()
     int best_value = -std::numeric_limits<int>::max();
     int best_move = -1;
     int first_move_index = 144;
+    TranspositionTable t_table;
 
     Board node;
     node.place(first_move_index, PLAYER1);
@@ -18,8 +19,8 @@ int main()
     std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
     for (Board &child : children)
     {
-        child.print();
-        value = negamax(child, 4, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions);
+        // child.print();
+        value = negamax(child, 4, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table);
         if (value > best_value)
         {
             best_value = value;
@@ -27,6 +28,8 @@ int main()
         }
     }
     std::cout << "best move is: " << best_move << std::endl;
+
+    std::cout << t_table.size() << std::endl;
 
     return 0;
 }

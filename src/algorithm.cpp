@@ -4,14 +4,29 @@
 #define LOWERBOUND 1
 #define UPPERBOUND 2
 
-bool transposition_table_lookup(Board node, TableEntry *tt_entry)
+bool TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 {
-    return false;
+    std::unordered_map<std::bitset<MASKSIZE>, TableEntry>::const_iterator get;
+    get = t_table.find(node.state);
+    if (get == t_table.end())
+        return false;
+    else
+    {
+        tt_entry = get->second;
+
+        std::cout << "i've seen this state before :)))" << std::endl;
+        return true;
+    }
 }
 
-void transposition_table_store(Board node, TableEntry *tt_entry)
+void TranspositionTable::insert(Board &node, TableEntry &tt_entry)
 {
-    ;
+    t_table.insert({node.state, tt_entry});
+}
+
+size_t TranspositionTable::size()
+{
+    return t_table.size();
 }
 
 void order_moves(std::vector<Board> *nodes)
@@ -19,7 +34,7 @@ void order_moves(std::vector<Board> *nodes)
     ;
 }
 
-int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions)
+int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions, TranspositionTable &t_table)
 {
     TableEntry tt_entry;
     bool found = false;
@@ -28,7 +43,7 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
     bool is_finished;
 
     // (* Transposition Table Lookup; node is the lookup key for tt_entry *)
-    found = transposition_table_lookup(node, &tt_entry);
+    found = t_table.lookup(node, tt_entry);
     if (found and tt_entry.depth >= depth)
     {
         if (tt_entry.flag == EXACT)
@@ -55,7 +70,7 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
     
     for (Board child : child_nodes)
     {
-        value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, filled_positions));
+        value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, filled_positions, t_table));
         alpha = std::max(alpha, value);
         if (alpha >= beta)
         {
@@ -74,7 +89,7 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
         tt_entry.flag = EXACT;
     tt_entry.depth = depth;
     tt_entry.game_finished = is_finished;
-    transposition_table_store(node, &tt_entry);
+    t_table.insert(node, tt_entry);
 
     return value;
 }

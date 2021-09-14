@@ -6,7 +6,7 @@
 /*   By: fhignett <fhignett@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/09/10 16:11:37 by fhignett      #+#    #+#                 */
-/*   Updated: 2021/09/13 20:52:19 by tide-jon      ########   odam.nl         */
+/*   Updated: 2021/09/14 15:27:14 by tide-jon      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ public:
 	std::unordered_set<int>	get_moves(std::vector<int> filled_positions);
 
 	int						last_move;
+	std::bitset<MASKSIZE>	state;
 
 private:
 	inline bool				is_empty(int index);
-	std::bitset<MASKSIZE>	state;
 };
 
 #endif
