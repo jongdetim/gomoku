@@ -89,7 +89,6 @@ std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions)
 					continue;
 				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
 					continue;
-				
 				moves.insert(n_index);
 			}
 		}

@@ -9,6 +9,16 @@
 #include <unordered_map>
 #include "Board.hpp"
 
+#define EXACT 0
+#define LOWERBOUND 1
+#define UPPERBOUND 2
+
+// globals
+
+    extern int TOTAL_NODES;
+    extern int TOTAL_LEAVES;
+
+
 class TableEntry
 {
     public:
