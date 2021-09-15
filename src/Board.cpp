@@ -6,7 +6,7 @@
 /*   By: fhignett <fhignett@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/09/10 13:39:39 by fhignett      #+#    #+#                 */
-/*   Updated: 2021/09/13 16:37:26 by fhignett      ########   odam.nl         */
+/*   Updated: 2021/09/15 14:07:15 by flintlouis    ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,11 @@ Board::Board(void)
 }
 
 Board::~Board() {}
+
+void			Board::reset(void)
+{
+	this->state.reset();
+}
 
 void			Board::print(void)
 {
@@ -65,7 +70,32 @@ bool			Board::place(int index, int player)
 	return true;
 }
 
-inline bool		Board::is_empty_place(int index)
+inline bool				Board::is_empty_place(int index)
 {
 	return (this->state[index] == false and this->state[index+1] == false);
+}
+
+bool 					Board::operator==(Board const &rhs) const
+{
+	return (this->state == rhs.state);
+}
+
+bool 					Board::operator!=(Board const &rhs) const
+{
+	return (this->state != rhs.state);
+}
+
+bool 					Board::operator==(int const rhs) const
+{
+	return (this->state == rhs);
+}
+
+bool 					Board::operator!=(int const rhs) const
+{
+	return (this->state != rhs);
+}
+
+std::bitset<MASKSIZE>	Board::operator&(Board const &rhs) const
+{
+	return this->state & rhs.state;
 }
