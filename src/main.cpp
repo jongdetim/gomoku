@@ -1,9 +1,8 @@
-#include "Board.hpp"
-#include "algorithm.hpp"
-#include "heuristic.hpp"
+#include "misc.hpp"
 
 int main()
 {
-	pattern_test();
+	pattern_test(false); /* Just shows info */
+	// pattern_test(true); /* Show pieces that were found */
 	return 0;
 }

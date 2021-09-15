@@ -66,7 +66,12 @@ inline bool 			is_at_edge(int i, int pattern_width)
 	return (i != 0 and (i + pattern_width) % MASK_LENGTH == 0);
 }
 
-int						find_pattern(Board state, int player, std::bitset<MASKSIZE> pattern, t_size pattern_size)
+inline bool				pattern_found(Board state, std::bitset<MASKSIZE> pattern)
+{
+	return ((state & pattern) == pattern);
+}
+
+int						find_pattern(Board state, int player, std::bitset<MASKSIZE> pattern, t_size pattern_size, bool verbose)
 {
 	assert(pattern_size.width <= BOARDSIZE and pattern_size.height <= BOARDSIZE);
 	pattern_size.width <<= 1; pattern_size.height <<= 1;
@@ -76,9 +81,10 @@ int						find_pattern(Board state, int player, std::bitset<MASKSIZE> pattern, t_
 	{
 		if (is_out_of_bounds(i, pattern_size.height))
 			break ;
-		if((state & (pattern<<i)) == (pattern<<i))
+		if(pattern_found(state, (pattern<<i)))
 		{
-			// print_bitmap(pattern<<i);
+			if (verbose)
+				print_bitmap(pattern<<i);
 			found++;
 		}
 		if (is_at_edge(i, pattern_size.width))

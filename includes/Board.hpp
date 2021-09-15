@@ -37,6 +37,4 @@ private:
 
 std::ostream &operator<<(std::ostream &o, Board const &i);
 
-void test_board_class(void);
-
 #endif
