@@ -59,3 +59,18 @@ void	pattern_test(bool verbose)
 	board.print();
 	std::cout << "************Starting board************" << std::endl;
 }
+
+void	heuristic_test(void)
+{
+	t_size					size_pattern;
+	std::bitset<MASKSIZE>	pattern;
+	int						players[2]{-1,1};
+	int						sizes[4]{2,3,4,5};
+
+	Board board = create_random_board();
+	board.print();
+	std::cout << "*************************" << std::endl;
+
+	pattern = create_hor(3, size_pattern);
+	std::cout << "Heuristic: " << calc_heuristic(board) << std::endl;
+}

@@ -8,5 +8,6 @@ int						calc_index(int row, int col);
 Board					create_random_board(void);
 void					pattern_test(bool verbose);
 void					test_board_class(void);
+void					heuristic_test(void);
 
 #endif

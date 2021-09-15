@@ -2,7 +2,8 @@
 
 int main()
 {
-	pattern_test(false); /* Just shows info */
-	// pattern_test(true); /* Show pieces that were found */
+	// pattern_test(false); /* Only show info */
+	// pattern_test(true); /* Show found patterns */
+	// heuristic_test();
 	return 0;
 }
