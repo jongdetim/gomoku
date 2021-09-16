@@ -1,5 +1,6 @@
 #include "Board.hpp"
 #include "algorithm.hpp"
+#include "misc.hpp"
 
 int main()
 {
@@ -8,6 +9,11 @@ int main()
     int best_move = -1;
     int first_move_index = 19*19 - 1;
     TranspositionTable t_table;
+
+	// pattern_test(false); /* Only show info */
+	// pattern_test(true); /* Show found patterns */
+	// heuristic_test();
+	// return 0;
 
     Board node;
     node.place(first_move_index, PLAYER1);
@@ -20,7 +26,7 @@ int main()
     for (Board child : children)
     {
         // child.print();
-        value = negamax(child, 10, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table);
+        value = negamax(child, 4, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table);
         if (value > best_value)
         {
             best_value = value;

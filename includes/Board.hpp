@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   Board.hpp                                          :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: fhignett <fhignett@student.codam.nl>         +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2021/09/10 16:11:37 by fhignett      #+#    #+#                 */
-/*   Updated: 2021/09/14 16:11:48 by tide-jon      ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef BOARD_HPP
 # define BOARD_HPP
 
@@ -19,8 +7,9 @@
 #include <vector>
 #include <unordered_set>
 
-# define MASKSIZE (19*19*2)
 # define BOARDSIZE 19
+# define MASKSIZE ((BOARDSIZE*BOARDSIZE)<<2)
+# define MASK_LENGTH (BOARDSIZE<<1)
 # define PLAYER1 -1
 # define PLAYER2 1
 
@@ -39,12 +28,24 @@ public:
 	int						get_heuristic();
 	std::vector<Board> 		generate_children(std::vector<int> filled_positions, int player);
 	std::unordered_set<int>	get_moves(std::vector<int> filled_positions);
+	std::bitset<MASKSIZE>	get_state(void) const;
+	void					remove(int row, int col);
+	void					remove(int index);
+	void					reset(void);
+	bool					is_empty_place(int index);
+	bool					operator==(Board const &rhs) const;
+	bool					operator!=(Board const &rhs) const;
+	bool					operator==(int const rhs) const;
+	bool					operator!=(int const rhs) const;
+	std::bitset<MASKSIZE>	operator&(Board const &rhs) const;
+	std::bitset<MASKSIZE>	operator&(std::bitset<MASKSIZE> const &rhs) const;
 
 	int						last_move;
-	std::bitset<MASKSIZE>	state;
 
 private:
-	inline bool				is_empty(int index);
+	std::bitset<MASKSIZE>	state;
 };
+
+std::ostream &operator<<(std::ostream &o, Board const &i);
 
 #endif

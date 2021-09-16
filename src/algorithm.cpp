@@ -7,7 +7,7 @@ bool TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 {
     std::unordered_map<std::bitset<MASKSIZE>, TableEntry>::const_iterator get;
 
-    get = t_table.find(node.state);
+    get = t_table.find(node.get_state());
     if (get == t_table.end())
         return false;
     else
@@ -20,7 +20,7 @@ bool TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 
 void TranspositionTable::insert(Board &node, TableEntry &tt_entry)
 {
-    t_table.insert({node.state, tt_entry});
+    t_table.insert({node.get_state(), tt_entry});
 }
 
 size_t TranspositionTable::size()
@@ -68,7 +68,7 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
     {
         TOTAL_LEAVES += 1;
         // node.print();
-        return (color * node.get_heuristic());
+        return (color * calc_heuristic(node));
     }
 
     filled_positions.push_back(node.last_move);

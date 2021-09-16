@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <unordered_map>
 #include "Board.hpp"
+#include "heuristic.hpp"
+#include "misc.hpp"
 
 #define EXACT 0
 #define LOWERBOUND 1

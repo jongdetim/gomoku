@@ -3,7 +3,7 @@ NAME = gomoku
 SRCDIR = src/
 TARGETDIR = bin/
 INCLUDES = includes
-SRC = main algorithm Board
+SRC = main algorithm Board heuristic misc test
 OFILES = $(addprefix $(SRCDIR).objects/, $(SRC:%=%.o))
 FLAGS = --std=c++17 -Ofast
 
