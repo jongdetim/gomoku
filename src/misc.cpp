@@ -48,7 +48,7 @@ void	place_pieces(Board &board, int player, int start_pos, int amount, int offse
 	for (int i = 0; i < amount; i++)
 	{
 		index = start_pos + (i * offset);
-		if (index >= (BOARDSIZE*BOARDSIZE))
+		if (index >= (BOARDSIZE*BOARDSIZE) and index < 0)
 			break ;
 		board.place(index, player);
 	}

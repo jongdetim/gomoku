@@ -43,7 +43,7 @@ class TranspositionTable
         size_t size();
 };
 
-int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions, TranspositionTable &t_table);
+int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions, TranspositionTable &t_table,TranspositionTable &_table);
 
 
 #endif

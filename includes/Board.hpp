@@ -8,7 +8,7 @@
 #include <unordered_set>
 
 # define BOARDSIZE 19
-# define MASKSIZE ((BOARDSIZE*BOARDSIZE)<<2)
+# define MASKSIZE ((BOARDSIZE*BOARDSIZE)<<1)
 # define MASK_LENGTH (BOARDSIZE<<1)
 # define PLAYER1 -1
 # define PLAYER2 1

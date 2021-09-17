@@ -78,13 +78,14 @@ int				Board::get_random_heuristic()
 std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions)
 {
 	std::unordered_set<int> moves;
+	int board_size = BOARDSIZE*BOARDSIZE;
 
 	for (int index : filled_positions)
 	{
 		for (int i = 0; i < 8; i++)
 		{
 			int n_index = index + NEIGHBOURS[i];
-			if (0 <= n_index && n_index < BOARDSIZE*BOARDSIZE && is_empty_place(n_index))
+			if (0 <= n_index and n_index < board_size and is_empty_place(n_index))
 			{
 				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
 					continue;
