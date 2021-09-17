@@ -2,6 +2,8 @@
 
 int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
+int	FOUND_IN_TABLE = 0;
+int TOTAL_BRANCHES_PRUNED = 0;
 
 bool TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 {
@@ -28,10 +30,11 @@ size_t TranspositionTable::size()
     return t_table.size();
 }
 
-void order_moves(std::vector<Board> *nodes)
-{
-    ;
-}
+// bool order_moves(std::vector<Board> &nodes, TranspositionTable &t_table, int color)
+// {
+// 	return true;
+//     if (color == 1);
+// }
 
 int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions, TranspositionTable &t_table)
 {
@@ -45,6 +48,7 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
     found = t_table.lookup(node, tt_entry);
     if (found and tt_entry.depth >= depth)
     {
+		FOUND_IN_TABLE++;
         if (tt_entry.flag == EXACT)
         {
             // std::cout << "EXACT FLAG FOUND IN TABLE " << std::endl;
@@ -64,18 +68,42 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
             return tt_entry.value;
     }
     is_finished = node.is_game_finished();
-    if (depth == 0 || is_finished)
+    if (depth == 0 or is_finished)
     {
         TOTAL_LEAVES += 1;
         // node.print();
-        return (color * calc_heuristic(node));
+
+		value = color * (node.get_random_heuristic());
+		// tt_entry.value = value;
+		// tt_entry.flag = EXACT;
+		// tt_entry.depth = depth;
+		// tt_entry.game_finished = is_finished;
+		// t_table.insert(node, tt_entry);
+        return (value);
     }
 
     filled_positions.push_back(node.last_move);
     // std::cout << "last_move: " << node.last_move << std::endl;
     std::vector<Board> child_nodes = node.generate_children(filled_positions, color);
-    order_moves(&child_nodes);
-    
+
+
+	// WAAROM VERANDERT DIT DE UITKOMST VAN DE SEARCH?????
+	for (Board child : child_nodes)
+		child.get_random_heuristic();
+
+	// auto comp = [&](Board a, Board b)-> bool
+	// {
+	// 	    std::cout << "last_move: " << node.last_move << std::endl;
+	// 	if (color == PLAYER1)
+	// 		return a.h < b.h;
+	// 	else
+	// 		return a.h > b.h;
+	// };
+
+	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
+    // if (depth > 1)
+	// 	std::sort(child_nodes.begin(), child_nodes.end(), comp);
+
     for (Board child : child_nodes)
     {
         TOTAL_NODES += 1;
@@ -83,7 +111,7 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
         alpha = std::max(alpha, value);
         if (alpha >= beta)
         {
-            // std::cout << "branch pruned!" << std::endl;
+            TOTAL_BRANCHES_PRUNED++;
             break;
         }
     }

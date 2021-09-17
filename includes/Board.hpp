@@ -25,7 +25,7 @@ public:
 	bool					place(int row, int col, int player);
 	bool					place(int index, int player);
 	bool					is_game_finished();
-	int						get_heuristic();
+	int						get_random_heuristic();
 	std::vector<Board> 		generate_children(std::vector<int> filled_positions, int player);
 	std::unordered_set<int>	get_moves(std::vector<int> filled_positions);
 	std::bitset<MASKSIZE>	get_state(void) const;
@@ -41,6 +41,7 @@ public:
 	std::bitset<MASKSIZE>	operator&(std::bitset<MASKSIZE> const &rhs) const;
 
 	int						last_move;
+	int						h;
 
 private:
 	std::bitset<MASKSIZE>	state;

@@ -6,6 +6,7 @@
 #include <limits>
 #include <iostream>
 #include <algorithm>
+#include <functional>
 #include <unordered_map>
 #include "Board.hpp"
 #include "heuristic.hpp"
@@ -19,7 +20,8 @@
 
     extern int TOTAL_NODES;
     extern int TOTAL_LEAVES;
-
+	extern int FOUND_IN_TABLE;
+	extern int TOTAL_BRANCHES_PRUNED;
 
 class TableEntry
 {

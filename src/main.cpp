@@ -26,8 +26,8 @@ int main()
     for (Board child : children)
     {
         // child.print();
-        value = negamax(child, 4, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table);
-        if (value > best_value)
+        value = negamax(child, 5, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table);
+		if (value > best_value)
         {
             best_value = value;
             best_move = child.last_move;
@@ -36,8 +36,10 @@ int main()
     std::cout << "best move is: " << best_move << std::endl;
 
     std::cout << "transposition table size: " << t_table.size() << std::endl;
-    std::cout << "total number of leaves visited: " << TOTAL_LEAVES << std::endl;
-    std::cout << "total number of nodes stored: " << TOTAL_NODES << std::endl;
+	std::cout << "times state was found in table: " << FOUND_IN_TABLE << std::endl;
+	std::cout << "total branches pruned: " << TOTAL_BRANCHES_PRUNED << std::endl;
+    std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
+    std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
 
     return 0;
 }
