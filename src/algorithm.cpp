@@ -81,9 +81,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	{
 		// std::cout << "last_move: " << node.last_move << std::endl;
 		if (color == PLAYER1)
-			return a.h < b.h;
-		else
 			return a.h > b.h;
+		else
+			return a.h < b.h;
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
@@ -95,7 +95,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			if (h_table.lookup(child, tt_entry_lower) and tt_entry_lower.depth < depth - 1)
 			{
 				// std::cout << "al gezien" << std::endl;
-				child.h = -color * tt_entry_lower.value;
+				child.h = tt_entry_lower.value;
 			}
 			// else
 			// {
@@ -120,6 +120,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished);
 	t_table.insert(node, tt_entry);
-	h_table.insert(node, tt_entry);
+    TableEntry h_entry;
+    if (h_table.lookup(node, h_entry))
+	    h_table.update(node, value);
 	return value;
 }

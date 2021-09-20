@@ -20,6 +20,11 @@ void		TranspositionTable::insert(Board &node, TableEntry &tt_entry)
 	t_table.insert({node.get_state(), tt_entry});
 }
 
+void		TranspositionTable::update(Board &node, int value)
+{
+	t_table[node.get_state()].value = value;
+}
+
 size_t		TranspositionTable::size()
 {
 	return t_table.size();

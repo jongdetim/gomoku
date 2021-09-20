@@ -5,9 +5,10 @@
 int main()
 {
     int value;
+    int best_move;
     // int best_value = -std::numeric_limits<int>::max();
     // int best_move = -1;
-    int first_move_index = calc_index(8, 10);
+    int first_move_index = calc_index(9, 15);
     TranspositionTable h_table;
 
 	// pattern_test(false); /* Only show info */
@@ -16,17 +17,25 @@ int main()
 	// return 0;
 
     Board node;
+    std::vector<int> filled_positions;
+    // node.place(4, PLAYER2);
     node.place(first_move_index, PLAYER1);
+    filled_positions.push_back(first_move_index);
+    node.place(first_move_index + 1, PLAYER1);
+    filled_positions.push_back(first_move_index+1);
+    node.place(first_move_index + 2, PLAYER1);
+    filled_positions.push_back(first_move_index+2);
+    node.place(first_move_index + 3, PLAYER1);
+    filled_positions.push_back(first_move_index+3);
+    // node.place(76 + 1, PLAYER1);
     // node.place(100, PLAYER2);
     node.print();
 
-    std::vector<int> filled_positions;
-    filled_positions.push_back(node.last_move);
     std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
     for (int depth = 0; depth <= 3; depth++)
     {
         int best_value = -std::numeric_limits<int>::max();
-        int best_move = -1;
+        best_move = -1;
         FOUND_IN_TABLE = 0;
         TOTAL_BRANCHES_PRUNED = 0;
         TOTAL_LEAVES = 0;
@@ -60,7 +69,7 @@ int main()
         for (Board child : children)
         {
             // child.print();
-            value = negamax(child, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table, h_table);
+            value = -negamax(child, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table, h_table);
             TableEntry tt_entry;
             tt_entry.value = value;
             h_table.insert(child, tt_entry);
@@ -84,7 +93,7 @@ int main()
 	// std::cout << "total branches pruned: " << TOTAL_BRANCHES_PRUNED << std::endl;
     // std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
     // std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
-    // node.place(best_move, PLAYER2);
+    node.place(best_move, PLAYER2);
     node.print();
 
     return 0;
