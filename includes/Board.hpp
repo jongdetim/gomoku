@@ -21,18 +21,18 @@ class Board
 public:
 	Board(void);
 	~Board();
-	void					print(void);
+	void					print(void) const;
 	bool					place(int row, int col, int player);
 	bool					place(int index, int player);
-	bool					is_game_finished();
-	int						get_random_heuristic();
-	std::vector<Board> 		generate_children(std::vector<int> filled_positions, int player);
-	std::unordered_set<int>	get_moves(std::vector<int> filled_positions);
+	bool					is_game_finished() const;
+	int						get_random_heuristic() const;
+	std::vector<Board> 		generate_children(std::vector<int> filled_positions, int player) const;
+	std::unordered_set<int>	get_moves(std::vector<int> filled_positions) const;
 	std::bitset<MASKSIZE>	get_state(void) const;
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
-	bool					is_empty_place(int index);
+	bool					is_empty_place(int index) const;
 	bool					operator==(Board const &rhs) const;
 	bool					operator!=(Board const &rhs) const;
 	bool					operator==(int const rhs) const;

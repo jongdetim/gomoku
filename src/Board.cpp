@@ -17,7 +17,7 @@ std::bitset<MASKSIZE>	Board::get_state(void) const
 	return this->state;
 }
 
-void					Board::print(void)
+void					Board::print(void) const
 {
 	std::cout << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
 	for (int row = 0; row < BOARDSIZE; row++)
@@ -64,18 +64,18 @@ bool					Board::place(int index, int player)
 	return true;
 }
 
-bool			Board::is_game_finished()
+bool					Board::is_game_finished() const
 {
 	return false;
 }
 
-int				Board::get_random_heuristic()
+int						Board::get_random_heuristic() const
 {
 	return (rand() % 1000) - 500;
 }
 
 // creates a set of positions surrounding the currently occupied spaces
-std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions)
+std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions) const
 {
 	std::unordered_set<int> moves;
 	int board_size = BOARDSIZE*BOARDSIZE;
@@ -100,7 +100,7 @@ std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions)
 	return moves;
 }
 
-std::vector<Board> Board::generate_children(std::vector<int> filled_positions, int player)
+std::vector<Board>		Board::generate_children(std::vector<int> filled_positions, int player) const
 {
 	Board board_copy;
     std::vector<Board> nodes;
@@ -131,11 +131,13 @@ void					Board::remove(int index)
 	this->state[index+1] = false;
 }
 
-bool					Board::is_empty_place(int index)
+bool					Board::is_empty_place(int index) const
 {
 	index <<= 1;
 	return (this->state[index] == false and this->state[index+1] == false);
 }
+
+/* OPERATOR OVERLOADS: */
 
 bool 					Board::operator==(Board const &rhs) const
 {
