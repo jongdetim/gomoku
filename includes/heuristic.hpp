@@ -7,11 +7,6 @@
 # include <cassert>
 # include "Board.hpp"
 
-# define HOR 1
-# define VER BOARDSIZE
-# define DIAG1 (BOARDSIZE + 1)
-# define DIAG2 (BOARDSIZE - 1)
-
 # define ROW5 100000
 # define ROW4 15000
 # define ROW3 10000
