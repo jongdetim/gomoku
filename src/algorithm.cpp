@@ -73,12 +73,14 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
         TOTAL_LEAVES += 1;
         // node.print();
 
-		value = color * (node.get_random_heuristic());
-		// tt_entry.value = value;
-		// tt_entry.flag = EXACT;
-		// tt_entry.depth = depth;
-		// tt_entry.game_finished = is_finished;
-		// t_table.insert(node, tt_entry);
+		value = color * (calc_heuristic(node));
+		tt_entry.value = value;
+		tt_entry.flag = EXACT;
+		tt_entry.depth = depth;
+		tt_entry.game_finished = is_finished;
+		// adding leafs to transposition table makes the table a lot larger but the amount of leaves recalculated less
+		// if we calculate leaf nodes here. if we calculate leaf nodes from parent nodes to sort them first, there is no need to add leaves to ttable
+		t_table.insert(node, tt_entry);
         return (value);
     }
 
@@ -86,23 +88,22 @@ int negamax(Board node, int depth, int alpha, int beta, int color, std::vector<i
     // std::cout << "last_move: " << node.last_move << std::endl;
     std::vector<Board> child_nodes = node.generate_children(filled_positions, color);
 
-
-	// WAAROM VERANDERT DIT DE UITKOMST VAN DE SEARCH?????
-	for (Board child : child_nodes)
-		child.get_random_heuristic();
-
-	// auto comp = [&](Board a, Board b)-> bool
-	// {
+	auto comp = [&](Board a, Board b)-> bool
+	{
 	// 	    std::cout << "last_move: " << node.last_move << std::endl;
-	// 	if (color == PLAYER1)
-	// 		return a.h < b.h;
-	// 	else
-	// 		return a.h > b.h;
-	// };
+		if (color == PLAYER1)
+			return a.h > b.h;
+		else
+			return a.h < b.h;
+	};
 
+	if (depth > 1)
+	{
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
-    // if (depth > 1)
-	// 	std::sort(child_nodes.begin(), child_nodes.end(), comp);
+	for (Board &child : child_nodes)
+		child.h = calc_heuristic(child);
+	std::sort(child_nodes.begin(), child_nodes.end(), comp);
+	}
 
     for (Board child : child_nodes)
     {
