@@ -37,6 +37,36 @@ void					Board::print(void) const
 	}
 }
 
+void					Board::show_last_move(void) const
+{
+	std::cout << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
+	for (int row = 0; row < BOARDSIZE; row++)
+	{
+		std::cout << row%10 << ": ";
+		for (int col = 0; col < BOARDSIZE; col++)
+		{
+			int index = (row * BOARDSIZE + col);
+			if (this->is_empty_place(index))
+				std::cout << ". ";
+			else if (this->state[index<<1])
+			{
+				if (this->last_move == index)
+					printf("\x1B[33mO \033[0m");
+				else
+					std::cout << 'o' << ' ';
+			}
+			else
+			{
+				if (this->last_move == index)
+					printf("\x1B[33mX \033[0m");
+				else
+					std::cout << 'x' << ' ';
+			}
+		}
+		std::cout << std::endl;
+	}
+}
+
 bool					Board::place(int row, int col, int player)
 {
 	assert(player == PLAYER1 or player == PLAYER2);
@@ -173,4 +203,9 @@ std::ostream			&operator<<(std::ostream &o, Board const &i)
 {
 	o << i.get_state();
 	return o;
+}
+
+void					Board::set_state(std::bitset<MASKSIZE> new_state)
+{
+	this->state = new_state;
 }

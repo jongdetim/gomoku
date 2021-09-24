@@ -22,6 +22,7 @@ public:
 	Board(void);
 	~Board();
 	void					print(void) const;
+	void					show_last_move(void) const;
 	bool					place(int row, int col, int player);
 	bool					place(int index, int player);
 	bool					is_game_finished() const;
@@ -39,6 +40,7 @@ public:
 	bool					operator!=(int const rhs) const;
 	std::bitset<MASKSIZE>	operator&(Board const &rhs) const;
 	std::bitset<MASKSIZE>	operator&(std::bitset<MASKSIZE> const &rhs) const;
+	void					set_state(std::bitset<MASKSIZE> new_state);
 
 	int						last_move;
 	int						h;
