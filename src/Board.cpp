@@ -45,7 +45,7 @@ bool					Board::place(int row, int col, int player)
 	if (not this->is_empty_place(index))
 		return false;
 	index <<= 1;
-	index = player == -1 ? index : index + 1;
+	index = player == PLAYER1 ? index : index + 1;
 	this->state[index] = true;
 	return true;
 }
@@ -58,7 +58,7 @@ bool					Board::place(int index, int player)
 	if (not this->is_empty_place(index))
 		return false;
 	index *= 2;
-	index = player == -1 ? index : index + 1;
+	index = player == PLAYER1 ? index : index + 1;
 	this->state[index] = true;
 	this->last_move = orig_index;
 	return true;
