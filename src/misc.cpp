@@ -1,8 +1,4 @@
 #include "misc.hpp"
-#include "heuristic.hpp"
-#include <stdlib.h>
-#include <cassert>
-#include <time.h>
 
 int		count_bits(unsigned int number)
 {
@@ -37,6 +33,21 @@ void    print_bitmap(std::bitset<MASKSIZE> bitmap)
 				std::cout << ". ";
 		}
 		std::cout << std::endl;
+	}
+}
+
+void	place_pieces(Board &board, int player, int start_pos, int amount, int offset, std::vector<int> &filled_positions)
+{
+	int index;
+
+	assert(start_pos >= 0 and start_pos < (BOARDSIZE*BOARDSIZE));
+	for (int i = 0; i < amount; i++)
+	{
+		index = start_pos + (i * offset);
+		if (index >= (BOARDSIZE*BOARDSIZE) and index < 0)
+			break ;
+		filled_positions.push_back(index);
+		board.place(index, player);
 	}
 }
 
