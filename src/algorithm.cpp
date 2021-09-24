@@ -64,12 +64,13 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		TOTAL_LEAVES += 1;
 		// node.print();
 
-		value = color * (calc_heuristic(node));
+		value = color * calc_heuristic(node);
 		tt_entry.value = value;
 		tt_entry.flag = EXACT;
 		tt_entry.depth = depth;
 		tt_entry.game_finished = is_finished;
 		h_table.insert(node, tt_entry);
+		t_table.insert(node, tt_entry);
 		return (value);
 	}
 
@@ -80,28 +81,27 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	auto comp = [&](Board a, Board b)-> bool
 	{
 		// std::cout << "last_move: " << node.last_move << std::endl;
-		if (color == PLAYER1)
 			return a.h > b.h;
-		else
-			return a.h < b.h;
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
+	// if we've already seen the child in a shallower depth (previous search) we read the heuristic and multiply by
+	// -color to accommodate the fact that leaf nodes are stored 1 ply deeper than the children are generated
 	if (depth > 1)
 	{
 		for (Board &child : child_nodes)
 		{
-			TableEntry tt_entry_lower;
-			if (h_table.lookup(child, tt_entry_lower) and tt_entry_lower.depth < depth - 1)
+			TableEntry ht_entry;
+			if (h_table.lookup(child, ht_entry) and ht_entry.depth < depth)
 			{
 				// std::cout << "al gezien" << std::endl;
-				child.h = tt_entry_lower.value;
+				child.h = -ht_entry.value;
 			}
-			// else
-			// {
-			//     // std::cout << "calculating child h" << std::endl;
-			//     child.h = calc_heuristic(child);
-			// }
+			else
+			{
+			    // std::cout << "calculating child h" << std::endl;
+			    child.h = color * calc_heuristic(child);
+			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
 	}
@@ -120,8 +120,11 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished);
 	t_table.insert(node, tt_entry);
+
+	// this seems to have no practical effect (yet)
     TableEntry h_entry;
     if (h_table.lookup(node, h_entry))
 	    h_table.update(node, value);
+
 	return value;
 }

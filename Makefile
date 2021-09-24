@@ -5,7 +5,7 @@ TARGETDIR = bin/
 INCLUDES = includes
 SRC = main algorithm Board heuristic misc test TranspositionTable
 OFILES = $(addprefix $(SRCDIR).objects/, $(SRC:%=%.o))
-FLAGS = --std=c++17 -Ofast
+FLAGS = -std=c++17 -Ofast
 
 all: $(NAME)
 
