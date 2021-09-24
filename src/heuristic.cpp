@@ -105,7 +105,7 @@ int						get_heuristic(Board &state, std::bitset<MASKSIZE> &pattern, t_size patt
 	assert(pattern_size.width <= BOARDSIZE and pattern_size.height <= BOARDSIZE);
 	int points = g_points[std::max(pattern_size.width, pattern_size.height) - 1];
 	int score = 0;
-	int player = -1;
+	int player = PLAYER1;
 	pattern_size.width <<= 1;
 	pattern_size.width -= get_end_bit(pattern, pattern_size);
 	for (int i = 0; i < MASKSIZE; i++)
@@ -116,7 +116,7 @@ int						get_heuristic(Board &state, std::bitset<MASKSIZE> &pattern, t_size patt
 			score += player * points;
 		if (is_at_edge(i, pattern_size.width))
 			i += (pattern_size.width - 1);
-		player *= -1;
+		player = -player;
 	}
 	return score;
 }

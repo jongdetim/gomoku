@@ -21,6 +21,7 @@ class TranspositionTable
     public:
         bool lookup(Board &node, TableEntry &tt_entry);
         void insert(Board &node, TableEntry &tt_entry);
+        void update(Board &node, int value);
         size_t size();
 };
 
