@@ -10,8 +10,8 @@
 # define BOARDSIZE 19
 # define MASKSIZE ((BOARDSIZE*BOARDSIZE)<<1)
 # define MASK_LENGTH (BOARDSIZE<<1)
-# define PLAYER1 -1
-# define PLAYER2 1
+# define PLAYER1 1
+# define PLAYER2 -1
 
 // globals
 const int NEIGHBOURS[8] = {-20, -19, -18, -1, 1, 18, 19, 20};
