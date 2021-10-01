@@ -7,11 +7,13 @@
 #include <vector>
 #include <unordered_set>
 
-# define BOARDSIZE 19
-# define MASKSIZE ((BOARDSIZE*BOARDSIZE)<<1)
-# define MASK_LENGTH (BOARDSIZE<<1)
+# define BOARD_LENGHT 19
+# define BOARDSIZE (BOARD_LENGHT*BOARD_LENGHT)
+# define MASKSIZE ((BOARD_LENGHT*BOARD_LENGHT)<<1)
+# define MASK_LENGTH (BOARD_LENGHT<<1)
 # define PLAYER1 1
 # define PLAYER2 -1
+# define BITBOARD std::bitset<MASKSIZE>
 
 // globals
 const int NEIGHBOURS[8] = {-20, -19, -18, -1, 1, 18, 19, 20};
@@ -29,7 +31,7 @@ public:
 	int						get_random_heuristic() const;
 	std::vector<Board> 		generate_children(std::vector<int> filled_positions, int player) const;
 	std::unordered_set<int>	get_moves(std::vector<int> filled_positions) const;
-	std::bitset<MASKSIZE>	get_state(void) const;
+	BITBOARD				get_state(void) const;
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
@@ -38,15 +40,17 @@ public:
 	bool					operator!=(Board const &rhs) const;
 	bool					operator==(int const rhs) const;
 	bool					operator!=(int const rhs) const;
-	std::bitset<MASKSIZE>	operator&(Board const &rhs) const;
-	std::bitset<MASKSIZE>	operator&(std::bitset<MASKSIZE> const &rhs) const;
-	void					set_state(std::bitset<MASKSIZE> new_state);
+	BITBOARD				operator&(Board const &rhs) const;
+	BITBOARD				operator&(BITBOARD const &rhs) const;
+	void					set_state(BITBOARD new_state);
+	int						get_player(int index) const;
+	int						get_last_player(void) const;
 
 	int						last_move;
 	int						h;
 
 private:
-	std::bitset<MASKSIZE>	state;
+	BITBOARD				state;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

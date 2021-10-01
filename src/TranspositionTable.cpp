@@ -2,7 +2,7 @@
 
 bool		TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 {
-	std::unordered_map<std::bitset<MASKSIZE>, TableEntry>::const_iterator get;
+	std::unordered_map<BITBOARD, TableEntry>::const_iterator get;
 
 	get = t_table.find(node.get_state());
 	if (get == t_table.end())

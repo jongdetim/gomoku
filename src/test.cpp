@@ -29,7 +29,7 @@ void	test_board_class(void)
 void	pattern_test(bool verbose)
 {
 	t_size					size_pattern;
-	std::bitset<MASKSIZE>	pattern;
+	BITBOARD	pattern;
 	int						players[2]{-1,1};
 	int						sizes[3]{3,4,5};
 
@@ -63,7 +63,7 @@ void	pattern_test(bool verbose)
 void	heuristic_test(void)
 {
 	t_size					size_pattern;
-	std::bitset<MASKSIZE>	pattern;
+	BITBOARD	pattern;
 	int						players[2]{-1,1};
 	int						sizes[4]{2,3,4,5};
 

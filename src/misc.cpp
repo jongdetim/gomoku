@@ -1,16 +1,26 @@
 #include "misc.hpp"
 
-int		calc_index(int row, int col)
+int			get_col(int index)
 {
-	return (row * BOARDSIZE + col);
+	return (index % BOARD_LENGHT);
 }
 
-int		count_bits(unsigned int number)
+int			get_row(int index)
+{
+	return (index / BOARD_LENGHT);
+}
+
+int			calc_index(int row, int col)
+{
+	return (row * BOARD_LENGHT + col);
+}
+
+int			count_bits(unsigned int number)
 {
 	return (int)log2(number)+1;
 }
 
-int		count_set_bits(unsigned int number)
+int			count_set_bits(unsigned int number)
 {
 	int count = 0;
 	while (number)
@@ -21,15 +31,15 @@ int		count_set_bits(unsigned int number)
 	return count;
 }
 
-void    print_bitmap(std::bitset<MASKSIZE> bitmap)
+void    	print_bitmap(BITBOARD bitmap)
 {
 	std::cout << std::endl << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
-	for (int row = 0; row < BOARDSIZE; row++)
+	for (int row = 0; row < BOARD_LENGHT; row++)
 	{
 		std::cout << row%10 << ": ";
-		for (int col = 0; col < BOARDSIZE; col++)
+		for (int col = 0; col < BOARD_LENGHT; col++)
 		{
-			int index = (row * BOARDSIZE + col) << 1;
+			int index = (row * BOARD_LENGHT + col) << 1;
 			if (bitmap[index])
 				std::cout << 'o' << ' ';
 			else if (bitmap[index + 1])
@@ -41,55 +51,52 @@ void    print_bitmap(std::bitset<MASKSIZE> bitmap)
 	}
 }
 
-void	place_pieces(Board &board, int player, int start_pos, int amount, int offset, std::vector<int> &filled_positions)
+static bool	is_offside(int prev_index, int index)
 {
-	int index;
+	int row = get_row(index), col = get_col(index);
+	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
 
-	assert(start_pos >= 0 and start_pos < (BOARDSIZE*BOARDSIZE));
-	for (int i = 0; i < amount; i++)
+	return ((abs(prev_row - row) > 1) or (abs(prev_col - col) > 1));
+}
+
+void		place_pieces(Board &board, int player, int start_pos, int amount, int offset, std::vector<int> &filled_positions)
+{
+	int index = start_pos;
+	int prev_index;
+
+	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
+	for (int i = 1; i <= amount; i++)
 	{
+		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
+			break ;
+		board.place(index, player);
+		prev_index = index;
 		index = start_pos + (i * offset);
-		if (index >= (BOARDSIZE*BOARDSIZE) or index < 0)
+		if (is_offside(prev_index, index))
 			break ;
 		filled_positions.push_back(index);
-		board.place(index, player);
 	}
 }
 
-void	place_pieces(std::bitset<MASKSIZE> &board, int player, int start_pos, int amount, int offset)
+void		place_pieces(Board &board, int player, int start_pos, int amount, int offset)
 {
-	int index;
+	int index = start_pos;
+	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARDSIZE*BOARDSIZE));
-	for (int i = 0; i < amount; i++)
+	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
+	for (int i = 1; i <= amount; i++)
 	{
-		index = start_pos + (i * offset);
-		if (index >= (BOARDSIZE*BOARDSIZE) or index < 0)
-			break ;
-		index <<= 1;
-		if (board[index] == false and board[index+1] == false)
-		{
-			index = player == PLAYER1 ? index : index + 1;
-			board[index] = true;
-		}	
-	}
-}
-
-void	place_pieces(Board &board, int player, int start_pos, int amount, int offset)
-{
-	int index;
-
-	assert(start_pos >= 0 and start_pos < (BOARDSIZE*BOARDSIZE));
-	for (int i = 0; i < amount; i++)
-	{
-		index = start_pos + (i * offset);
-		if (index >= (BOARDSIZE*BOARDSIZE) or index < 0)
+		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
 			break ;
 		board.place(index, player);
+		prev_index = index;
+		index = start_pos + (i * offset);
+		if (is_offside(prev_index, index))
+			break ;
 	}
 }
 
-Board	create_random_board(void)
+Board		create_random_board(void)
 {
 	Board board;
 
@@ -105,7 +112,7 @@ Board	create_random_board(void)
 		{
 			for (auto player : players)
 			{
-				start_pos = rand() % (BOARDSIZE*BOARDSIZE);
+				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
 				place_pieces(board, player, start_pos, i, offset);
 			}
 		}
@@ -113,7 +120,7 @@ Board	create_random_board(void)
 	return board;
 }
 
-Board	create_random_board(int seed)
+Board		create_random_board(int seed)
 {
 	Board board;
 
@@ -129,7 +136,7 @@ Board	create_random_board(int seed)
 		{
 			for (auto player : players)
 			{
-				start_pos = rand() % (BOARDSIZE*BOARDSIZE);
+				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
 				place_pieces(board, player, start_pos, i, offset);
 			}
 		}

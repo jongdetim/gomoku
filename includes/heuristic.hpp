@@ -19,12 +19,12 @@ typedef struct	s_size
 }				t_size;
 
 int						calc_heuristic(Board &state);
-int						get_heuristic(Board &state, std::bitset<MASKSIZE> &pattern, t_size pattern_size);
-int						find_pattern(Board &state, int player, std::bitset<MASKSIZE> &pattern, t_size pattern_size, bool verbose);
-void					print_bitmap(std::bitset<MASKSIZE> bitmap);
-std::bitset<MASKSIZE>	create_hor(int size, t_size &pattern_size);
-std::bitset<MASKSIZE>	create_ver(int size, t_size &pattern_size);
-std::bitset<MASKSIZE>	create_diag_left(int size, t_size &pattern_size);
-std::bitset<MASKSIZE>	create_diag_right(int size, t_size &pattern_size);
+int						get_heuristic(Board &state, BITBOARD &pattern, t_size pattern_size);
+int						find_pattern(Board &state, int player, BITBOARD &pattern, t_size pattern_size, bool verbose);
+void					print_bitmap(BITBOARD bitmap);
+BITBOARD				create_hor(int size, t_size &pattern_size);
+BITBOARD				create_ver(int size, t_size &pattern_size);
+BITBOARD				create_diag_left(int size, t_size &pattern_size);
+BITBOARD				create_diag_right(int size, t_size &pattern_size);
 
 #endif

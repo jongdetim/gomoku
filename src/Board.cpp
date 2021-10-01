@@ -12,7 +12,7 @@ void					Board::reset(void)
 	this->state.reset();
 }
 
-std::bitset<MASKSIZE>	Board::get_state(void) const
+BITBOARD				Board::get_state(void) const
 {
 	return this->state;
 }
@@ -20,12 +20,12 @@ std::bitset<MASKSIZE>	Board::get_state(void) const
 void					Board::print(void) const
 {
 	std::cout << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
-	for (int row = 0; row < BOARDSIZE; row++)
+	for (int row = 0; row < BOARD_LENGHT; row++)
 	{
 		std::cout << row%10 << ": ";
-		for (int col = 0; col < BOARDSIZE; col++)
+		for (int col = 0; col < BOARD_LENGHT; col++)
 		{
-			int index = (row * BOARDSIZE + col);
+			int index = (row * BOARD_LENGHT + col);
 			if (this->is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
@@ -40,12 +40,12 @@ void					Board::print(void) const
 void					Board::show_last_move(void) const
 {
 	std::cout << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
-	for (int row = 0; row < BOARDSIZE; row++)
+	for (int row = 0; row < BOARD_LENGHT; row++)
 	{
 		std::cout << row%10 << ": ";
-		for (int col = 0; col < BOARDSIZE; col++)
+		for (int col = 0; col < BOARD_LENGHT; col++)
 		{
-			int index = (row * BOARDSIZE + col);
+			int index = (row * BOARD_LENGHT + col);
 			if (this->is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
@@ -70,13 +70,15 @@ void					Board::show_last_move(void) const
 bool					Board::place(int row, int col, int player)
 {
 	assert(player == PLAYER1 or player == PLAYER2);
-	assert(row < BOARDSIZE and row >= 0 and col < BOARDSIZE and col >= 0);
-	int index = (row * BOARDSIZE + col);
+	assert(row < BOARD_LENGHT and row >= 0 and col < BOARD_LENGHT and col >= 0);
+	int index = (row * BOARD_LENGHT + col);
+	int orig_index = index;
 	if (not this->is_empty_place(index))
 		return false;
 	index <<= 1;
 	index = player == PLAYER1 ? index : index + 1;
 	this->state[index] = true;
+	this->last_move = orig_index;
 	return true;
 }
 
@@ -84,7 +86,7 @@ bool					Board::place(int index, int player)
 {
 	int orig_index = index;
 	assert(player == PLAYER1 or player == PLAYER2);
-	assert(index >= 0 and index < (BOARDSIZE*BOARDSIZE));
+	assert(index >= 0 and index < (BOARD_LENGHT*BOARD_LENGHT));
 	if (not this->is_empty_place(index))
 		return false;
 	index *= 2;
@@ -108,7 +110,7 @@ int						Board::get_random_heuristic() const
 std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions) const
 {
 	std::unordered_set<int> moves;
-	int board_size = BOARDSIZE*BOARDSIZE;
+	int board_size = BOARD_LENGHT*BOARD_LENGHT;
 
 	for (int index : filled_positions)
 	{
@@ -148,7 +150,7 @@ std::vector<Board>		Board::generate_children(std::vector<int> filled_positions, 
 
 void					Board::remove(int row, int col)
 {
-	int index = (row * BOARDSIZE + col) << 1;
+	int index = (row * BOARD_LENGHT + col) << 1;
 	this->state[index] = false;
 	this->state[index+1] = false;
 	
@@ -165,6 +167,21 @@ bool					Board::is_empty_place(int index) const
 {
 	index <<= 1;
 	return (this->state[index] == false and this->state[index+1] == false);
+}
+
+int						Board::get_player(int index) const
+{
+	index <<= 1;
+	if (this->state[index])
+		return PLAYER1;
+	else if (this->state[index+1])
+		return PLAYER2;
+	return 0;
+}
+
+int						Board::get_last_player(void) const
+{
+	return this->get_player(this->last_move);
 }
 
 /* OPERATOR OVERLOADS: */
@@ -189,12 +206,12 @@ bool 					Board::operator!=(int const rhs) const
 	return (this->state != rhs);
 }
 
-std::bitset<MASKSIZE>	Board::operator&(Board const &rhs) const
+BITBOARD				Board::operator&(Board const &rhs) const
 {
 	return this->state & rhs.state;
 }
 
-std::bitset<MASKSIZE>	Board::operator&(std::bitset<MASKSIZE> const &rhs) const
+BITBOARD				Board::operator&(BITBOARD const &rhs) const
 {
 	return this->state & rhs;
 }
@@ -205,7 +222,7 @@ std::ostream			&operator<<(std::ostream &o, Board const &i)
 	return o;
 }
 
-void					Board::set_state(std::bitset<MASKSIZE> new_state)
+void					Board::set_state(BITBOARD new_state)
 {
 	this->state = new_state;
 }
