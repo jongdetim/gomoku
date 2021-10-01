@@ -69,7 +69,7 @@ int						count_ver(Board &board, int index, int player)
 
 	total += go_up(board, index, player);
 	total += go_down(board, index, player);
-	std::cout << "VER:       " << total << " points: " << g_points[total] << std::endl;
+	//std::cout << "VER:       " << total << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
@@ -113,7 +113,7 @@ int						count_hor(Board &board, int index, int player)
 
 	total += go_left(board, index, player);
 	total += go_right(board, index, player);
-	std::cout << "HOR:       " << total  << " points: " << g_points[total] << std::endl;
+	//std::cout << "HOR:       " << total  << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
@@ -157,7 +157,7 @@ int						count_diag_up(Board &board, int index, int player)
 
 	total += diag_upR(board, index, player);
 	total += diag_downL(board, index, player);
-	std::cout << "DIAG_UP:   " << total  << " points: " << g_points[total] << std::endl;
+	//std::cout << "DIAG_UP:   " << total  << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
@@ -201,7 +201,7 @@ int						count_diag_down(Board &board, int index, int player)
 
 	total += diag_upL(board, index, player);
 	total += diag_downR(board, index, player);
-	std::cout << "DIAG_DOWN: " << total  << " points: " << g_points[total] << std::endl;
+	//std::cout << "DIAG_DOWN: " << total  << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
@@ -215,6 +215,14 @@ int						get_heuristic_last_move(Board &board)
 	points += g_points[count_diag_up(board, board.last_move, board.get_last_player())];
 
 	return points;
+}
+
+bool					check_win(Board &board)
+{
+	return (count_hor(board, board.last_move, board.get_last_player()) == 5 \
+	or count_ver(board, board.last_move, board.get_last_player()) == 5 \
+	or count_diag_down(board, board.last_move, board.get_last_player()) == 5 \
+	or count_diag_up(board, board.last_move, board.get_last_player()) == 5);
 }
 
 int						calc_heuristic(Board &state)

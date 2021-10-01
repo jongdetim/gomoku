@@ -19,5 +19,6 @@ typedef struct	s_size
 }				t_size;
 
 int				calc_heuristic(Board &state);
+bool			check_win(Board &board);
 
 #endif

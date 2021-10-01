@@ -1,9 +1,7 @@
 #include "Board.hpp"
 
-Board::Board(void)
-{
-	this->state.reset();
-}
+Board::Board(void) : state(0), stones_played(0), last_move(-1), h(0)
+{}
 
 Board::~Board() {}
 
@@ -79,6 +77,7 @@ bool					Board::place(int row, int col, int player)
 	index = player == PLAYER1 ? index : index + 1;
 	this->state[index] = true;
 	this->last_move = orig_index;
+	this->stones_played++;
 	return true;
 }
 
@@ -93,6 +92,7 @@ bool					Board::place(int index, int player)
 	index = player == PLAYER1 ? index : index + 1;
 	this->state[index] = true;
 	this->last_move = orig_index;
+	this->stones_played++;
 	return true;
 }
 
@@ -182,6 +182,11 @@ int						Board::get_player(int index) const
 int						Board::get_last_player(void) const
 {
 	return this->get_player(this->last_move);
+}
+
+bool					Board::is_full(void) const
+{
+	return (this->stones_played == BOARDSIZE);
 }
 
 /* OPERATOR OVERLOADS: */

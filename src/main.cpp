@@ -8,22 +8,24 @@
 
 int			get_hor_pattern(Board &board, int start_index, int player);
 int		    get_heuristic_last_move(Board &board);
+#include <vector>
+#include <algorithm>
 
-int main()
+int     main()
 {
     Board board;
     int index, player;
 
-    for (int i = 0; i < 10; i++)
-    {
-        board = create_random_board(i);
-        PRINT("============");
-        int points = get_heuristic_last_move(board);
-        std::cout << "--------------------------- +" << std::endl;
-        std::cout << "points:              " << points << std::endl;
-        board.show_last_move();
-        PRINT("============");
-    }
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     board = create_random_board(i);
+    //     PRINT("============");
+    //     int points = get_heuristic_last_move(board);
+    //     std::cout << "--------------------------- +" << std::endl;
+    //     std::cout << "points:              " << points << std::endl;
+    //     board.show_last_move();
+    //     PRINT("============");
+    // }
 
     // index = calc_index(10, 5);
     // place_pieces(board, PLAYER1, index, 4, HOR);
@@ -34,13 +36,10 @@ int main()
     // std::bitset<10> pattern{(unsigned long long)get_hor_pattern(board, index+4, PLAYER1)};
     // PRINT(pattern);
 
-    // board.reset();
-    // index = calc_index(17, 16);
-    // board.place(index, PLAYER1);
-    // count_diagR(board, board.last_move, board.get_last_player());
-    // board.remove(index);
-    // board.place(index, PLAYER1);
-    // board.show_last_move();
+    board = create_random_board();
+    board.show_last_move();
+    std::bitset<10> pattern{(unsigned long long)get_hor_pattern(board, index+4, PLAYER1)};
+    PRINT(pattern);
 
     return 0;
 }

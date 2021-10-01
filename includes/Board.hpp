@@ -45,12 +45,14 @@ public:
 	void					set_state(BITBOARD new_state);
 	int						get_player(int index) const;
 	int						get_last_player(void) const;
+	bool					is_full(void) const;
 
 	int						last_move;
 	int						h;
 
 private:
 	BITBOARD				state;
+	int						stones_played;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);
