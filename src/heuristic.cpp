@@ -4,7 +4,8 @@
 // #define PRINT(x) std::cout << x << std::endl
 // #define PRINTENDL std::cout << std::endl
 
-int						get_hor_pattern(Board &board, int start_index, int player)
+
+int						get_hor_pattern(Board &board, int start_index, int player) // <---- TESTING
 {
 	int pattern = 0;
 	int col = get_col(start_index);
@@ -31,6 +32,8 @@ int						get_hor_pattern(Board &board, int start_index, int player)
 	}
 	return pattern;
 }
+////////////////////////////////////////////////////////////
+int						g_points[6]{0,0,ROW2,ROW3,ROW4,ROW5};
 
 static int				go_down(Board &board, int index, int player)
 {
@@ -66,6 +69,7 @@ int						count_ver(Board &board, int index, int player)
 
 	total += go_up(board, index, player);
 	total += go_down(board, index, player);
+	std::cout << "VER:       " << total << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
@@ -109,6 +113,7 @@ int						count_hor(Board &board, int index, int player)
 
 	total += go_left(board, index, player);
 	total += go_right(board, index, player);
+	std::cout << "HOR:       " << total  << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
@@ -146,12 +151,13 @@ static int				diag_downL(Board &board, int index, int player)
 	return length;
 }
 
-int						count_diagR(Board &board, int index, int player)
+int						count_diag_up(Board &board, int index, int player)
 {
 	int total = 1;
 
 	total += diag_upR(board, index, player);
 	total += diag_downL(board, index, player);
+	std::cout << "DIAG_UP:   " << total  << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
@@ -189,155 +195,31 @@ static int				diag_downR(Board &board, int index, int player)
 	return length;
 }
 
-int						count_diagL(Board &board, int index, int player)
+int						count_diag_down(Board &board, int index, int player)
 {
 	int total = 1;
 
 	total += diag_upL(board, index, player);
 	total += diag_downR(board, index, player);
+	std::cout << "DIAG_DOWN: " << total  << " points: " << g_points[total] << std::endl;
 	return total;
 }
 
-BITBOARD				create_ver(int size, t_size &pattern_size)
+int						get_heuristic_last_move(Board &board)
 {
-	BITBOARD pattern{1};
-	pattern_size.height = size; pattern_size.width = 1;
+	int points = 0;
 
-	for (int i = 1; i < size; i++)
-	{
-		pattern <<= MASK_LENGTH;
-		pattern ^= 1;
-	}
-	return pattern;
-}
+	points += g_points[count_hor(board, board.last_move, board.get_last_player())];
+	points += g_points[count_ver(board, board.last_move, board.get_last_player())];
+	points += g_points[count_diag_down(board, board.last_move, board.get_last_player())];
+	points += g_points[count_diag_up(board, board.last_move, board.get_last_player())];
 
-BITBOARD				create_hor(int size, t_size &pattern_size)
-{
-	BITBOARD pattern{1};
-	pattern_size.height = 1; pattern_size.width = size;
-
-	for (int i = 1; i < size; i++)
-	{
-		pattern <<= 2;
-		pattern ^= 1;
-	}
-		
-	return pattern;
-}
-
-BITBOARD				create_diag_left(int size, t_size &pattern_size)
-{
-	BITBOARD pattern{1};
-	pattern_size.height = size; pattern_size.width = size;
-
-	for (int i = 1; i < size; i++)
-	{
-		pattern <<= (MASK_LENGTH + 2);
-		pattern ^= 1;
-	}
-		
-	return pattern;
-}
-
-BITBOARD				create_diag_right(int size, t_size &pattern_size)
-{
-	BITBOARD pattern{1};
-	pattern_size.height = size; pattern_size.width = size;
-
-	for (int i = 1; i < size; i++)
-	{
-		pattern <<= MASK_LENGTH;
-		pattern ^= (1 << (i << 1));
-	}
-		
-	return pattern;
-}
-
-static inline bool		is_out_of_bounds(int i, int pattern_height)
-{
-	return ((i / MASK_LENGTH) + pattern_height) > BOARD_LENGHT;
-}
-
-static inline bool 		is_at_edge(int i, int pattern_width)
-{
-	return (i != 0 and (i + (pattern_width)) % MASK_LENGTH == 0);
-}
-
-static inline bool		pattern_found(Board state, BITBOARD pattern)
-{
-	return ((state & pattern) == pattern);
-}
-
-int						find_pattern(Board &state, int player, BITBOARD &pattern, t_size pattern_size, bool verbose)
-{
-	assert(pattern_size.width <= BOARD_LENGHT and pattern_size.height <= BOARD_LENGHT);
-	pattern_size.width <<= 1;
-	int found = 0;
-	pattern = player == PLAYER1 ? pattern : pattern << 1;
-	for (int i = 0; i < MASKSIZE; i+=2)
-	{
-		if (is_out_of_bounds(i, pattern_size.height))
-			break ;
-		if(pattern_found(state, (pattern<<i)))
-		{
-			if (verbose)
-				print_bitmap(pattern<<i);
-			found++;
-		}
-		if (is_at_edge(i, pattern_size.width))
-			i += (pattern_size.width - 2);
-	}
-	return found;
-}
-
-inline int				get_end_bit(BITBOARD &pattern, t_size pattern_size)
-{
-	return (pattern[(pattern_size.width * pattern_size.height) - 1] == false);
-}
-
-int						g_points[5]{0,ROW2,ROW3,ROW4,ROW5}; // Just to test
-
-int						get_heuristic(Board &state, BITBOARD &pattern, t_size pattern_size)
-{
-	assert(pattern_size.width <= BOARD_LENGHT and pattern_size.height <= BOARD_LENGHT);
-	int points = g_points[std::max(pattern_size.width, pattern_size.height) - 1];
-	int score = 0;
-	int player = PLAYER1;
-	pattern_size.width <<= 1;
-	pattern_size.width -= get_end_bit(pattern, pattern_size);
-	for (int i = 0; i < MASKSIZE; i++)
-	{
-		if (is_out_of_bounds(i, pattern_size.height))
-			break ;
-		if(pattern_found(state, (pattern<<i)))
-			score += player * points;
-		if (is_at_edge(i, pattern_size.width))
-			i += (pattern_size.width - 1);
-		player = -player;
-	}
-	return score;
+	return points;
 }
 
 int						calc_heuristic(Board &state)
 {
-	int						sizes[4]{2,3,4,5};
-	t_size					size_pattern;
-	BITBOARD	pattern;
-	int						score = 0;
+	int points = 0;
 
-	for (auto size : sizes)
-	{
-		pattern = create_ver(size, size_pattern);
-		score += get_heuristic(state, pattern, size_pattern);
-
-		pattern = create_hor(size, size_pattern);
-		score += get_heuristic(state, pattern, size_pattern);
-
-		pattern = create_diag_left(size, size_pattern);
-		score += get_heuristic(state, pattern, size_pattern);
-
-		pattern = create_diag_right(size, size_pattern);
-		score += get_heuristic(state, pattern, size_pattern);
-	}
-	return score;
+	return points;
 }
