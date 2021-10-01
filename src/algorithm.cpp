@@ -64,7 +64,11 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		TOTAL_LEAVES += 1;
 		// node.print();
 
-		value = color * calc_heuristic(node);
+		value = color * calc_heuristic_tim(filled_positions, node);
+
+		// node.print();
+		// std::cout << "value: " << value * color << std::endl;
+
 		tt_entry.value = value;
 		tt_entry.flag = EXACT;
 		tt_entry.depth = depth;
@@ -100,7 +104,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			else
 			{
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = color * calc_heuristic(child);
+			    child.h = color * calc_heuristic_tim(filled_positions, child);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
@@ -114,6 +118,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		if (alpha >= beta)
 		{
 			TOTAL_BRANCHES_PRUNED++;
+			// if (depth == 1)
+			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
 			break;
 		}
 	}

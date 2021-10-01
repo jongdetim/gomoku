@@ -3,44 +3,93 @@
 // #include "TranspositionTable.hpp"
 #include "misc.hpp"
 
-#define PRINT(x) std::cout << x << std::endl
-#define PRINTENDL std::cout << std::endl
-
-int			get_hor_pattern(Board &board, int start_index, int player);
-int		    get_heuristic_last_move(Board &board);
-
 int main()
 {
-    Board board;
-    int index, player;
+    int value;
+    int best_move;
+    // int best_value = -std::numeric_limits<int>::max();
+    // int best_move = -1;
+    int first_move_index = 17*19 - 1;
+    TranspositionTable h_table;
 
-    for (int i = 0; i < 10; i++)
+	// pattern_test(false); /* Only show info */
+	// pattern_test(true); /* Show found patterns */
+	// heuristic_test();
+	// return 0;
+
+    Board node;
+    std::vector<int> filled_positions;
+
+    // node.place(first_move_index, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    // node.place(first_move_index - 1, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    // node.place(first_move_index - 2, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 1, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 2, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 3, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    // node.place(first_move_index - 4, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    node.print();
+
+    // std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
+    // for (Board child : children)
+    // {
+    //     // child.print();
+    //     value = -negamax(child, 2, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table);
+    //     // cout << value << "<-value, move-> " << child.last_move << endl;
+	// 	if (value > best_value)
+    //     {
+    //         best_value = value;
+    //         best_move = child.last_move;
+    //     }
+    // }
+
+    std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
+    for (int depth = 0; depth <= 5; depth++)
     {
-        board = create_random_board(i);
-        PRINT("============");
-        int points = get_heuristic_last_move(board);
-        std::cout << "--------------------------- +" << std::endl;
-        std::cout << "points:              " << points << std::endl;
-        board.show_last_move();
-        PRINT("============");
+        int best_value = -std::numeric_limits<int>::max();
+        best_move = -1;
+        FOUND_IN_TABLE = 0;
+        TOTAL_BRANCHES_PRUNED = 0;
+        TOTAL_LEAVES = 0;
+        TOTAL_NODES = 0;
+        TranspositionTable t_table;
+
+        for (Board child : children)
+        {
+            // child.print();
+            value = -negamax(child, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table, h_table);
+            TableEntry tt_entry;
+            tt_entry.value = value;
+            h_table.insert(child, tt_entry);
+            if (value > best_value)
+            {
+                best_value = value;
+                best_move = child.last_move;
+            }
+        }
+        std::cout << "best move is: " << best_move << std::endl;
+        std::cout << "corresponding heuristic value is: " << best_value << std::endl;
+        std::cout << "transposition table size: " << t_table.size() << std::endl;
+        std::cout << "times state was found in table: " << FOUND_IN_TABLE << std::endl;
+        std::cout << "total branches pruned: " << TOTAL_BRANCHES_PRUNED << std::endl;
+        std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
+        std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
     }
+    
 
-    // index = calc_index(10, 5);
-    // place_pieces(board, PLAYER1, index, 4, HOR);
-    // board.remove(index+2);
-    // board.remove(index+1);
-    // board.place(index+1, PLAYER1);
-    // board.show_last_move();
-    // std::bitset<10> pattern{(unsigned long long)get_hor_pattern(board, index+4, PLAYER1)};
-    // PRINT(pattern);
-
-    // board.reset();
-    // index = calc_index(17, 16);
-    // board.place(index, PLAYER1);
-    // count_diagR(board, board.last_move, board.get_last_player());
-    // board.remove(index);
-    // board.place(index, PLAYER1);
-    // board.show_last_move();
+    // std::cout << "transposition table size: " << t_table.size() << std::endl;
+	// std::cout << "times state was found in table: " << FOUND_IN_TABLE << std::endl;
+	// std::cout << "total branches pruned: " << TOTAL_BRANCHES_PRUNED << std::endl;
+    // std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
+    // std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
+    node.place(best_move, PLAYER2);
+    node.print();
 
     return 0;
 }
