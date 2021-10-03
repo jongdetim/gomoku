@@ -58,7 +58,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		if (alpha >= beta)
 			return tt_entry.value;
 	}
+
 	is_finished = node.is_game_finished();
+	filled_positions.push_back(node.last_move);
+
 	if (depth == 0 || is_finished)
 	{
 		TOTAL_LEAVES += 1;
@@ -77,8 +80,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		t_table.insert(node, tt_entry);
 		return (value);
 	}
-
-	filled_positions.push_back(node.last_move);
+	
 	// std::cout << "last_move: " << node.last_move << std::endl;
 	std::vector<Board> child_nodes = node.generate_children(filled_positions, color);
 
@@ -91,14 +93,14 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
 	// if we've already seen the child in a shallower depth (previous search) we read the heuristic && multiply by
 	// -color to accommodate the fact that leaf nodes are stored 1 ply deeper than the children are generated
-	if (depth > 1)
+	if (depth > 0)
 	{
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth)
+			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth - 1)
 			{
-				// std::cout << "al gezien" << std::endl;
+				std::cout << "al gezien" << std::endl;
 				child.h = -ht_entry.value;
 			}
 			else
@@ -110,9 +112,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
 	}
 
+	TOTAL_NODES += 1;
+
 	for (Board child : child_nodes)
 	{
-		TOTAL_NODES += 1;
 		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, filled_positions, t_table, h_table));
 		alpha = std::max(alpha, value);
 		if (alpha >= beta)

@@ -26,15 +26,15 @@ int main()
     // filled_positions.push_back(node.last_move);
     // node.place(first_move_index - 2, PLAYER1);
     // filled_positions.push_back(node.last_move);
-    node.place(first_move_index - 1, PLAYER1);
-    filled_positions.push_back(node.last_move);
-    node.place(first_move_index - 2, PLAYER1);
-    filled_positions.push_back(node.last_move);
-    node.place(first_move_index - 3, PLAYER1);
-    filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 4, PLAYER1);
+    // node.place(first_move_index - 1, PLAYER1);
     // filled_positions.push_back(node.last_move);
-    node.print();
+    // node.place(first_move_index - 2, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    // node.place(first_move_index - 3, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    // // node.place(first_move_index - 4, PLAYER1);
+    // // filled_positions.push_back(node.last_move);
+    // node.print();
 
     // std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
     // for (Board child : children)
@@ -49,8 +49,17 @@ int main()
     //     }
     // }
 
+	node = create_random_board(filled_positions);
+	node.print();
+
+	auto comp = [&](Board a, Board b)-> bool
+	{
+		// std::cout << "last_move: " << node.last_move << std::endl;
+			return a.h > b.h;
+	};
+
     std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
-    for (int depth = 0; depth <= 5; depth++)
+    for (int depth = 0; depth <= 1; depth++)
     {
         int best_value = -std::numeric_limits<int>::max();
         best_move = -1;
@@ -64,15 +73,17 @@ int main()
         {
             // child.print();
             value = -negamax(child, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table, h_table);
-            TableEntry tt_entry;
-            tt_entry.value = value;
-            h_table.insert(child, tt_entry);
+            // TableEntry tt_entry;
+            // tt_entry.value = value;
+			// tt_entry.depth = depth;
+            // h_table.insert(child, tt_entry);
             if (value > best_value)
             {
                 best_value = value;
                 best_move = child.last_move;
             }
         }
+		std::sort(children.begin(), children.end(), comp);
         std::cout << "best move is: " << best_move << std::endl;
         std::cout << "corresponding heuristic value is: " << best_value << std::endl;
         std::cout << "transposition table size: " << t_table.size() << std::endl;

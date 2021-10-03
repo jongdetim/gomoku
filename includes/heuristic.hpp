@@ -5,6 +5,7 @@
 # include <bitset>
 # include <iostream>
 # include <cassert>
+# include <algorithm>
 # include "Board.hpp"
 
 # define ROW5 1000000

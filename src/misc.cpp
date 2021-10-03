@@ -15,6 +15,8 @@ int			calc_index(int row, int col)
 	return (row * BOARD_LENGHT + col);
 }
 
+#include <math.h>
+
 int			count_bits(unsigned int number)
 {
 	return (int)log2(number)+1;
@@ -96,7 +98,7 @@ void		place_pieces(Board &board, int player, int start_pos, int amount, int offs
 	}
 }
 
-Board		create_random_board(void)
+Board		create_random_board(std::vector<int> &filled_positions)
 {
 	Board board;
 
@@ -113,14 +115,14 @@ Board		create_random_board(void)
 			for (auto player : players)
 			{
 				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
-				place_pieces(board, player, start_pos, i, offset);
+				place_pieces(board, player, start_pos, i, offset, filled_positions);
 			}
 		}
 	}
 	return board;
 }
 
-Board		create_random_board(int seed)
+Board		create_random_board(int seed, std::vector<int> &filled_positions)
 {
 	Board board;
 
@@ -137,7 +139,7 @@ Board		create_random_board(int seed)
 			for (auto player : players)
 			{
 				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
-				place_pieces(board, player, start_pos, i, offset);
+				place_pieces(board, player, start_pos, i, offset, filled_positions);
 			}
 		}
 	}
