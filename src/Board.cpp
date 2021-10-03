@@ -69,11 +69,11 @@ void					Board::show_last_move(void) const
 
 bool					Board::place(int row, int col, int player)
 {
-	assert(player == PLAYER1 or player == PLAYER2);
-	assert(row < BOARD_LENGHT and row >= 0 and col < BOARD_LENGHT and col >= 0);
+	assert(player == PLAYER1 || player == PLAYER2);
+	assert(row < BOARD_LENGHT && row >= 0 && col < BOARD_LENGHT && col >= 0);
 	int index = (row * BOARD_LENGHT + col);
 	int orig_index = index;
-	if (not this->is_empty_place(index))
+	if (! this->is_empty_place(index))
 		return false;
 	index <<= 1;
 	index = player == PLAYER1 ? index : index + 1;
@@ -85,9 +85,9 @@ bool					Board::place(int row, int col, int player)
 bool					Board::place(int index, int player)
 {
 	int orig_index = index;
-	assert(player == PLAYER1 or player == PLAYER2);
-	assert(index >= 0 and index < (BOARD_LENGHT*BOARD_LENGHT));
-	if (not this->is_empty_place(index))
+	assert(player == PLAYER1 || player == PLAYER2);
+	assert(index >= 0 && index < (BOARD_LENGHT*BOARD_LENGHT));
+	if (! this->is_empty_place(index))
 		return false;
 	index *= 2;
 	index = player == PLAYER1 ? index : index + 1;
@@ -117,7 +117,7 @@ std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions) cons
 		for (int i = 0; i < 8; i++)
 		{
 			int n_index = index + NEIGHBOURS[i];
-			if (0 <= n_index and n_index < board_size and is_empty_place(n_index))
+			if (0 <= n_index && n_index < board_size && is_empty_place(n_index))
 			{
 				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
 					continue;
@@ -166,7 +166,7 @@ void					Board::remove(int index)
 bool					Board::is_empty_place(int index) const
 {
 	index <<= 1;
-	return (this->state[index] == false and this->state[index+1] == false);
+	return (this->state[index] == false && this->state[index+1] == false);
 }
 
 int						Board::get_player(int index) const

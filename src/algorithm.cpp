@@ -13,7 +13,7 @@ int TOTAL_BRANCHES_PRUNED = 0;
 
 inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, TranspositionTable &t_table)
 {
-	return t_table.lookup(node, tt_entry) and tt_entry.depth >= depth;
+	return t_table.lookup(node, tt_entry) && tt_entry.depth >= depth;
 }
 
 void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int beta, int depth, bool is_finished)
@@ -59,7 +59,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			return tt_entry.value;
 	}
 	is_finished = node.is_game_finished();
-	if (depth == 0 or is_finished)
+	if (depth == 0 || is_finished)
 	{
 		TOTAL_LEAVES += 1;
 		// node.print();
@@ -89,14 +89,14 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
-	// if we've already seen the child in a shallower depth (previous search) we read the heuristic and multiply by
+	// if we've already seen the child in a shallower depth (previous search) we read the heuristic && multiply by
 	// -color to accommodate the fact that leaf nodes are stored 1 ply deeper than the children are generated
 	if (depth > 1)
 	{
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			if (h_table.lookup(child, ht_entry) and ht_entry.depth < depth)
+			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth)
 			{
 				// std::cout << "al gezien" << std::endl;
 				child.h = -ht_entry.value;
