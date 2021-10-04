@@ -8,10 +8,10 @@
 # include <algorithm>
 # include "Board.hpp"
 
-# define ROW5 1000000
-# define ROW4 100000
-# define ROW3 10000
-# define ROW2 1000
+# define ROW5 1000
+# define ROW4 100
+# define ROW3 10
+# define ROW2 1
 
 typedef struct	s_size
 {
@@ -20,6 +20,6 @@ typedef struct	s_size
 }				t_size;
 
 int				calc_heuristic(Board &state);
-int				calc_heuristic_tim(std::vector<int> filled_positions, Board &node);
+int				calc_heuristic_tim(std::vector<int> &filled_positions, Board &node);
 
 #endif

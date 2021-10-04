@@ -49,7 +49,7 @@ int main()
     //     }
     // }
 
-	node = create_random_board(filled_positions);
+	node = create_random_board(1, filled_positions);
 	node.print();
 
 	auto comp = [&](Board a, Board b)-> bool

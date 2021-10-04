@@ -98,7 +98,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth - 1)
+			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth)
 			{
 				std::cout << "al gezien" << std::endl;
 				child.h = -ht_entry.value;

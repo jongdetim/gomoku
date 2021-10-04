@@ -107,7 +107,7 @@ int						Board::get_random_heuristic() const
 }
 
 // creates a set of positions surrounding the currently occupied spaces
-std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions) const
+std::unordered_set<int> Board::get_moves(std::vector<int> &filled_positions) const
 {
 	std::unordered_set<int> moves;
 	int board_size = BOARD_LENGHT*BOARD_LENGHT;
@@ -132,7 +132,7 @@ std::unordered_set<int> Board::get_moves(std::vector<int> filled_positions) cons
 	return moves;
 }
 
-std::vector<Board>		Board::generate_children(std::vector<int> filled_positions, int player) const
+std::vector<Board>		Board::generate_children(std::vector<int> &filled_positions, int player) const
 {
 	Board board_copy;
     std::vector<Board> nodes;

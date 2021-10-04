@@ -240,10 +240,10 @@ int		eight_directions_heuristic(int index, std::unordered_set<int> &checked_indi
 	points += g_points[count_diag_down(node, index, player, checked_indices)];
 	points += g_points[count_diag_up(node, index, player, checked_indices)];
 
-	return player * points;
+	return points;
 }
 
-int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node)
+int		calc_heuristic_tim(std::vector<int> &filled_positions, Board &node)
 {
 	std::unordered_set<int> checked_indices;
 	int total_score = 0;
@@ -257,6 +257,6 @@ int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node)
 		total_score += eight_directions_heuristic(index, checked_indices, player, node);
 		checked_indices.insert(index);
 	}
-	// std::cout << filled_positions.size() << " " << total_score << std::endl;
+	std::cout << filled_positions.size() << "<- filled_positions size | SHOULD BE THE SAME | checked_indices size -> " << checked_indices.size() << std::endl;
 	return total_score;
 }
