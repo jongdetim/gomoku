@@ -128,7 +128,7 @@ static int				diag_upR(Board &node, int index, int player, std::unordered_set<in
 
 	for (int i = 0; i < offside; i++)
 	{
-		index -= (BOARD_LENGHT -1);
+		index -= (BOARD_LENGHT - 1);
 		if (index < 0 || node.get_player(index) != player)
 			break ;
 		checked_indices.insert(index);
@@ -243,7 +243,7 @@ int		eight_directions_heuristic(int index, std::unordered_set<int> &checked_indi
 	return points;
 }
 
-int		calc_heuristic_tim(std::vector<int> &filled_positions, Board &node)
+int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node)
 {
 	std::unordered_set<int> checked_indices;
 	int total_score = 0;
@@ -257,6 +257,43 @@ int		calc_heuristic_tim(std::vector<int> &filled_positions, Board &node)
 		total_score += eight_directions_heuristic(index, checked_indices, player, node);
 		checked_indices.insert(index);
 	}
-	std::cout << filled_positions.size() << "<- filled_positions size | SHOULD BE THE SAME | checked_indices size -> " << checked_indices.size() << std::endl;
+	if ( filled_positions.size() != checked_indices.size() )
+	{
+		node.print();
+		for (int i : filled_positions)
+			std::cout << i << " ";
+		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
+		for (int j : checked_indices)
+			std::cout << j << " ";
+		std::cout << std::endl;
+	}
+	return total_score;
+}
+
+int		calc_heuristic_tim_from_parent(std::vector<int> filled_positions, Board &node)
+{
+	std::unordered_set<int> checked_indices;
+	int total_score = 0;
+	int	player = 0;
+
+	filled_positions.push_back(node.last_move);
+	for (int index : filled_positions)
+	{
+		if (checked_indices.find(index) != checked_indices.end())
+			continue;
+		player = node.get_player(index);
+		total_score += eight_directions_heuristic(index, checked_indices, player, node);
+		checked_indices.insert(index);
+	}
+	if ( filled_positions.size() != checked_indices.size() )
+	{
+		node.print();
+		for (int i : filled_positions)
+			std::cout << i << " ";
+		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
+		for (int j : checked_indices)
+			std::cout << j << " ";
+		std::cout << std::endl;
+	}
 	return total_score;
 }

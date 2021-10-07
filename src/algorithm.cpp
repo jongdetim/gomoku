@@ -100,13 +100,14 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			TableEntry ht_entry;
 			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth)
 			{
+				// dit gebeurt nooit?
 				std::cout << "al gezien" << std::endl;
 				child.h = -ht_entry.value;
 			}
 			else
 			{
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = color * calc_heuristic_tim(filled_positions, child);
+			    child.h = color * calc_heuristic_tim_from_parent(filled_positions, child);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);

@@ -20,18 +20,18 @@ int main()
     Board node;
     std::vector<int> filled_positions;
 
-    // node.place(first_move_index, PLAYER1);
-    // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 1, PLAYER1);
-    // filled_positions.push_back(node.last_move);
+    node.place(first_move_index, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 1, PLAYER1);
+    filled_positions.push_back(node.last_move);
     // node.place(first_move_index - 2, PLAYER1);
     // filled_positions.push_back(node.last_move);
     // node.place(first_move_index - 1, PLAYER1);
     // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 2, PLAYER1);
-    // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 3, PLAYER1);
-    // filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 2, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 3, PLAYER1);
+    filled_positions.push_back(node.last_move);
     // // node.place(first_move_index - 4, PLAYER1);
     // // filled_positions.push_back(node.last_move);
     // node.print();
@@ -49,7 +49,7 @@ int main()
     //     }
     // }
 
-	node = create_random_board(1, filled_positions);
+	// node = create_random_board(1, filled_positions);
 	node.print();
 
 	auto comp = [&](Board a, Board b)-> bool
@@ -59,7 +59,7 @@ int main()
 	};
 
     std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
-    for (int depth = 0; depth <= 1; depth++)
+    for (int depth = 1; depth <= 1; depth++)
     {
         int best_value = -std::numeric_limits<int>::max();
         best_move = -1;

@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-add_definitions("-std=c++17") #-Wall -Werror -Wextra 
+add_definitions("-std=c++17 -Ofast") #-Wall -Werror -Wextra 
 
 include_directories(${PROJECT_SOURCE_DIR}/includes)
 
