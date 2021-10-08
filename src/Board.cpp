@@ -1,12 +1,13 @@
 #include "Board.hpp"
 
-Board::Board(void) : state(0), stones_played(0), last_move(-1), h(0)
+Board::Board(void) : last_move(-1), h(0), state(0), stones_played(0)
 {}
 
 Board::~Board() {}
 
 void					Board::reset(void)
 {
+	this->stones_played = 0;
 	this->state.reset();
 }
 
@@ -150,17 +151,24 @@ std::vector<Board>		Board::generate_children(std::vector<int> filled_positions, 
 
 void					Board::remove(int row, int col)
 {
-	int index = (row * BOARD_LENGHT + col) << 1;
+	int index = (row * BOARD_LENGHT + col);
+	if (this->is_empty_place(index))
+		return ;
+	index <<= 1;
 	this->state[index] = false;
 	this->state[index+1] = false;
+	this->stones_played--;
 	
 }
 
 void					Board::remove(int index)
 {
+	if (this->is_empty_place(index))
+		return ;
 	index <<= 1;
 	this->state[index] = false;
 	this->state[index+1] = false;
+	this->stones_played--;
 }
 
 bool					Board::is_empty_place(int index) const
@@ -187,6 +195,11 @@ int						Board::get_last_player(void) const
 bool					Board::is_full(void) const
 {
 	return (this->stones_played == BOARDSIZE);
+}
+
+void					Board::set_state(BITBOARD new_state)
+{
+	this->state = new_state;
 }
 
 /* OPERATOR OVERLOADS: */
@@ -225,9 +238,4 @@ std::ostream			&operator<<(std::ostream &o, Board const &i)
 {
 	o << i.get_state();
 	return o;
-}
-
-void					Board::set_state(BITBOARD new_state)
-{
-	this->state = new_state;
 }

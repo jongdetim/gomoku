@@ -19,7 +19,9 @@ void					place_pieces(Board &board, int player, int start_pos, int amount, int o
 int						calc_index(int row, int col);
 Board					create_random_board(void);
 Board					create_random_board(int seed);
-void    				play_random_game(Board &board, int player, std::vector<int> empty, bool verbose);
-void					play_random_games(Board &board, int start_player, int amount, bool verbose);
+int	    				play_random_game(Board board, int player, bool verbose);
+int	    				play_random_game(Board board, int player, std::vector<int> empty, bool verbose);
+int						play_random_games(Board &board, int start_player, int amount, bool verbose);
+int						play_random_games(Board &board, int start_player, int amount, bool verbose, int seed);
 
 #endif

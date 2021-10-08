@@ -1,38 +1,6 @@
 #include "heuristic.hpp"
 #include "misc.hpp"
 
-// #define PRINT(x) std::cout << x << std::endl
-// #define PRINTENDL std::cout << std::endl
-
-
-int						get_hor_pattern(Board &board, int start_index, int player) // <---- TESTING
-{
-	int pattern = 0;
-	int col = get_col(start_index);
-	int leftside = col < 4 ?  col : 4;
-	int offset = (BOARD_LENGHT-1) - col;
-	int rightside = offset < 4 ?  offset : 4;
-	int total = leftside + rightside + 1;
-	int index = start_index - leftside;
-
-	for (int i = 0; i < total; i++)
-	{
-		if (board.get_player(index) == -player)
-		{
-			if (index < start_index)
-				pattern = 0;
-			else
-				break ;
-		}
-		else if (board.get_player(index) == player)
-			pattern = (pattern << 1) ^ 1;
-		else
-			pattern <<= 1;
-		index++;
-	}
-	return pattern;
-}
-////////////////////////////////////////////////////////////
 int						g_points[6]{0,0,ROW2,ROW3,ROW4,ROW5};
 
 static int				go_down(Board &board, int index, int player)
@@ -223,11 +191,4 @@ bool					check_win(Board &board)
 	or count_ver(board, board.last_move, board.get_last_player()) == 5 \
 	or count_diag_down(board, board.last_move, board.get_last_player()) == 5 \
 	or count_diag_up(board, board.last_move, board.get_last_player()) == 5);
-}
-
-int						calc_heuristic(Board &state)
-{
-	int points = 0;
-
-	return points;
 }
