@@ -86,7 +86,8 @@ bool					Board::place(int index, int player)
 {
 	int orig_index = index;
 	assert(player == PLAYER1 || player == PLAYER2);
-	assert(index >= 0 && index < (BOARD_LENGHT*BOARD_LENGHT));
+	if (!(index >= 0 && index < (BOARD_LENGHT*BOARD_LENGHT)))
+		std::cout << index << std::endl;
 	if (! this->is_empty_place(index))
 		return false;
 	index *= 2;

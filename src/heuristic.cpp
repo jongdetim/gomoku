@@ -133,7 +133,12 @@ static int				diag_upR(Board &node, int index, int player, std::unordered_set<in
 			break ;
 		checked_indices.insert(index);
 		length++;
-		
+		if (index == 11)
+		{
+			std::cout << player << std::endl;
+			std::cout << length << std::endl;
+			exit(1);
+		}
 	}
 	return length;
 }
@@ -254,6 +259,8 @@ int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node)
 		if (checked_indices.find(index) != checked_indices.end())
 			continue;
 		player = node.get_player(index);
+		if (player == 0)
+			std::cout << index << std::endl;
 		total_score += eight_directions_heuristic(index, checked_indices, player, node);
 		checked_indices.insert(index);
 	}

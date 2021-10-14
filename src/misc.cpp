@@ -69,14 +69,14 @@ void		place_pieces(Board &board, int player, int start_pos, int amount, int offs
 	assert(start_pos >= 0 && start_pos < (BOARD_LENGHT*BOARD_LENGHT));
 	for (int i = 1; i <= amount; i++)
 	{
-		if (index >= (BOARD_LENGHT*BOARD_LENGHT) || index < 0)
+		if (index >= (BOARD_LENGHT*BOARD_LENGHT) || index < 0 || board.get_player(index) != 0)
 			break ;
 		board.place(index, player);
+		filled_positions.push_back(index);
 		prev_index = index;
 		index = start_pos + (i * offset);
 		if (is_offside(prev_index, index))
 			break ;
-		filled_positions.push_back(index);
 	}
 }
 
@@ -88,7 +88,7 @@ void		place_pieces(Board &board, int player, int start_pos, int amount, int offs
 	assert(start_pos >= 0 && start_pos < (BOARD_LENGHT*BOARD_LENGHT));
 	for (int i = 1; i <= amount; i++)
 	{
-		if (index >= (BOARD_LENGHT*BOARD_LENGHT) || index < 0)
+		if (index >= (BOARD_LENGHT*BOARD_LENGHT) || index < 0 || board.get_player(index) == 0)
 			break ;
 		board.place(index, player);
 		prev_index = index;

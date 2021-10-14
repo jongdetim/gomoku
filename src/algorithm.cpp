@@ -92,8 +92,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
 	// if we've already seen the child in a shallower depth (previous search) we read the heuristic && multiply by
-	// -color to accommodate the fact that leaf nodes are stored 1 ply deeper than the children are generated
-	if (depth > 0)
+	// -color to accommodate the fact that leaf nodes are stored 1 recursion deeper than the children are generated in
+	if (depth > 1)
 	{
 		for (Board &child : child_nodes)
 		{
@@ -101,7 +101,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth)
 			{
 				// dit gebeurt nooit?
-				std::cout << "al gezien" << std::endl;
+				// std::cout << "al gezien" << std::endl;
 				child.h = -ht_entry.value;
 			}
 			else
