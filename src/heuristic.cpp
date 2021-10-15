@@ -373,10 +373,10 @@ int						get_heuristic_last_move(Board &board)
 {
 	int points = 0;
 
-	points += g_points[count_hor(board, board.last_move, board.get_last_player())];
-	points += g_points[count_ver(board, board.last_move, board.get_last_player())];
-	points += g_points[count_diag_down(board, board.last_move, board.get_last_player())];
-	points += g_points[count_diag_up(board, board.last_move, board.get_last_player())];
+	points += g_points[count_hor(board, board.get_last_move(), board.get_last_player())];
+	points += g_points[count_ver(board, board.get_last_move(), board.get_last_player())];
+	points += g_points[count_diag_down(board, board.get_last_move(), board.get_last_player())];
+	points += g_points[count_diag_up(board, board.get_last_move(), board.get_last_player())];
 
 	return points;
 }
@@ -416,7 +416,7 @@ int		calc_heuristic_tim_from_parent(std::vector<int> filled_positions, Board &no
 	int total_score = 0;
 	int	player = 0;
 
-	filled_positions.push_back(node.last_move);
+	filled_positions.push_back(node.get_last_move());
 	for (int index : filled_positions)
 	{
 		if (checked_indices.find(index) != checked_indices.end())
@@ -440,8 +440,8 @@ int		calc_heuristic_tim_from_parent(std::vector<int> filled_positions, Board &no
 
 bool					check_win(Board &board)
 {
-	return (count_hor(board, board.last_move, board.get_last_player()) == 5 \
-	|| count_ver(board, board.last_move, board.get_last_player()) == 5 \
-	|| count_diag_down(board, board.last_move, board.get_last_player()) == 5 \
-	|| count_diag_up(board, board.last_move, board.get_last_player()) == 5);
+	return (count_hor(board, board.get_last_move(), board.get_last_player()) == 5 \
+	|| count_ver(board, board.get_last_move(), board.get_last_player()) == 5 \
+	|| count_diag_down(board, board.get_last_move(), board.get_last_player()) == 5 \
+	|| count_diag_up(board, board.get_last_move(), board.get_last_player()) == 5);
 }

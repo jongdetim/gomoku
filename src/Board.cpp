@@ -1,6 +1,6 @@
 #include "Board.hpp"
 
-Board::Board(void) : last_move(-1), h(0), state(0), stones_played(0)
+Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1)
 {}
 
 Board::~Board() {}
@@ -14,6 +14,11 @@ void					Board::reset(void)
 BITBOARD				Board::get_state(void) const
 {
 	return this->state;
+}
+
+int						Board::get_last_move(void) const
+{
+	return this->last_move;
 }
 
 void					Board::print(void) const

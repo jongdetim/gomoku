@@ -60,7 +60,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	}
 
 	is_finished = node.is_game_finished();
-	filled_positions.push_back(node.last_move);
+	filled_positions.push_back(node.get_last_move());
 
 	if (depth == 0 || is_finished)
 	{
@@ -81,7 +81,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		return (value);
 	}
 	
-	// std::cout << "last_move: " << node.last_move << std::endl;
+	// std::cout << "last_move: " << node.get_last_move() << std::endl;
 	std::vector<Board> child_nodes = node.generate_children(filled_positions, color);
 
 	auto comp = [&](Board a, Board b)-> bool
