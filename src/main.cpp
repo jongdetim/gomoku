@@ -1,32 +1,29 @@
 #include "Board.hpp"
 #include "algorithm.hpp"
+#include "misc.hpp"
 
-int main()
+#define PRINT(x) std::cout << x << std::endl
+#define PRINTENDL std::cout << std::endl
+
+int     main()
 {
-    int value;
-    int best_value = -std::numeric_limits<int>::max();
-    int best_move = -1;
-    int first_move_index = 144;
+    Board board;
+    int wins, amount = 0, player = PLAYER1;
+    double average, perc;
 
-    Board node;
-    node.place(first_move_index, PLAYER1);
-    // node.place(100, PLAYER2);
-    node.print();
-
-    std::vector<int> filled_positions;
-    filled_positions.push_back(node.last_move);
-    std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
-    for (Board &child : children)
+    for (int i = 0; i < 20; i++)
     {
-        child.print();
-        value = negamax(child, 4, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions);
-        if (value > best_value)
+        amount += 100;
+        average = 0;
+        for (int seed = 0; seed < 10; seed++)
         {
-            best_value = value;
-            best_move = child.last_move;
+            wins = play_random_games(board, player, amount, false, seed);
+            perc = (wins / (double)amount) * 100;
+            std::cout << "Games : " << amount << ", wins: " << perc << "%" << std::endl;
+            average += perc;
         }
+        std::cout << "Average : \t\t" << average / 10.0 << "%" << std::endl;
+        PRINTENDL;
     }
-    std::cout << "best move is: " << best_move << std::endl;
-
     return 0;
 }
