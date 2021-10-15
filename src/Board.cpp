@@ -1,6 +1,6 @@
 #include "Board.hpp"
 
-Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1)
+Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1), heuristic(this)
 {}
 
 Board::~Board() {}
@@ -8,6 +8,8 @@ Board::~Board() {}
 void					Board::reset(void)
 {
 	this->stones_played = 0;
+	this->last_move = -1;
+	this->h = 0;
 	this->state.reset();
 }
 
@@ -102,12 +104,17 @@ bool					Board::place(int index, int player)
 	return true;
 }
 
-bool					Board::is_game_finished() const
+bool					Board::is_game_won(void) const
 {
-	return false;
+	return this->heuristic.check_win();
 }
 
-int						Board::get_random_heuristic() const
+bool					Board::is_game_finished(void) const
+{
+	return this->is_full();
+}
+
+int						Board::get_random_heuristic(void) const
 {
 	return (rand() % 1000) - 500;
 }

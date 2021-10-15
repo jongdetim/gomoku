@@ -1,11 +1,12 @@
 #ifndef BOARD_HPP
 # define BOARD_HPP
 
-#include <iostream>
-#include <cassert>
-#include <bitset>
-#include <vector>
-#include <unordered_set>
+# include <iostream>
+# include <cassert>
+# include <bitset>
+# include <vector>
+# include <unordered_set>
+# include "BoardHeuristic.hpp"
 
 # define BOARD_LENGHT 19
 # define BOARDSIZE (BOARD_LENGHT*BOARD_LENGHT)
@@ -47,6 +48,7 @@ public:
 	int						get_player(int index) const;
 	int						get_last_player(void) const;
 	bool					is_full(void) const;
+	bool					is_game_won(void) const;
 
 	int						h;
 
@@ -54,6 +56,7 @@ private:
 	BITBOARD				state;
 	int						stones_played;
 	int						last_move;
+	BoardHeuristic			heuristic;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

@@ -1,5 +1,6 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
+#include "BoardHeuristic.hpp"
 
 int			get_col(int index)
 {
@@ -212,7 +213,7 @@ int    				play_random_game(Board board, int player, bool verbose)
         index = rand() % empty.size();
         board.place(index, player);
         erase_el(empty, index);
-        if (check_win(board))
+        if (board.is_game_won())
             break ;
 		if (board.is_full())
 		{
@@ -235,7 +236,7 @@ int    				play_random_game(Board board, int player, std::vector<int> empty, boo
         index = rand() % empty.size();
         board.place(index, player);
         erase_el(empty, index);
-        if (check_win(board))
+        if (board.is_game_won())
             break ;
 		if (board.is_full())
 		{
