@@ -41,7 +41,7 @@ static bool			is_offside(int prev_index, int index)
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
 
-	return ((abs(prev_row - row) > 1) or (abs(prev_col - col) > 1));
+	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1));
 }
 
 void				place_pieces(Board &board, int player, int start_pos, int amount, int offset, std::vector<int> &filled_positions)
@@ -49,10 +49,10 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
+	assert(start_pos >= 0 && start_pos < (BOARD_LENGHT*BOARD_LENGHT));
 	for (int i = 1; i <= amount; i++)
 	{
-		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
+		if (index >= (BOARD_LENGHT*BOARD_LENGHT) || index < 0)
 			break ;
 		if (!board.is_empty_place(index))
 			continue ;
@@ -71,10 +71,10 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
+	assert(start_pos >= 0 && start_pos < (BOARD_LENGHT*BOARD_LENGHT));
 	for (int i = 1; i <= amount; i++)
 	{
-		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
+		if (index >= (BOARD_LENGHT*BOARD_LENGHT) || index < 0)
 			break ;
 		if (!board.is_empty_place(index))
 			continue ;

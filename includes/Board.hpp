@@ -30,7 +30,9 @@ public:
 	bool					is_game_finished() const;
 	int						get_random_heuristic() const;
 	std::vector<Board> 		generate_children(std::vector<int> &filled_positions, int player) const;
+	std::vector<Board>		generate_children_bits(std::vector<int> &filled_positions, int player);
 	std::unordered_set<int>	get_moves(std::vector<int> &filled_positions) const;
+	void					get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves);
 	BITBOARD				get_state(void) const;
 	void					remove(int row, int col);
 	void					remove(int index);

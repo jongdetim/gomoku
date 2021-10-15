@@ -67,6 +67,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		TOTAL_LEAVES += 1;
 		// node.print();
 
+		if (h_table.lookup(node, tt_entry))
+			std::cout << "impossible ding" << std::endl;
 		value = color * calc_heuristic_tim(filled_positions, node);
 
 		// node.print();
@@ -82,11 +84,11 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	}
 	
 	// std::cout << "last_move: " << node.last_move << std::endl;
-	std::vector<Board> child_nodes = node.generate_children(filled_positions, color);
+	std::vector<Board> child_nodes = node.generate_children_bits(filled_positions, color);
 
 	auto comp = [&](Board a, Board b)-> bool
 	{
-			return a.h > b.h;
+			return a.h < b.h;
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
@@ -99,17 +101,17 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			TableEntry ht_entry;
 			if (h_table.lookup(child, ht_entry))
 			{
-				// dit gebeurt nooit?
 				// std::cout << "al gezien" << std::endl;
-				child.h = -ht_entry.value;
+				child.h = ht_entry.value;
 			}
 			else
 			{
+				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = color * calc_heuristic_tim_from_parent(filled_positions, child);
-				// ht_entry.value = child.h;
-				// ht_entry.depth = depth - 1;
-				// h_table.insert(child, ht_entry);
+			    child.h = -color * calc_heuristic_tim_from_parent(filled_positions, child);
+				ht_entry.value = child.h;
+				ht_entry.depth = depth - 1;
+				h_table.insert(child, ht_entry);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
@@ -133,10 +135,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished);
 	t_table.insert(node, tt_entry);
 
-	// this seems to have no practical effect (yet)
-    TableEntry h_entry;
-    if (h_table.lookup(node, h_entry))
-	    h_table.update(node, value);
+	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
+    // TableEntry h_entry;
+    // if (h_table.lookup(node, h_entry))
+	//     h_table.update(node, value);
 
 	return value;
 }

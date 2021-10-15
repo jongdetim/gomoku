@@ -1,0 +1,17 @@
+// algorithm
+-move sorting
+    principal variation
+    killer moves
+    history moves (?)
+-generate_children optimization (remember the moves and only change for this.last_move)
+-write a wrapper for the first negamax call to catch data such as best move
+
+
+// heuristic
+    -last move instead of entire heuristic for the whole board every time
+    -bitset static array instead of unordered_set
+
+
+// other
+    -tweak ordered/unordered set/map. check for collisions & spread across buckets
+

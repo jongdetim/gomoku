@@ -9,7 +9,7 @@ int main()
     int best_move;
     // int best_value = -std::numeric_limits<int>::max();
     // int best_move = -1;
-    int first_move_index = 17*19 - 1;
+    int first_move_index = 0;
     TranspositionTable h_table;
 
 	// pattern_test(false); /* Only show info */
