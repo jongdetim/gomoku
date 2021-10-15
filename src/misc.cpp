@@ -54,12 +54,15 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	{
 		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
 			break ;
+		if (!board.is_empty_place(index))
+			continue ;
 		board.place(index, player);
+		filled_positions.push_back(index);
 		prev_index = index;
 		index = start_pos + (i * offset);
 		if (is_offside(prev_index, index))
 			break ;
-		filled_positions.push_back(index);
+		
 	}
 }
 
@@ -73,6 +76,8 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	{
 		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
 			break ;
+		if (!board.is_empty_place(index))
+			continue ;
 		board.place(index, player);
 		prev_index = index;
 		index = start_pos + (i * offset);
@@ -123,6 +128,54 @@ Board				create_random_board(int seed)
 			{
 				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
 				place_pieces(board, player, start_pos, i, offset);
+			}
+		}
+	}
+	return board;
+}
+
+Board		create_random_board(std::vector<int> &filled_positions)
+{
+	Board board;
+
+	srand (time(NULL));
+
+	int players[2]{-1, 1};
+	int	offsets[4]{HOR, VER, DIAG1, DIAG2};
+	int start_pos;
+
+	for (int i = 1; i < 6; i++)
+	{
+		for (auto offset: offsets)
+		{
+			for (auto player : players)
+			{
+				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
+				place_pieces(board, player, start_pos, i, offset, filled_positions);
+			}
+		}
+	}
+	return board;
+}
+
+Board		create_random_board(int seed, std::vector<int> &filled_positions)
+{
+	Board board;
+
+	srand (seed);
+
+	int players[2]{-1, 1};
+	int	offsets[4]{HOR, VER, DIAG1, DIAG2};
+	int start_pos;
+
+	for (int i = 1; i < 6; i++)
+	{
+		for (auto offset: offsets)
+		{
+			for (auto player : players)
+			{
+				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
+				place_pieces(board, player, start_pos, i, offset, filled_positions);
 			}
 		}
 	}

@@ -29,8 +29,8 @@ public:
 	bool					place(int index, int player);
 	bool					is_game_finished() const;
 	int						get_random_heuristic() const;
-	std::vector<Board> 		generate_children(std::vector<int> filled_positions, int player) const;
-	std::unordered_set<int>	get_moves(std::vector<int> filled_positions) const;
+	std::vector<Board> 		generate_children(std::vector<int> &filled_positions, int player) const;
+	std::unordered_set<int>	get_moves(std::vector<int> &filled_positions) const;
 	BITBOARD				get_state(void) const;
 	void					remove(int row, int col);
 	void					remove(int index);
