@@ -86,7 +86,6 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 
 	auto comp = [&](Board a, Board b)-> bool
 	{
-		// std::cout << "last_move: " << node.last_move << std::endl;
 			return a.h > b.h;
 	};
 
@@ -98,7 +97,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			if (h_table.lookup(child, ht_entry) && ht_entry.depth < depth)
+			if (h_table.lookup(child, ht_entry))
 			{
 				// dit gebeurt nooit?
 				// std::cout << "al gezien" << std::endl;
@@ -108,9 +107,12 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			{
 			    // std::cout << "calculating child h" << std::endl;
 			    child.h = color * calc_heuristic_tim_from_parent(filled_positions, child);
+				// ht_entry.value = child.h;
+				// ht_entry.depth = depth - 1;
+				// h_table.insert(child, ht_entry);
 			}
 		}
-		std::sort(child_nodes.begin(), child_nodes.end(), comp);
+		std::sort(child_nodes.begin(), child_nodes.end());
 	}
 
 	TOTAL_NODES += 1;
