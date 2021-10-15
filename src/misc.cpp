@@ -1,7 +1,7 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
 
-inline int			get_col(int index)
+int			get_col(int index)
 {
 	return (index % BOARD_LENGHT);
 }

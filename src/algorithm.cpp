@@ -112,7 +112,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 				// h_table.insert(child, ht_entry);
 			}
 		}
-		std::sort(child_nodes.begin(), child_nodes.end());
+		std::sort(child_nodes.begin(), child_nodes.end(), comp);
 	}
 
 	TOTAL_NODES += 1;
