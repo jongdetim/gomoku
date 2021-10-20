@@ -9,7 +9,7 @@ int main()
     int best_move;
     // int best_value = -std::numeric_limits<int>::max();
     // int best_move = -1;
-    int first_move_index = 0;
+    int first_move_index = (19 * 19) /2;
     TranspositionTable h_table;
 
 	// pattern_test(false); /* Only show info */
@@ -21,10 +21,10 @@ int main()
     std::vector<int> filled_positions;
 
     node.place(first_move_index, PLAYER1);
-    // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 1, PLAYER1);
-    // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 2, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 1, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index - 2, PLAYER1);
     // filled_positions.push_back(node.last_move);
     // node.place(first_move_index - 1, PLAYER1);
     // filled_positions.push_back(node.last_move);
@@ -49,20 +49,26 @@ int main()
     //     }
     // }
 
-	// node = create_random_board(1, filled_positions);
+	// node = create_random_board(3, filled_positions);
     // filled_positions.pop_back();
 	node.print();
 
-    for (int depth = 1; depth <= 8; depth++)
+    for (int depth = 1; depth <= 7; depth++)
     {
+		TOTAL_LEAVES = 0;
+		TOTAL_NODES = 0;
+		FOUND_IN_TABLE = 0;
+		TOTAL_BRANCHES_PRUNED = 0;
         TranspositionTable t_table;
-        value = -negamax(node, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table, h_table);
-        std::cout << value << std::endl;
+	
+        value = negamax(node, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, filled_positions, t_table, h_table, true);
+        // std::cout << value << std::endl;
         std::cout << "transposition table size: " << t_table.size() << std::endl;
         std::cout << "times state was found in table: " << FOUND_IN_TABLE << std::endl;
         std::cout << "total branches pruned: " << TOTAL_BRANCHES_PRUNED << std::endl;
         std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
         std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
+        std::cout << "_________________________________________\n" << std::endl;
     }
 	// auto comp = [&](Board a, Board b)-> bool
 	// {
@@ -112,7 +118,7 @@ int main()
     // std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
     // std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
     // node.place(best_move, PLAYER2);
-    node.print();
+    // node.print();
 
     return 0;
 }

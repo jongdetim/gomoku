@@ -6,6 +6,8 @@
 #include <bitset>
 #include <vector>
 #include <unordered_set>
+#include <set>
+#include <algorithm>
 
 # define BOARD_LENGHT 19
 # define BOARDSIZE (BOARD_LENGHT*BOARD_LENGHT)
@@ -31,8 +33,10 @@ public:
 	int						get_random_heuristic() const;
 	std::vector<Board> 		generate_children(std::vector<int> &filled_positions, int player) const;
 	std::vector<Board>		generate_children_bits(std::vector<int> &filled_positions, int player);
-	std::unordered_set<int>	get_moves(std::vector<int> &filled_positions) const;
+	std::vector<Board>		generate_children_vect(std::vector<int> &filled_positions, int player) const;
+	std::set<int>			get_moves(std::vector<int> &filled_positions) const;
 	void					get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves);
+	std::vector<int> 		get_moves_vect(std::vector<int> &filled_positions) const;
 	BITBOARD				get_state(void) const;
 	void					remove(int row, int col);
 	void					remove(int index);

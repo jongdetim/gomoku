@@ -17,7 +17,7 @@ static int				go_down(Board &board, int index, int player)
 	return length;
 }
 
-static int				go_down(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				go_down(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 
@@ -26,7 +26,7 @@ static int				go_down(Board &node, int index, int player, std::unordered_set<int
 		index += BOARD_LENGHT;
 		if (index >= BOARDSIZE || node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 		length++;
 	}
 	return length;
@@ -46,7 +46,7 @@ static int				go_up(Board &board, int index, int player)
 	return length;
 }
 
-static int				go_up(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				go_up(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 
@@ -55,7 +55,7 @@ static int				go_up(Board &node, int index, int player, std::unordered_set<int> 
 		index -= BOARD_LENGHT;
 		if (index < 0 || node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 		length++;
 	}
 	return length;
@@ -71,7 +71,7 @@ int						count_ver(Board &board, int index, int player)
 	return total;
 }
 
-int						count_ver(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+int						count_ver(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int total = 1;
 
@@ -98,7 +98,7 @@ static int				go_left(Board &board, int index, int player)
 	return length;
 }
 
-static int				go_left(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				go_left(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 	int col = get_col(index);
@@ -109,7 +109,7 @@ static int				go_left(Board &node, int index, int player, std::unordered_set<int
 		index--;
 		if (node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 		length++;
 		
 	}
@@ -133,7 +133,7 @@ static int				go_right(Board &board, int index, int player)
 	return length;
 }
 
-static int				go_right(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				go_right(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 	int offset = (BOARD_LENGHT-1) - get_col(index);
@@ -144,7 +144,7 @@ static int				go_right(Board &node, int index, int player, std::unordered_set<in
 		index++;
 		if (node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 		length++;
 		
 	}
@@ -161,7 +161,7 @@ int						count_hor(Board &board, int index, int player)
 	return total;
 }
 
-int						count_hor(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+int						count_hor(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int total = 1;
 
@@ -189,7 +189,7 @@ static int				diag_upR(Board &board, int index, int player)
 	return length;
 }
 
-static int				diag_upR(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				diag_upR(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 	int offset = (BOARD_LENGHT-1) - get_col(index);
@@ -200,14 +200,8 @@ static int				diag_upR(Board &node, int index, int player, std::unordered_set<in
 		index -= (BOARD_LENGHT - 1);
 		if (index < 0 || node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 		length++;
-		if (index == 11)
-		{
-			std::cout << player << std::endl;
-			std::cout << length << std::endl;
-			exit(1);
-		}
 	}
 	return length;
 }
@@ -229,7 +223,7 @@ static int				diag_downL(Board &board, int index, int player)
 	return length;
 }
 
-static int				diag_downL(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				diag_downL(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 	int col = get_col(index);
@@ -240,7 +234,7 @@ static int				diag_downL(Board &node, int index, int player, std::unordered_set<
 		index += (BOARD_LENGHT-1);
 		if (index >= BOARDSIZE || node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 		length++;
 		
 	}
@@ -257,7 +251,7 @@ int						count_diag_up(Board &board, int index, int player)
 	return total;
 }
 
-int						count_diag_up(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+int						count_diag_up(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int total = 1;
 
@@ -284,7 +278,7 @@ static int				diag_upL(Board &board, int index, int player)
 	return length;
 }
 
-static int				diag_upL(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				diag_upL(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 	int col = get_col(index);
@@ -295,8 +289,7 @@ static int				diag_upL(Board &node, int index, int player, std::unordered_set<in
 		index -= (BOARD_LENGHT+1);
 		if (index < 0 || node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
-		
+		checked_indices[index] = 1;
 		length++;
 	}
 	return length;
@@ -319,7 +312,7 @@ static int				diag_downR(Board &board, int index, int player)
 	return length;
 }
 
-static int				diag_downR(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+static int				diag_downR(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 	int offset = (BOARD_LENGHT-1) - get_col(index);
@@ -330,7 +323,7 @@ static int				diag_downR(Board &node, int index, int player, std::unordered_set<
 		index += (BOARD_LENGHT+1);
 		if (index >= BOARDSIZE || node.get_player(index) != player)
 			break ;
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 		
 		length++;
 	}
@@ -347,7 +340,7 @@ int						count_diag_down(Board &board, int index, int player)
 	return total;
 }
 
-int						count_diag_down(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
+int						count_diag_down(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int total = 1;
 
@@ -357,7 +350,7 @@ int						count_diag_down(Board &node, int index, int player, std::unordered_set<
 	return total;
 }
 
-int		eight_directions_heuristic(int index, std::unordered_set<int> &checked_indices, int player, Board &node)
+int		eight_directions_heuristic(int index, std::bitset<BOARDSIZE> &checked_indices, int player, Board &node)
 {
 	int points = 0;
 
@@ -381,58 +374,35 @@ int						get_heuristic_last_move(Board &board)
 	return points;
 }
 
-int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node)
+int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node, bool from_parent)
 {
-	std::unordered_set<int> checked_indices;
+	std::bitset<BOARDSIZE> checked_indices = 0;
 	int total_score = 0;
 	int	player = 0;
 
+	if (from_parent)
+		filled_positions.push_back(node.last_move);
 	for (int index : filled_positions)
 	{
-		if (checked_indices.find(index) != checked_indices.end())
+		if (checked_indices[index])
 			continue;
 		player = node.get_player(index);
 		if (player == 0)
 			std::cout << index << std::endl;
 		total_score += eight_directions_heuristic(index, checked_indices, player, node);
-		checked_indices.insert(index);
+		checked_indices[index] = 1;
 	}
-	if ( filled_positions.size() != checked_indices.size() )
+	if (filled_positions.size() != checked_indices.count())
 	{
 		node.print();
 		for (int i : filled_positions)
 			std::cout << i << " ";
 		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
-		for (int j : checked_indices)
-			std::cout << j << " ";
-		std::cout << std::endl;
-	}
-	return total_score;
-}
-
-int		calc_heuristic_tim_from_parent(std::vector<int> filled_positions, Board &node)
-{
-	std::unordered_set<int> checked_indices;
-	int total_score = 0;
-	int	player = 0;
-
-	filled_positions.push_back(node.last_move);
-	for (int index : filled_positions)
-	{
-		if (checked_indices.find(index) != checked_indices.end())
-			continue;
-		player = node.get_player(index);
-		total_score += eight_directions_heuristic(index, checked_indices, player, node);
-		checked_indices.insert(index);
-	}
-	if ( filled_positions.size() != checked_indices.size() )
-	{
-		node.print();
-		for (int i : filled_positions)
-			std::cout << i << " ";
-		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
-		for (int j : checked_indices)
-			std::cout << j << " ";
+		for (int j = 0; j < BOARDSIZE; j++)
+		{
+			if (checked_indices[j])
+				std::cout << j << " ";
+		}
 		std::cout << std::endl;
 	}
 	return total_score;
