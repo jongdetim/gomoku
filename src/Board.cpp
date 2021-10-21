@@ -218,7 +218,7 @@ std::vector<Board>		Board::generate_children_vect(std::vector<int> &filled_posit
 
 std::vector<Board>		Board::generate_children_bits(std::vector<int> &filled_positions, int player)
 {
-	Board board_copy;
+	// Board board_copy;
     std::vector<Board> nodes;
 	std::bitset<BOARDSIZE> moves;
 
@@ -227,9 +227,10 @@ std::vector<Board>		Board::generate_children_bits(std::vector<int> &filled_posit
 	{
 		if (moves[i])
 		{
-			board_copy = *this;
-			board_copy.place(i, player);
-			nodes.push_back(board_copy);
+			// board_copy = *this;
+			(*this).place(i, player);
+			nodes.push_back(*this);
+			(*this).remove(i);
 			// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
 			// nodes.insert(nodes.begin(), board_copy);
 		}

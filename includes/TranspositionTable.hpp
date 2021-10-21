@@ -16,9 +16,10 @@ class TableEntry
 class TranspositionTable
 {
     private:
-        std::unordered_map<BITBOARD, TableEntry> t_table;
+        
 
     public:
+        std::unordered_map<BITBOARD, TableEntry> t_table;
         bool lookup(Board &node, TableEntry &tt_entry);
         void insert(Board &node, TableEntry &tt_entry);
         void update(Board &node, int value);

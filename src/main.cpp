@@ -20,11 +20,11 @@ int main()
     Board node;
     std::vector<int> filled_positions;
 
-    node.place(first_move_index, PLAYER1);
-    filled_positions.push_back(node.last_move);
-    node.place(first_move_index - 1, PLAYER1);
-    filled_positions.push_back(node.last_move);
-    node.place(first_move_index - 2, PLAYER1);
+    // node.place(first_move_index, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    // node.place(first_move_index - 1, PLAYER1);
+    // filled_positions.push_back(node.last_move);
+    // node.place(first_move_index - 2, PLAYER1);
     // filled_positions.push_back(node.last_move);
     // node.place(first_move_index - 1, PLAYER1);
     // filled_positions.push_back(node.last_move);
@@ -49,11 +49,11 @@ int main()
     //     }
     // }
 
-	// node = create_random_board(3, filled_positions);
-    // filled_positions.pop_back();
+	node = create_random_board(3, filled_positions);
+    filled_positions.pop_back();
 	node.print();
 
-    for (int depth = 1; depth <= 7; depth++)
+    for (int depth = 1; depth <= 2; depth++)
     {
 		TOTAL_LEAVES = 0;
 		TOTAL_NODES = 0;
@@ -69,56 +69,30 @@ int main()
         std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
         std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
         std::cout << "_________________________________________\n" << std::endl;
-    }
-	// auto comp = [&](Board a, Board b)-> bool
-	// {
-	// 	// std::cout << "last_move: " << node.last_move << std::endl;
-	// 		return a.h > b.h;
-	// };
-
-    // std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
-    // for (int depth = 0; depth <= 1; depth++)
-    // {
-    //     int best_value = -std::numeric_limits<int>::max();
-    //     best_move = -1;
-    //     FOUND_IN_TABLE = 0;
-    //     TOTAL_BRANCHES_PRUNED = 0;
-    //     TOTAL_LEAVES = 0;
-    //     TOTAL_NODES = 0;
-    //     TranspositionTable t_table;
-
-    //     for (Board child : children)
-    //     {
-    //         // child.print();
-    //         value = -negamax(child, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER1, filled_positions, t_table, h_table);
-    //         // TableEntry tt_entry;
-    //         // tt_entry.value = value;
-	// 		// tt_entry.depth = depth;
-    //         // h_table.insert(child, tt_entry);
-    //         if (value > best_value)
-    //         {
-    //             best_value = value;
-    //             best_move = child.last_move;
-    //         }
-    //     }
-	// 	std::sort(children.begin(), children.end(), comp);
-    //     std::cout << "best move is: " << best_move << std::endl;
-    //     std::cout << "corresponding heuristic value is: " << best_value << std::endl;
-    //     std::cout << "transposition table size: " << t_table.size() << std::endl;
-    //     std::cout << "times state was found in table: " << FOUND_IN_TABLE << std::endl;
-    //     std::cout << "total branches pruned: " << TOTAL_BRANCHES_PRUNED << std::endl;
-    //     std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
-    //     std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
-    // }
+        std::unordered_map<int, int> map;
     
+        // bool has_collision = false;
 
-    // std::cout << "transposition table size: " << t_table.size() << std::endl;
-	// std::cout << "times state was found in table: " << FOUND_IN_TABLE << std::endl;
-	// std::cout << "total branches pruned: " << TOTAL_BRANCHES_PRUNED << std::endl;
-    // std::cout << "total number of leaves explored: " << TOTAL_LEAVES << std::endl;
-    // std::cout << "total number of nodes explored: " << TOTAL_NODES << std::endl;
-    // node.place(best_move, PLAYER2);
-    // node.print();
+        // for(size_t buckets = 0; buckets < t_table.t_table.bucket_count(); buckets++)
+        // {
+        //     // std::cout << t_table.t_table.bucket_size(bucket) << std::endl;
+        //     if (t_table.t_table.bucket_size(buckets) > 0)
+        //     {
+        //         for(auto bucket = t_table.t_table.begin(buckets); bucket != t_table.t_table.end(buckets); bucket++)
+        //             std::cout << bucket->first << std::endl;
+        //     }
+        // }
+    }
+
+    // for(size_t bucket = 0; bucket < h_table.t_table.bucket_count(); bucket++)
+    //     std::cout << h_table.t_table.bucket_size(bucket) << std::endl;
+
+    std::bitset<722>  test(std::string("01100000000000000000000100000000000000011000000000000101000001000000000001000110000000000100000000010000000000100000000000000100000000001010101010010101000000000100000000000000000000000100000000000000000000000010000010000010100000000000100000000000100000001010000000000000100000000000000000000110100000000000000010000000000000000010010010000000000000001000000000000000000001011000000000000001010000000000000100010100000000000001010101000000000100001000010000000000000010101010000100001010001000010000000000000000000100100000100000000000000000000000000100100000000000000000000100000000010000000000000000000000000001100000101010000100000000000000000000010000000001001001000000000000000000000100000000000000000000000000000000"));
+    std::cout << std::hash<std::bitset<722>>{}(test) << std::endl;
+    std::bitset<722> test2(std::string("01100000000000000000000100000000000000011000000000000101000001000000000001000110000000000100000000010000000000000000000000000100000000001010101010010101000000000100000000000000000000000100000000000000000000000010000010000010100000000000100000000000100000001010000000000000100000000000000000000110100000000000000010000000000000000010010010000000000000001000000000000000000001011000000000000001010000000000000100010100000000000001010101000000000100001000010000000000000010101010000100001010001000010000000000000000000100100000100000000000000000000000000100100000000000000000000100000000010000000000000000000000000001100000101010000100000000000000000000010000000001001001000000000000000000100100000000000000000000000000000000"));
+    std::cout << std::hash<std::bitset<722>>{}(test2) << std::endl;
+    std::cout << (test.to_string()) << std::endl;
+    std::cout << (test2.to_string()) << std::endl;
 
     return 0;
 }

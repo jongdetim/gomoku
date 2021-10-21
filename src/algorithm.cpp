@@ -84,7 +84,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		return (value);
 	}
 	std::vector<Board> child_nodes;
-	child_nodes = node.generate_children_bits(filled_positions, color);
+	// for (int i = 0; i < 100; i++)
+		child_nodes = node.generate_children_bits(filled_positions, color);
 
 		// for (auto &it : child_nodes)
 		// 	std::cout << it.last_move << std::endl;
