@@ -1,11 +1,11 @@
 #include "BoardHeuristic.hpp"
 #include "misc.hpp"
 
-BoardHeuristic::BoardHeuristic(Board *board) : board(board) { }
+BoardHeuristic::BoardHeuristic(void) { }
 
 BoardHeuristic::~BoardHeuristic() { }
 
-int				BoardHeuristic::go_down(Board *board, int index, int player, int size)
+int				BoardHeuristic::go_down(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 
@@ -19,7 +19,7 @@ int				BoardHeuristic::go_down(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::go_up(Board *board, int index, int player, int size)
+int				BoardHeuristic::go_up(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 
@@ -33,7 +33,7 @@ int				BoardHeuristic::go_up(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::go_left(Board *board, int index, int player, int size)
+int				BoardHeuristic::go_left(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 	int col = get_col(index);
@@ -50,7 +50,7 @@ int				BoardHeuristic::go_left(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::go_right(Board *board, int index, int player, int size)
+int				BoardHeuristic::go_right(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 	int offset = (BOARD_LENGHT-1) - get_col(index);
@@ -67,7 +67,7 @@ int				BoardHeuristic::go_right(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::diag_upR(Board *board, int index, int player, int size)
+int				BoardHeuristic::diag_upR(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 	int offset = (BOARD_LENGHT-1) - get_col(index);
@@ -84,7 +84,7 @@ int				BoardHeuristic::diag_upR(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::diag_downL(Board *board, int index, int player, int size)
+int				BoardHeuristic::diag_downL(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 	int col = get_col(index);
@@ -101,7 +101,7 @@ int				BoardHeuristic::diag_downL(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::diag_upL(Board *board, int index, int player, int size)
+int				BoardHeuristic::diag_upL(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 	int col = get_col(index);
@@ -118,7 +118,7 @@ int				BoardHeuristic::diag_upL(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::diag_downR(Board *board, int index, int player, int size)
+int				BoardHeuristic::diag_downR(const Board *board, int index, int player, int size)
 {
 	int length = 0;
 	int offset = (BOARD_LENGHT-1) - get_col(index);
@@ -135,46 +135,54 @@ int				BoardHeuristic::diag_downR(Board *board, int index, int player, int size)
 	return length;
 }
 
-int				BoardHeuristic::count_diag_down(void) const
+int				BoardHeuristic::count_diag_down(const Board *board) const
 {
 	int total = 1;
 
-	total += diag_upL(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
-	total += diag_downR(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
+	total += diag_upL(board, board->get_last_move(), board->get_last_player(), 4);
+	total += diag_downR(board, board->get_last_move(), board->get_last_player(), 4);
 	return total;
 }
 
-int				BoardHeuristic::count_diag_up(void) const
+int				BoardHeuristic::count_diag_up(const Board *board) const
 {
 	int total = 1;
 
-	total += diag_upR(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
-	total += diag_downL(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
+	total += diag_upR(board, board->get_last_move(), board->get_last_player(), 4);
+	total += diag_downL(board, board->get_last_move(), board->get_last_player(), 4);
 	return total;
 }
 
-int				BoardHeuristic::count_ver(void) const
+int				BoardHeuristic::count_ver(const Board *board) const
 {
 	int total = 1;
 
-	total += go_up(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
-	total += go_down(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
+	total += go_up(board, board->get_last_move(), board->get_last_player(), 4);
+	total += go_down(board, board->get_last_move(), board->get_last_player(), 4);
 	return total;
 }
 
-int				BoardHeuristic::count_hor(void) const
+int				BoardHeuristic::count_hor(const Board *board) const
 {
 	int total = 1;
 
-	total += go_left(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
-	total += go_right(this->board, this->board->get_last_move(), this->board->get_last_player(), 4);
+	total += go_left(board, board->get_last_move(), board->get_last_player(), 4);
+	total += go_right(board, board->get_last_move(), board->get_last_player(), 4);
 	return total;
 }
 
-bool			BoardHeuristic::check_win(void) const
+bool			BoardHeuristic::check_win(const Board *board) const
 {
-	return (count_hor() == 5 \
-	|| count_ver() == 5 \
-	|| count_diag_down() == 5 \
-	|| count_diag_up() == 5);
+	return (
+		board->get_captures(PLAYER1) >= CAPTUREWIN || \
+		board->get_captures(PLAYER2) >= CAPTUREWIN || \
+		count_hor(board) >= WINCONDITION || \
+		count_ver(board) >= WINCONDITION || \
+		count_diag_down(board) >= WINCONDITION || \
+		count_diag_up(board) >= WINCONDITION);
+}
+
+short			BoardHeuristic::get_pattern(int index, int player) const
+{
+	return 0;
 }

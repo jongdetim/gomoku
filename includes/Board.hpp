@@ -16,6 +16,13 @@
 # define PLAYER2 -1
 # define BITBOARD std::bitset<MASKSIZE>
 
+typedef struct	s_player
+{
+	int			stones_played;
+	int			captures;
+
+}				t_player;
+
 // globals
 const int NEIGHBOURS[8] = {-20, -19, -18, -1, 1, 18, 19, 20};
 
@@ -24,12 +31,14 @@ class Board
 public:
 	Board(void);
 	~Board();
+
+	int						h;
+	
 	void					print(void) const;
 	void					show_last_move(void) const;
 	bool					place(int row, int col, int player);
 	bool					place(int index, int player);
 	bool					is_game_finished() const;
-	int						get_random_heuristic() const;
 	std::vector<Board> 		generate_children(std::vector<int> &filled_positions, int player) const;
 	std::unordered_set<int>	get_moves(std::vector<int> &filled_positions) const;
 	BITBOARD				get_state(void) const;
@@ -49,14 +58,19 @@ public:
 	int						get_last_player(void) const;
 	bool					is_full(void) const;
 	bool					is_game_won(void) const;
-
-	int						h;
+	int						calculate_index(int row, int col) const;
+	int						get_captures(int player) const;
 
 private:
 	BITBOARD				state;
 	int						stones_played;
 	int						last_move;
 	BoardHeuristic			heuristic;
+	t_player				player1;
+	t_player				player2;
+
+	void					update_player(int player, int captures);
+	bool					is_valid_move(int index, int player) const;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

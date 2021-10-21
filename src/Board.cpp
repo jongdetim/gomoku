@@ -1,7 +1,10 @@
 #include "Board.hpp"
 
-Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1), heuristic(this)
-{}
+Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1)
+{
+	this->player1 = t_player{0,0};
+	this->player2 = t_player{0,0};
+}
 
 Board::~Board() {}
 
@@ -11,17 +14,13 @@ void					Board::reset(void)
 	this->last_move = -1;
 	this->h = 0;
 	this->state.reset();
+	this->player1 = t_player{0,0};
+	this->player2 = t_player{0,0};
 }
 
-BITBOARD				Board::get_state(void) const
-{
-	return this->state;
-}
+BITBOARD				Board::get_state(void) const { return this->state; }
 
-int						Board::get_last_move(void) const
-{
-	return this->last_move;
-}
+int						Board::get_last_move(void) const { return this->last_move; }
 
 void					Board::print(void) const
 {
@@ -73,13 +72,15 @@ void					Board::show_last_move(void) const
 	}
 }
 
-bool					Board::place(int row, int col, int player)
+bool					Board::place(int row, int col, int player) { return this->place(this->calculate_index(row, col), player); }
+
+bool					Board::place(int index, int player)
 {
 	assert(player == PLAYER1 || player == PLAYER2);
-	assert(row < BOARD_LENGHT && row >= 0 && col < BOARD_LENGHT && col >= 0);
-	int index = (row * BOARD_LENGHT + col);
+	assert(index >= 0 && index < BOARDSIZE);
+
 	int orig_index = index;
-	if (! this->is_empty_place(index))
+	if (!this->is_valid_move(index, player))
 		return false;
 	index <<= 1;
 	index = player == PLAYER1 ? index : index + 1;
@@ -89,35 +90,9 @@ bool					Board::place(int row, int col, int player)
 	return true;
 }
 
-bool					Board::place(int index, int player)
-{
-	int orig_index = index;
-	assert(player == PLAYER1 || player == PLAYER2);
-	assert(index >= 0 && index < (BOARD_LENGHT*BOARD_LENGHT));
-	if (! this->is_empty_place(index))
-		return false;
-	index *= 2;
-	index = player == PLAYER1 ? index : index + 1;
-	this->state[index] = true;
-	this->last_move = orig_index;
-	this->stones_played++;
-	return true;
-}
+bool					Board::is_game_won(void) const { return this->heuristic.check_win(this); }
 
-bool					Board::is_game_won(void) const
-{
-	return this->heuristic.check_win();
-}
-
-bool					Board::is_game_finished(void) const
-{
-	return this->is_full();
-}
-
-int						Board::get_random_heuristic(void) const
-{
-	return (rand() % 1000) - 500;
-}
+bool					Board::is_game_finished(void) const { return this->is_full(); }
 
 // creates a set of positions surrounding the currently occupied spaces
 std::unordered_set<int> Board::get_moves(std::vector<int> &filled_positions) const
@@ -161,17 +136,7 @@ std::vector<Board>		Board::generate_children(std::vector<int> &filled_positions,
     return nodes;
 }
 
-void					Board::remove(int row, int col)
-{
-	int index = (row * BOARD_LENGHT + col);
-	if (this->is_empty_place(index))
-		return ;
-	index <<= 1;
-	this->state[index] = false;
-	this->state[index+1] = false;
-	this->stones_played--;
-	
-}
+void					Board::remove(int row, int col) { this->remove(this->calculate_index(row, col)); }
 
 void					Board::remove(int index)
 {
@@ -199,55 +164,55 @@ int						Board::get_player(int index) const
 	return 0;
 }
 
-int						Board::get_last_player(void) const
+int						Board::get_last_player(void) const { return this->get_player(this->last_move); }
+
+bool					Board::is_full(void) const { return (this->stones_played == BOARDSIZE); }
+
+void					Board::set_state(BITBOARD new_state) { this->state = new_state; }
+
+int						Board::calculate_index(int row, int col) const { return (row * BOARD_LENGHT + col); }
+
+int						Board::get_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
+
+/* PRIVATE METHODS */
+
+void					Board::update_player(int player, int captures)
 {
-	return this->get_player(this->last_move);
+	if (player == PLAYER1)
+	{
+		this->player1.stones_played++;
+		this->player1.captures += captures;
+
+		this->player2.stones_played -= (captures << 1);
+	}
+	else if (player == PLAYER2)
+	{
+		this->player2.stones_played++;
+		this->player2.captures += captures;
+
+		this->player1.stones_played -= (captures << 1);
+	}
 }
 
-bool					Board::is_full(void) const
+bool					Board::is_valid_move(int index, int player) const
 {
-	return (this->stones_played == BOARDSIZE);
-}
-
-void					Board::set_state(BITBOARD new_state)
-{
-	this->state = new_state;
+	if (!this->is_empty_place(index))
+		return false;
+	return true;
 }
 
 /* OPERATOR OVERLOADS: */
 
-bool 					Board::operator==(Board const &rhs) const
-{
-	return (this->state == rhs.state);
-}
+bool 					Board::operator==(Board const &rhs) const { return (this->state == rhs.state); }
 
-bool 					Board::operator!=(Board const &rhs) const
-{
-	return (this->state != rhs.state);
-}
+bool 					Board::operator!=(Board const &rhs) const { return (this->state != rhs.state); }
 
-bool 					Board::operator==(int const rhs) const
-{
-	return (this->state == rhs);
-}
+bool 					Board::operator==(int const rhs) const { return (this->state == rhs); }
 
-bool 					Board::operator!=(int const rhs) const
-{
-	return (this->state != rhs);
-}
+bool 					Board::operator!=(int const rhs) const { return (this->state != rhs); }
 
-BITBOARD				Board::operator&(Board const &rhs) const
-{
-	return this->state & rhs.state;
-}
+BITBOARD				Board::operator&(Board const &rhs) const { return this->state & rhs.state; }
 
-BITBOARD				Board::operator&(BITBOARD const &rhs) const
-{
-	return this->state & rhs;
-}
+BITBOARD				Board::operator&(BITBOARD const &rhs) const { return this->state & rhs; }
 
-std::ostream			&operator<<(std::ostream &o, Board const &i)
-{
-	o << i.get_state();
-	return o;
-}
+std::ostream			&operator<<(std::ostream &o, Board const &i) { return (o << i.get_state()); }
