@@ -8,10 +8,10 @@
 # include <unordered_set>
 # include "BoardHeuristic.hpp"
 
-# define BOARD_LENGHT 19
-# define BOARDSIZE (BOARD_LENGHT*BOARD_LENGHT)
-# define MASKSIZE ((BOARD_LENGHT*BOARD_LENGHT)<<1)
-# define MASK_LENGTH (BOARD_LENGHT<<1)
+# define BOARD_LENGTH 19
+# define BOARDSIZE (BOARD_LENGTH*BOARD_LENGTH)
+# define MASKSIZE ((BOARD_LENGTH*BOARD_LENGTH)<<1)
+# define MASK_LENGTH (BOARD_LENGTH<<1)
 # define PLAYER1 1
 # define PLAYER2 -1
 # define BITBOARD std::bitset<MASKSIZE>
@@ -24,7 +24,7 @@ typedef struct	s_player
 }				t_player;
 
 // globals
-const int NEIGHBOURS[8] = {-20, -19, -18, -1, 1, 18, 19, 20};
+const int NEIGHBOURS[8] = {DIAGUPL, UP, DIAGUPR, LEFT, RIGHT, DIAGDWNL, DOWN, DIAGDWNR};
 
 class Board
 {

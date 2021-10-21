@@ -9,7 +9,7 @@ static int				go_down(Board &node, int index, int player, std::unordered_set<int
 
 	for (int i = 0; i < 4; i++)
 	{
-		index += BOARD_LENGHT;
+		index += BOARD_LENGTH;
 		if (index >= BOARDSIZE || node.get_player(index) != player)
 			break ;
 		checked_indices.insert(index);
@@ -24,7 +24,7 @@ static int				go_up(Board &node, int index, int player, std::unordered_set<int> 
 
 	for (int i = 0; i < 4; i++)
 	{
-		index -= BOARD_LENGHT;
+		index -= BOARD_LENGTH;
 		if (index < 0 || node.get_player(index) != player)
 			break ;
 		checked_indices.insert(index);
@@ -64,7 +64,7 @@ static int				go_left(Board &node, int index, int player, std::unordered_set<int
 static int				go_right(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
 {
 	int length = 0;
-	int offset = (BOARD_LENGHT-1) - get_col(index);
+	int offset = (BOARD_LENGTH-1) - get_col(index);
 	int offside = offset < 4 ?  offset : 4;
 
 	for (int i = 0; i < offside; i++)
@@ -92,12 +92,12 @@ int						count_hor(Board &node, int index, int player, std::unordered_set<int> &
 static int				diag_upR(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
 {
 	int length = 0;
-	int offset = (BOARD_LENGHT-1) - get_col(index);
+	int offset = (BOARD_LENGTH-1) - get_col(index);
 	int offside = offset < 4 ?  offset : 4;
 
 	for (int i = 0; i < offside; i++)
 	{
-		index -= (BOARD_LENGHT - 1);
+		index -= (BOARD_LENGTH - 1);
 		if (index < 0 || node.get_player(index) != player)
 			break ;
 		checked_indices.insert(index);
@@ -120,7 +120,7 @@ static int				diag_downL(Board &node, int index, int player, std::unordered_set<
 
 	for (int i = 0; i < offside; i++)
 	{
-		index += (BOARD_LENGHT-1);
+		index += (BOARD_LENGTH-1);
 		if (index >= BOARDSIZE || node.get_player(index) != player)
 			break ;
 		checked_indices.insert(index);
@@ -148,7 +148,7 @@ static int				diag_upL(Board &node, int index, int player, std::unordered_set<in
 
 	for (int i = 0; i < offside; i++)
 	{
-		index -= (BOARD_LENGHT+1);
+		index -= (BOARD_LENGTH+1);
 		if (index < 0 || node.get_player(index) != player)
 			break ;
 		checked_indices.insert(index);
@@ -161,12 +161,12 @@ static int				diag_upL(Board &node, int index, int player, std::unordered_set<in
 static int				diag_downR(Board &node, int index, int player, std::unordered_set<int> &checked_indices)
 {
 	int length = 0;
-	int offset = (BOARD_LENGHT-1) - get_col(index);
+	int offset = (BOARD_LENGTH-1) - get_col(index);
 	int offside = offset < 4 ?  offset : 4;
 
 	for (int i = 0; i < offside; i++)
 	{
-		index += (BOARD_LENGHT+1);
+		index += (BOARD_LENGTH+1);
 		if (index >= BOARDSIZE || node.get_player(index) != player)
 			break ;
 		checked_indices.insert(index);

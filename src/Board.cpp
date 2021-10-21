@@ -25,12 +25,12 @@ int						Board::get_last_move(void) const { return this->last_move; }
 void					Board::print(void) const
 {
 	std::cout << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
-	for (int row = 0; row < BOARD_LENGHT; row++)
+	for (int row = 0; row < BOARD_LENGTH; row++)
 	{
 		std::cout << row%10 << ": ";
-		for (int col = 0; col < BOARD_LENGHT; col++)
+		for (int col = 0; col < BOARD_LENGTH; col++)
 		{
-			int index = (row * BOARD_LENGHT + col);
+			int index = (row * BOARD_LENGTH + col);
 			if (this->is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
@@ -45,12 +45,12 @@ void					Board::print(void) const
 void					Board::show_last_move(void) const
 {
 	std::cout << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
-	for (int row = 0; row < BOARD_LENGHT; row++)
+	for (int row = 0; row < BOARD_LENGTH; row++)
 	{
 		std::cout << row%10 << ": ";
-		for (int col = 0; col < BOARD_LENGHT; col++)
+		for (int col = 0; col < BOARD_LENGTH; col++)
 		{
-			int index = (row * BOARD_LENGHT + col);
+			int index = (row * BOARD_LENGTH + col);
 			if (this->is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
@@ -98,7 +98,7 @@ bool					Board::is_game_finished(void) const { return this->is_full(); }
 std::unordered_set<int> Board::get_moves(std::vector<int> &filled_positions) const
 {
 	std::unordered_set<int> moves;
-	int board_size = BOARD_LENGHT*BOARD_LENGHT;
+	int board_size = BOARD_LENGTH*BOARD_LENGTH;
 
 	for (int index : filled_positions)
 	{
@@ -170,7 +170,7 @@ bool					Board::is_full(void) const { return (this->stones_played == BOARDSIZE);
 
 void					Board::set_state(BITBOARD new_state) { this->state = new_state; }
 
-int						Board::calculate_index(int row, int col) const { return (row * BOARD_LENGHT + col); }
+int						Board::calculate_index(int row, int col) const { return (row * BOARD_LENGTH + col); }
 
 int						Board::get_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
 

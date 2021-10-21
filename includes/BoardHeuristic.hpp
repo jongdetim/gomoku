@@ -1,8 +1,17 @@
 #ifndef BOARDHEURISTIC_HPP
 # define BOARDHEURISTIC_HPP
 
-# define WINCONDITION 5
-# define CAPTUREWIN 5
+# define WINCONDITION	5
+# define CAPTUREWIN		5
+
+# define LEFT			-1
+# define RIGHT			1
+# define UP				-(BOARD_LENGTH)
+# define DOWN			BOARD_LENGTH
+# define DIAGUPR		-(BOARD_LENGTH - 1)
+# define DIAGUPL		-(BOARD_LENGTH + 1)
+# define DIAGDWNR		(BOARD_LENGTH + 1)
+# define DIAGDWNL		(BOARD_LENGTH - 1)
 
 class Board;
 
@@ -17,15 +26,8 @@ public:
 	int					count_diag_up(const Board *board) const;
 	int					count_ver(const Board *board) const;
 	int					count_hor(const Board *board) const;
-	static int			go_down(const Board *board, int index, int player, int size);
-	static int			go_up(const Board *board, int index, int player, int size);
-	static int			go_left(const Board *board, int index, int player, int size);
-	static int			go_right(const Board *board, int index, int player, int size);
-	static int			diag_upR(const Board *board, int index, int player, int size);
-	static int			diag_downL(const Board *board, int index, int player, int size);
-	static int			diag_upL(const Board *board, int index, int player, int size);
-	static int			diag_downR(const Board *board, int index, int player, int size);
 	short				get_pattern(int index, int player) const;
+	int					count_direction(const Board *board, int index, int player, int size, int dir) const;
 
 private:
 

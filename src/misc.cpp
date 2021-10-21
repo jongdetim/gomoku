@@ -2,30 +2,30 @@
 #include "heuristic.hpp"
 #include "BoardHeuristic.hpp"
 
-int			get_col(int index)
+int					get_col(int index)
 {
-	return (index % BOARD_LENGHT);
+	return (index % BOARD_LENGTH);
 }
 
-inline int			get_row(int index)
+int					get_row(int index)
 {
-	return (index / BOARD_LENGHT);
+	return (index / BOARD_LENGTH);
 }
 
 int					calc_index(int row, int col)
 {
-	return (row * BOARD_LENGHT + col);
+	return (row * BOARD_LENGTH + col);
 }
 
 void    			print_bitboard(BITBOARD bitmap)
 {
 	std::cout << std::endl << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
-	for (int row = 0; row < BOARD_LENGHT; row++)
+	for (int row = 0; row < BOARD_LENGTH; row++)
 	{
 		std::cout << row%10 << ": ";
-		for (int col = 0; col < BOARD_LENGHT; col++)
+		for (int col = 0; col < BOARD_LENGTH; col++)
 		{
-			int index = (row * BOARD_LENGHT + col) << 1;
+			int index = (row * BOARD_LENGTH + col) << 1;
 			if (bitmap[index])
 				std::cout << 'o' << ' ';
 			else if (bitmap[index + 1])
@@ -50,13 +50,13 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
+	assert(start_pos >= 0 and start_pos < (BOARD_LENGTH*BOARD_LENGTH));
 	for (int i = 1; i <= amount; i++)
 	{
-		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
+		if (index >= (BOARD_LENGTH*BOARD_LENGTH) or index < 0)
 			break ;
-		if (!board.is_empty_place(index))
-			continue ;
+		// if (!board.is_empty_place(index))
+		// 	continue ;
 		board.place(index, player);
 		filled_positions.push_back(index);
 		prev_index = index;
@@ -72,13 +72,13 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
+	assert(start_pos >= 0 and start_pos < (BOARD_LENGTH*BOARD_LENGTH));
 	for (int i = 1; i <= amount; i++)
 	{
-		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
+		if (index >= (BOARD_LENGTH*BOARD_LENGTH) or index < 0)
 			break ;
-		if (!board.is_empty_place(index))
-			continue ;
+		// if (!board.is_empty_place(index))
+		// 	continue ;
 		board.place(index, player);
 		prev_index = index;
 		index = start_pos + (i * offset);
@@ -94,7 +94,7 @@ Board				create_random_board(void)
 	srand (time(NULL));
 
 	int players[2]{-1, 1};
-	int	offsets[4]{HOR, VER, DIAG1, DIAG2};
+	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
 	for (int i = 1; i < 6; i++)
@@ -103,7 +103,7 @@ Board				create_random_board(void)
 		{
 			for (auto player : players)
 			{
-				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
+				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
 				place_pieces(board, player, start_pos, i, offset);
 			}
 		}
@@ -118,7 +118,7 @@ Board				create_random_board(int seed)
 	srand (seed);
 
 	int players[2]{-1, 1};
-	int	offsets[4]{HOR, VER, DIAG1, DIAG2};
+	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
 	for (int i = 1; i < 6; i++)
@@ -127,7 +127,7 @@ Board				create_random_board(int seed)
 		{
 			for (auto player : players)
 			{
-				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
+				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
 				place_pieces(board, player, start_pos, i, offset);
 			}
 		}
@@ -135,14 +135,14 @@ Board				create_random_board(int seed)
 	return board;
 }
 
-Board		create_random_board(std::vector<int> &filled_positions)
+Board				create_random_board(std::vector<int> &filled_positions)
 {
 	Board board;
 
 	srand (time(NULL));
 
 	int players[2]{-1, 1};
-	int	offsets[4]{HOR, VER, DIAG1, DIAG2};
+	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
 	for (int i = 1; i < 6; i++)
@@ -151,7 +151,7 @@ Board		create_random_board(std::vector<int> &filled_positions)
 		{
 			for (auto player : players)
 			{
-				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
+				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
 				place_pieces(board, player, start_pos, i, offset, filled_positions);
 			}
 		}
@@ -159,14 +159,14 @@ Board		create_random_board(std::vector<int> &filled_positions)
 	return board;
 }
 
-Board		create_random_board(int seed, std::vector<int> &filled_positions)
+Board				create_random_board(int seed, std::vector<int> &filled_positions)
 {
 	Board board;
 
 	srand (seed);
 
 	int players[2]{-1, 1};
-	int	offsets[4]{HOR, VER, DIAG1, DIAG2};
+	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
 	for (int i = 1; i < 6; i++)
@@ -175,7 +175,7 @@ Board		create_random_board(int seed, std::vector<int> &filled_positions)
 		{
 			for (auto player : players)
 			{
-				start_pos = rand() % (BOARD_LENGHT*BOARD_LENGHT);
+				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
 				place_pieces(board, player, start_pos, i, offset, filled_positions);
 			}
 		}
