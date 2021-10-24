@@ -68,8 +68,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		TOTAL_LEAVES += 1;
 		// node.print();
 
-		if (h_table.lookup(node, tt_entry))
-			std::cout << "impossible ding" << std::endl;
+		// if (h_table.lookup(node, tt_entry))
+		// 	std::cout << "impossible ding" << std::endl;
 		value = color * calc_heuristic_tim(filled_positions, node, false);
 
 		// node.print();
