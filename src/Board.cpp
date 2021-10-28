@@ -1,4 +1,7 @@
 #include "Board.hpp"
+#include "misc.hpp"
+
+#define PRINT(x) std::cout << x << std::endl /////////////////////
 
 Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1), heuristic(this)
 {}
@@ -86,6 +89,7 @@ bool					Board::place(int row, int col, int player)
 	this->state[index] = true;
 	this->last_move = orig_index;
 	this->stones_played++;
+	this->check_capture();
 	return true;
 }
 
@@ -101,6 +105,7 @@ bool					Board::place(int index, int player)
 	this->state[index] = true;
 	this->last_move = orig_index;
 	this->stones_played++;
+	this->check_capture();
 	return true;
 }
 
@@ -117,6 +122,37 @@ bool					Board::is_game_finished(void) const
 int						Board::get_random_heuristic(void) const
 {
 	return (rand() % 1000) - 500;
+}
+
+void					Board::capture(int dir, int index)
+{
+	for (int i = 1; i < 3; i++)
+		this->remove(index + (i * dir));
+}
+
+void					Board::check_capture(void)
+{
+	int directions[8] {HOR, VER, DIAG1, DIAG2, -HOR, -VER, -DIAG1, -DIAG2};
+	bool capture;
+	int index, player = this->get_last_player();
+
+	for (auto dir : directions)
+	{
+		capture = false;
+		index = this->last_move;
+		for (int i = 1; i < 4; i++)
+		{
+			index += dir;
+			if (is_offside(index - dir, index) || index < 0 || index >= BOARDSIZE)
+				break ;
+			if (i == 3 && this->get_player(index) == player)
+				capture = true;
+			else if (this->get_player(index) != -player)
+				break ;
+		}
+		if (capture)
+			this->capture(dir, this->last_move);
+	}
 }
 
 // creates a set of positions surrounding the currently occupied spaces

@@ -26,5 +26,6 @@ int	    				play_random_game(Board board, int player, bool verbose);
 int	    				play_random_game(Board board, int player, std::vector<int> empty, bool verbose);
 int						play_random_games(Board &board, int start_player, int amount, bool verbose);
 int						play_random_games(Board &board, int start_player, int amount, bool verbose, int seed);
+bool					is_offside(int prev_index, int index);
 
 #endif

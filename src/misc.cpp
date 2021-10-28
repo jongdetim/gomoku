@@ -2,7 +2,7 @@
 #include "heuristic.hpp"
 #include "BoardHeuristic.hpp"
 
-int			get_col(int index)
+int					get_col(int index)
 {
 	return (index % BOARD_LENGHT);
 }
@@ -37,7 +37,7 @@ void    			print_bitboard(BITBOARD bitmap)
 	}
 }
 
-static bool			is_offside(int prev_index, int index)
+bool				is_offside(int prev_index, int index)
 {
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
@@ -53,17 +53,16 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
 	for (int i = 1; i <= amount; i++)
 	{
+		prev_index = index;
+		index = start_pos + (i * offset);
+		if (is_offside(prev_index, index))
+			break ;
 		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
 			break ;
 		if (!board.is_empty_place(index))
 			continue ;
 		board.place(index, player);
 		filled_positions.push_back(index);
-		prev_index = index;
-		index = start_pos + (i * offset);
-		if (is_offside(prev_index, index))
-			break ;
-		
 	}
 }
 
@@ -73,17 +72,17 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	int prev_index;
 
 	assert(start_pos >= 0 and start_pos < (BOARD_LENGHT*BOARD_LENGHT));
-	for (int i = 1; i <= amount; i++)
+	for (int i = 0; i < amount; i++)
 	{
+		prev_index = index;
+		index = start_pos + (i * offset);
+		if (is_offside(prev_index, index))
+			break ;
 		if (index >= (BOARD_LENGHT*BOARD_LENGHT) or index < 0)
 			break ;
 		if (!board.is_empty_place(index))
 			continue ;
 		board.place(index, player);
-		prev_index = index;
-		index = start_pos + (i * offset);
-		if (is_offside(prev_index, index))
-			break ;
 	}
 }
 

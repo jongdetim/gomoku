@@ -52,11 +52,15 @@ public:
 
 	int						h;
 
+	int						stones_played;
+	
 private:
 	BITBOARD				state;
-	int						stones_played;
 	int						last_move;
 	BoardHeuristic			heuristic;
+
+	void					check_capture(void);
+	void					capture(int dir, int index);
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);
