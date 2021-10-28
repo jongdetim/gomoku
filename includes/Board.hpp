@@ -6,6 +6,8 @@
 # include <bitset>
 # include <vector>
 # include <unordered_set>
+# include <set>
+# include <algorithm>
 # include "BoardHeuristic.hpp"
 
 # define BOARD_LENGTH 19
@@ -40,7 +42,11 @@ public:
 	bool					place(int index, int player);
 	bool					is_game_finished() const;
 	std::vector<Board> 		generate_children(std::vector<int> &filled_positions, int player) const;
-	std::unordered_set<int>	get_moves(std::vector<int> &filled_positions) const;
+	std::vector<Board>		generate_children_bits(std::vector<int> &filled_positions, int player);
+	std::vector<Board>		generate_children_vect(std::vector<int> &filled_positions, int player) const;
+	std::set<int>			get_moves(std::vector<int> &filled_positions) const;
+	void					get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves);
+	std::vector<int> 		get_moves_vect(std::vector<int> &filled_positions) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	void					remove(int row, int col);

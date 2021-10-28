@@ -1,0 +1,18 @@
+// algorithm
+-move sorting
+    principal variation
+    killer moves
+    history moves (?)
+-generate_children optimization (remember the moves and only change for this.last_move)
+DONE-write a wrapper for the first negamax call to catch data such as best move
+-filled_positions could be a bitset too. would be faster AND updating filled_positions is easier in recursion
+
+
+// heuristic
+    -last move instead of entire heuristic for the whole board every time
+    DONE-bitset static array instead of unordered_set
+
+
+// other
+    -tweak t_table & h_table. check for collisions & spread across buckets
+

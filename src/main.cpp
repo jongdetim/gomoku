@@ -17,9 +17,6 @@ int main()
     Board board;
     BoardHeuristic heuristic;
 
-
-
-
     int index = calc_index(3, 16);
     create_star(board, index, 3, PLAYER1);
     create_star(board, index, 4, PLAYER2);

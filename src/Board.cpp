@@ -1,8 +1,6 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-#define PRINT(x) std::cout << x << std::endl /////////////////////
-
 Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1)
 {
 	this->player1 = t_player{0,0};
@@ -130,17 +128,17 @@ void					Board::check_capture(void)
 }
 
 // creates a set of positions surrounding the currently occupied spaces
-std::unordered_set<int> Board::get_moves(std::vector<int> &filled_positions) const
+std::set<int> Board::get_moves(std::vector<int> &filled_positions) const
 {
-	std::unordered_set<int> moves;
-	int board_size = BOARD_LENGTH*BOARD_LENGTH;
+	//  dit is sneller met een bitset maar waarom komt het tot een ander resultaat?
+	std::set<int> moves;
 
 	for (int index : filled_positions)
 	{
 		for (int i = 0; i < 8; i++)
 		{
 			int n_index = index + NEIGHBOURS[i];
-			if (0 <= n_index && n_index < board_size && is_empty_place(n_index))
+			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
 			{
 				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
 					continue;
@@ -155,11 +153,59 @@ std::unordered_set<int> Board::get_moves(std::vector<int> &filled_positions) con
 	return moves;
 }
 
+std::vector<int> Board::get_moves_vect(std::vector<int> &filled_positions) const
+{
+	//  dit is sneller met een bitset maar waarom komt het tot een ander resultaat?
+	std::vector<int> moves;
+
+	for (int index : filled_positions)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			int n_index = index + NEIGHBOURS[i];
+			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
+			{
+				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
+					continue;
+				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
+					continue;
+				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
+					continue;
+				moves.push_back(n_index);
+			}
+		}
+	}
+	std::sort( moves.begin(), moves.end() );
+	moves.erase( std::unique( moves.begin(), moves.end() ), moves.end() );
+	return moves;
+}
+
+void Board::get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves)
+{
+	for (int index : filled_positions)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			int n_index = index + NEIGHBOURS[i];
+			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
+			{
+				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
+					continue;
+				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
+					continue;
+				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
+					continue;
+				moves[n_index] = 1;
+			}
+		}
+	}
+}
+
 std::vector<Board>		Board::generate_children(std::vector<int> &filled_positions, int player) const
 {
 	Board board_copy;
     std::vector<Board> nodes;
-	std::unordered_set<int> moves;
+	std::set<int> moves;
 
 	moves = get_moves(filled_positions);
 	for (int move : moves)
@@ -167,6 +213,47 @@ std::vector<Board>		Board::generate_children(std::vector<int> &filled_positions,
 		board_copy = *this;
 		board_copy.place(move, player);
 		nodes.push_back(board_copy);
+		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
+		// nodes.insert(nodes.begin(), board_copy);
+	}
+    return nodes;
+}
+
+std::vector<Board>		Board::generate_children_vect(std::vector<int> &filled_positions, int player) const
+{
+	Board board_copy;
+    std::vector<Board> nodes;
+	std::vector<int> moves;
+
+	moves = get_moves_vect(filled_positions);
+	for (int move : moves)
+	{
+		board_copy = *this;
+		board_copy.place(move, player);
+		nodes.push_back(board_copy);
+		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
+		// nodes.insert(nodes.begin(), board_copy);
+	}
+    return nodes;
+}
+
+std::vector<Board>		Board::generate_children_bits(std::vector<int> &filled_positions, int player)
+{
+	Board board_copy;
+    std::vector<Board> nodes;
+	std::bitset<BOARDSIZE> moves;
+
+	get_moves_bits(filled_positions, moves);
+	for (int i = 0; i < BOARDSIZE; i++)
+	{
+		if (moves[i])
+		{
+			board_copy = *this;
+			board_copy.place(i, player);
+			nodes.push_back(board_copy);
+			// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
+			// nodes.insert(nodes.begin(), board_copy);
+		}
 	}
     return nodes;
 }

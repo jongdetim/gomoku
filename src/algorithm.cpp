@@ -29,12 +29,13 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions, TranspositionTable &t_table, TranspositionTable &h_table)
+int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
 {
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
 	int value = -std::numeric_limits<int>::max();
 	bool is_finished;
+	int best_move = -1;
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -67,7 +68,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		TOTAL_LEAVES += 1;
 		// node.print();
 
-		value = color * calc_heuristic_tim(filled_positions, node);
+		if (h_table.lookup(node, tt_entry))
+			std::cout << "impossible ding" << std::endl;
+		value = color * calc_heuristic_tim(filled_positions, node, false);
 
 		// node.print();
 		// std::cout << "value: " << value * color << std::endl;
@@ -80,13 +83,16 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		t_table.insert(node, tt_entry);
 		return (value);
 	}
-	
-	// std::cout << "last_move: " << node.get_last_move() << std::endl;
-	std::vector<Board> child_nodes = node.generate_children(filled_positions, color);
+	std::vector<Board> child_nodes;
+	child_nodes = node.generate_children_bits(filled_positions, color);
+
+		// for (auto &it : child_nodes)
+		// 	std::cout << it.get_last_move() << std::endl;
+		// exit(1);
 
 	auto comp = [&](Board a, Board b)-> bool
 	{
-			return a.h > b.h;
+			return a.h < b.h;
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
@@ -99,28 +105,35 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			TableEntry ht_entry;
 			if (h_table.lookup(child, ht_entry))
 			{
-				// dit gebeurt nooit?
 				// std::cout << "al gezien" << std::endl;
-				child.h = -ht_entry.value;
+				child.h = ht_entry.value;
 			}
 			else
 			{
+				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = color * calc_heuristic_tim_from_parent(filled_positions, child);
-				// ht_entry.value = child.h;
-				// ht_entry.depth = depth - 1;
-				// h_table.insert(child, ht_entry);
+			    child.h = -color * calc_heuristic_tim(filled_positions, child, true);
+				ht_entry.value = child.h;
+				ht_entry.depth = depth - 1;
+				h_table.insert(child, ht_entry);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
+		// for (auto &it : child_nodes)
+		// 	std::cout << it.get_last_move() << std::endl;
+		// exit(1);
 	}
 
 	TOTAL_NODES += 1;
 
 	for (Board child : child_nodes)
 	{
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, filled_positions, t_table, h_table));
+		int old_value = value;
+
+		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, filled_positions, t_table, h_table, false));
 		alpha = std::max(alpha, value);
+		if (initial_call && value > old_value)
+			best_move = child.get_last_move();
 		if (alpha >= beta)
 		{
 			TOTAL_BRANCHES_PRUNED++;
@@ -133,10 +146,17 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished);
 	t_table.insert(node, tt_entry);
 
-	// this seems to have no practical effect (yet)
-    TableEntry h_entry;
-    if (h_table.lookup(node, h_entry))
-	    h_table.update(node, value);
-
+	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
+    // TableEntry h_entry;
+    // if (h_table.lookup(node, h_entry))
+	//     h_table.update(node, value);
+	if (initial_call)
+	{
+		std::cout << "depth: " << depth << std::endl;
+		std::cout << "best move is: " << best_move << std::endl;
+		std::cout << "heuristic value is: " << value << std::endl;
+		node.place(best_move, PLAYER2);
+		node.print();
+	}
 	return value;
 }
