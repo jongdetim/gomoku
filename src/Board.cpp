@@ -1,7 +1,7 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1)
+Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1), filled_pos(0)
 {
 	this->player1 = t_player{0,0};
 	this->player2 = t_player{0,0};
@@ -17,6 +17,7 @@ void					Board::reset(void)
 	this->stones_played = 0;
 	this->player1 = t_player{0,0};
 	this->player2 = t_player{0,0};
+	this->filled_pos.reset();
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -75,20 +76,22 @@ void					Board::show_last_move(void) const
 
 bool					Board::place(int row, int col, int player) { return this->place(this->calculate_index(row, col), player); }
 
+int						Board::get_player_index(int index, int player) const { return player == PLAYER1 ? index << 1 : (index << 1) + 1; }
+
 bool					Board::place(int index, int player)
 {
 	assert(player == PLAYER1 || player == PLAYER2);
 	assert(index >= 0 && index < BOARDSIZE);
 
-	int orig_index = index;
 	if (!this->is_valid_move(index, player))
 		return false;
-	index <<= 1;
-	index = player == PLAYER1 ? index : index + 1;
-	this->state[index] = true;
-	this->last_move = orig_index;
+	
+	this->filled_pos[index] = 1;
+	this->last_move = index;
+
+	this->state[this->get_player_index(index, player)] = 1;
 	this->stones_played++;
-	this->check_capture();
+	this->check_capture(player);
 	return true;
 }
 
@@ -102,20 +105,19 @@ void					Board::capture(int dir, int index)
 		this->remove(index + (i * dir));
 }
 
-void					Board::check_capture(void)
+void					Board::check_capture(int player)
 {
-	int directions[8] {RIGHT, DIAGDWNR, DOWN, DIAGDWNL, LEFT, DIAGUPL, UP, DIAGUPR};
 	bool capture;
-	int index, player = this->get_last_player();
+	int index;
 
-	for (auto dir : directions)
+	for (auto dir : DIRECTIONS)
 	{
 		capture = false;
 		index = this->last_move;
 		for (int i = 1; i < 4; i++)
 		{
 			index += dir;
-			if (is_offside(index - dir, index) || index < 0 || index >= BOARDSIZE)
+			if (is_offside(index - dir, index))
 				break ;
 			if (i == 3 && this->get_player(index) == player)
 				capture = true;
@@ -128,65 +130,17 @@ void					Board::check_capture(void)
 }
 
 // creates a set of positions surrounding the currently occupied spaces
-std::set<int> Board::get_moves(std::vector<int> &filled_positions) const
+std::bitset<BOARDSIZE>	Board::get_moves(void) const
 {
-	//  dit is sneller met een bitset maar waarom komt het tot een ander resultaat?
-	std::set<int> moves;
+	std::bitset<BOARDSIZE> moves{0};
 
-	for (int index : filled_positions)
+	for (int index = 0; index < this->filled_pos.size(); index++)
 	{
+		if (!this->filled_pos[index])
+			continue ;
 		for (int i = 0; i < 8; i++)
 		{
-			int n_index = index + NEIGHBOURS[i];
-			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
-			{
-				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
-					continue;
-				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
-					continue;
-				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
-					continue;
-				moves.insert(n_index);
-			}
-		}
-	}
-	return moves;
-}
-
-std::vector<int> Board::get_moves_vect(std::vector<int> &filled_positions) const
-{
-	//  dit is sneller met een bitset maar waarom komt het tot een ander resultaat?
-	std::vector<int> moves;
-
-	for (int index : filled_positions)
-	{
-		for (int i = 0; i < 8; i++)
-		{
-			int n_index = index + NEIGHBOURS[i];
-			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
-			{
-				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
-					continue;
-				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
-					continue;
-				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
-					continue;
-				moves.push_back(n_index);
-			}
-		}
-	}
-	std::sort( moves.begin(), moves.end() );
-	moves.erase( std::unique( moves.begin(), moves.end() ), moves.end() );
-	return moves;
-}
-
-void Board::get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves)
-{
-	for (int index : filled_positions)
-	{
-		for (int i = 0; i < 8; i++)
-		{
-			int n_index = index + NEIGHBOURS[i];
+			int n_index = index + DIRECTIONS[i];
 			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
 			{
 				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
@@ -199,51 +153,15 @@ void Board::get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARD
 			}
 		}
 	}
+	return moves;
 }
 
-std::vector<Board>		Board::generate_children(std::vector<int> &filled_positions, int player) const
+std::vector<Board>		Board::generate_children(int player) const
 {
 	Board board_copy;
     std::vector<Board> nodes;
-	std::set<int> moves;
 
-	moves = get_moves(filled_positions);
-	for (int move : moves)
-	{
-		board_copy = *this;
-		board_copy.place(move, player);
-		nodes.push_back(board_copy);
-		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
-		// nodes.insert(nodes.begin(), board_copy);
-	}
-    return nodes;
-}
-
-std::vector<Board>		Board::generate_children_vect(std::vector<int> &filled_positions, int player) const
-{
-	Board board_copy;
-    std::vector<Board> nodes;
-	std::vector<int> moves;
-
-	moves = get_moves_vect(filled_positions);
-	for (int move : moves)
-	{
-		board_copy = *this;
-		board_copy.place(move, player);
-		nodes.push_back(board_copy);
-		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
-		// nodes.insert(nodes.begin(), board_copy);
-	}
-    return nodes;
-}
-
-std::vector<Board>		Board::generate_children_bits(std::vector<int> &filled_positions, int player)
-{
-	Board board_copy;
-    std::vector<Board> nodes;
-	std::bitset<BOARDSIZE> moves;
-
-	get_moves_bits(filled_positions, moves);
+	auto moves = get_moves();
 	for (int i = 0; i < BOARDSIZE; i++)
 	{
 		if (moves[i])
@@ -264,17 +182,14 @@ void					Board::remove(int index)
 {
 	if (this->is_empty_place(index))
 		return ;
+	this->filled_pos[index] = 0;
 	index <<= 1;
-	this->state[index] = false;
-	this->state[index+1] = false;
+	this->state[index] = 0;
+	this->state[index+1] = 0;
 	this->stones_played--;
 }
 
-bool					Board::is_empty_place(int index) const
-{
-	index <<= 1;
-	return (this->state[index] == false && this->state[index+1] == false);
-}
+bool					Board::is_empty_place(int index) const { return this->filled_pos[index] == 0; }
 
 int						Board::get_player(int index) const
 {

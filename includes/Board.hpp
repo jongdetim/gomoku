@@ -26,7 +26,7 @@ typedef struct	s_player
 }				t_player;
 
 // globals
-const int NEIGHBOURS[8] = {DIAGUPL, UP, DIAGUPR, LEFT, RIGHT, DIAGDWNL, DOWN, DIAGDWNR};
+const int DIRECTIONS[8] = {DIAGUPL, UP, DIAGUPR, LEFT, RIGHT, DIAGDWNL, DOWN, DIAGDWNR};
 
 class Board
 {
@@ -35,18 +35,14 @@ public:
 	~Board();
 
 	int						h;
+	std::bitset<BOARDSIZE>	filled_pos;
 	
 	void					print(void) const;
 	void					show_last_move(void) const;
 	bool					place(int row, int col, int player);
 	bool					place(int index, int player);
 	bool					is_game_finished() const;
-	std::vector<Board> 		generate_children(std::vector<int> &filled_positions, int player) const;
-	std::vector<Board>		generate_children_bits(std::vector<int> &filled_positions, int player);
-	std::vector<Board>		generate_children_vect(std::vector<int> &filled_positions, int player) const;
-	std::set<int>			get_moves(std::vector<int> &filled_positions) const;
-	void					get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves);
-	std::vector<int> 		get_moves_vect(std::vector<int> &filled_positions) const;
+	std::vector<Board>		generate_children(int player) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	void					remove(int row, int col);
@@ -67,6 +63,7 @@ public:
 	int						calculate_index(int row, int col) const;
 	int						get_captures(int player) const;
 	int						get_stones_played(void) const;
+	int						get_player_index(int index, int player) const;
 
 private:
 	BITBOARD				state;
@@ -76,10 +73,11 @@ private:
 	t_player				player2;
 	int						stones_played;
 
-	void					check_capture(void);
+	void					check_capture(int player);
 	void					capture(int dir, int index);
 	void					update_player(int player, int captures);
 	bool					is_valid_move(int index, int player) const;
+	std::bitset<BOARDSIZE>	get_moves(void) const;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

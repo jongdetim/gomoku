@@ -192,17 +192,15 @@ int		eight_directions_heuristic(int index, std::bitset<BOARDSIZE> &checked_indic
 }
 
 
-int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node, bool from_parent)
+int		calc_heuristic_tim(Board &node)
 {
 	std::bitset<BOARDSIZE> checked_indices = 0;
 	int total_score = 0;
 	int	player = 0;
 
-	if (from_parent)
-		filled_positions.push_back(node.get_last_move());
-	for (int index : filled_positions)
+	for (int index = 0; index < node.filled_pos.size(); index++)
 	{
-		if (checked_indices[index])
+		if (!node.filled_pos[index] || checked_indices[index])
 			continue;
 		player = node.get_player(index);
 		if (player == 0)
@@ -210,11 +208,15 @@ int		calc_heuristic_tim(std::vector<int> filled_positions, Board &node, bool fro
 		total_score += eight_directions_heuristic(index, checked_indices, player, node);
 		checked_indices[index] = 1;
 	}
-	if (filled_positions.size() != checked_indices.count())
+
+	if (node.filled_pos.size() != checked_indices.count())
 	{
 		node.print();
-		for (int i : filled_positions)
-			std::cout << i << " ";
+		for (int i = 0; i < node.filled_pos.size(); i++)
+		{
+			if (node.filled_pos[i])
+				std::cout << i << " ";
+		}
 		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
 		for (int j = 0; j < BOARDSIZE; j++)
 		{

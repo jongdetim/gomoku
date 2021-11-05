@@ -22,7 +22,7 @@ bool				is_offside(int index, int prev_index)
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
 
-	return ((abs(prev_row - row) > 1) or (abs(prev_col - col) > 1));
+	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1) || index < 0 || index >= BOARDSIZE);
 }
 
 void    			print_bitboard(BITBOARD bitmap)
@@ -42,27 +42,6 @@ void    			print_bitboard(BITBOARD bitmap)
 				std::cout << ". ";
 		}
 		std::cout << std::endl;
-	}
-}
-
-void				place_pieces(Board &board, int player, int start_pos, int amount, int offset, std::vector<int> &filled_positions)
-{
-	int index = start_pos;
-	int prev_index;
-
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGTH*BOARD_LENGTH));
-	for (int i = 1; i <= amount; i++)
-	{
-		prev_index = index;
-		index = start_pos + (i * offset);
-		if (is_offside(prev_index, index))
-			break ;
-		if (index >= (BOARD_LENGTH*BOARD_LENGTH) or index < 0)
-			break ;
-		// if (!board.is_empty_place(index))
-		// 	continue ;
-		board.place(index, player);
-		filled_positions.push_back(index);
 	}
 }
 
@@ -90,7 +69,7 @@ Board				create_random_board(void)
 
 	srand (time(NULL));
 
-	int players[2]{-1, 1};
+	int players[2]{PLAYER2, PLAYER1};
 	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
@@ -126,54 +105,6 @@ Board				create_random_board(int seed)
 			{
 				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
 				place_pieces(board, player, start_pos, i, offset);
-			}
-		}
-	}
-	return board;
-}
-
-Board				create_random_board(std::vector<int> &filled_positions)
-{
-	Board board;
-
-	srand (time(NULL));
-
-	int players[2]{-1, 1};
-	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
-	int start_pos;
-
-	for (int i = 1; i < 6; i++)
-	{
-		for (auto offset: offsets)
-		{
-			for (auto player : players)
-			{
-				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset, filled_positions);
-			}
-		}
-	}
-	return board;
-}
-
-Board				create_random_board(int seed, std::vector<int> &filled_positions)
-{
-	Board board;
-
-	srand (seed);
-
-	int players[2]{-1, 1};
-	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
-	int start_pos;
-
-	for (int i = 1; i < 6; i++)
-	{
-		for (auto offset: offsets)
-		{
-			for (auto player : players)
-			{
-				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset, filled_positions);
 			}
 		}
 	}

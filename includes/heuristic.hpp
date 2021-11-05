@@ -14,7 +14,7 @@
 # define ROW2 1
 
 int				calc_heuristic(Board &state);
-int				calc_heuristic_tim_from_parent(std::vector<int> filled_positions, Board &node);
-int				calc_heuristic_tim(std::vector<int> filled_positions, Board &node, bool from_parent);
+// int				calc_heuristic_tim_from_parent(std::vector<int> filled_positions, Board &node);
+int				calc_heuristic_tim(Board &node);
 
 #endif

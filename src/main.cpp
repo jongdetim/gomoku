@@ -6,9 +6,9 @@
 
 void create_star(Board &board, int index, int size, int player)
 {
-    for (auto n : NEIGHBOURS)
+    for (auto dir : DIRECTIONS)
     {
-        place_pieces(board, player, index, size, n);
+        place_pieces(board, player, index, size, dir);
     }
 }
 
