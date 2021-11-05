@@ -9,7 +9,7 @@ int main()
     int best_move;
     // int best_value = -std::numeric_limits<int>::max();
     // int best_move = -1;
-    int first_move_index = (19 * 19) /2;
+    int first_move_index = 19*15 + 1;
     TranspositionTable h_table;
 
 	// pattern_test(false); /* Only show info */
@@ -20,21 +20,25 @@ int main()
     Board node;
     std::vector<int> filled_positions;
 
-    // node.place(first_move_index, PLAYER1);
+    node.place(first_move_index + 1, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index + 2, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    // node.place(first_move_index + 3, PLAYER1);
     // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 1, PLAYER1);
+    // node.place(first_move_index + 4, PLAYER2);
     // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 2, PLAYER1);
+    node.place(first_move_index + 20, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    node.place(first_move_index + 40, PLAYER1);
+    filled_positions.push_back(node.last_move);
+    // node.place(first_move_index + 20, PLAYER2);
     // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 1, PLAYER1);
-    // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 2, PLAYER1);
-    // filled_positions.push_back(node.last_move);
-    // node.place(first_move_index - 3, PLAYER1);
-    // filled_positions.push_back(node.last_move);
-    // // node.place(first_move_index - 4, PLAYER1);
+    // node.place(first_move_index - 4, PLAYER1);
     // // filled_positions.push_back(node.last_move);
     // node.print();
+    node.place(first_move_index, PLAYER1);
+    // filled_positions.push_back(node.last_move);
 
     // std::vector<Board> children = node.generate_children(filled_positions, PLAYER2);
     // for (Board child : children)
@@ -49,11 +53,13 @@ int main()
     //     }
     // }
 
-	node = create_random_board(3, filled_positions);
-    filled_positions.pop_back();
+	// node = create_random_board(3, filled_positions);
+    // filled_positions.pop_back();
 	node.print();
+    std::cout << node.check_free_threes(first_move_index, PLAYER1) << std::endl;
+    exit(1);
 
-    for (int depth = 1; depth <= 3; depth++)
+    for (int depth = 1; depth <= 2; depth++)
     {
 		TOTAL_LEAVES = 0;
 		TOTAL_NODES = 0;
@@ -84,8 +90,8 @@ int main()
         // }
     }
 
-    // for(size_t bucket = 0; bucket < h_table.t_table.bucket_count(); bucket++)
-    //     std::cout << h_table.t_table.bucket_size(bucket) << std::endl;
+    for(size_t bucket = 0; bucket < h_table.t_table.bucket_count(); bucket++)
+        std::cout << h_table.t_table.bucket_size(bucket) << std::endl;
 
     // std::bitset<722>  test(std::string("01100000000000000000000100000000000000011000000000000101000001000000000001000110000000000100000000010000000000100000000000000100000000001010101010010101000000000100000000000000000000000100000000000000000000000010000010000010100000000000100000000000100000001010000000000000100000000000000000000110100000000000000010000000000000000010010010000000000000001000000000000000000001011000000000000001010000000000000100010100000000000001010101000000000100001000010000000000000010101010000100001010001000010000000000000000000100100000100000000000000000000000000100100000000000000000000100000000010000000000000000000000000001100000101010000100000000000000000000010000000001001001000000000000000000000100000000000000000000000000000000"));
     // std::cout << std::hash<std::bitset<722>>{}(test) << std::endl;

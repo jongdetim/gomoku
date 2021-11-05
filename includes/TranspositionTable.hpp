@@ -19,7 +19,7 @@ public:
     uint64_t dumb_hash(BITBOARD board) const;
     size_t operator()(const Board &Key) const
     {
-        return hash32(Key.get_state());
+        return default_hash(Key.get_state());
     }
 };
 

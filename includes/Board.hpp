@@ -18,7 +18,7 @@
 # define BITBOARD std::bitset<MASKSIZE>
 
 // globals
-const int NEIGHBOURS[8] = {-20, -19, -18, -1, 1, 18, 19, 20};
+const int NEIGHBOURS[8] = {-20, -19, -18, 1, 20, 19, 18, -1};
 
 class Board
 {
@@ -35,7 +35,7 @@ public:
 	std::vector<Board>		generate_children_bits(std::vector<int> &filled_positions, int player);
 	std::vector<Board>		generate_children_vect(std::vector<int> &filled_positions, int player) const;
 	std::set<int>			get_moves(std::vector<int> &filled_positions) const;
-	void					get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves);
+	void					get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves, int player);
 	std::vector<int> 		get_moves_vect(std::vector<int> &filled_positions) const;
 	BITBOARD				get_state(void) const;
 	void					remove(int row, int col);
@@ -52,7 +52,8 @@ public:
 	int						get_player(int index) const;
 	int						get_last_player(void) const;
 	bool					is_full(void) const;
-
+	bool					check_free_threes(int move, int player) const;
+	bool					free_threes_direction(int move, int direction, int player) const;
 	int						last_move;
 	int						h;
 

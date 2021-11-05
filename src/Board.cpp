@@ -1,4 +1,5 @@
 #include "Board.hpp"
+#include "misc.hpp"
 
 Board::Board(void) : last_move(-1), h(0), state(0), stones_played(0) {}
 
@@ -96,6 +97,46 @@ bool					Board::place(int index, int player)
 	return true;
 }
 
+bool					Board::free_threes_direction(int move, int direction, int player) const
+{
+	int pos;
+	int gaps = 0;
+	int count = 0;
+	int open = 0;
+	int shift;
+	for (int j = 0; j < 2; j++)
+	{
+		pos = move;
+		shift = NEIGHBOURS[direction + 4 * j];
+		if (gaps > 1)
+			return false;
+		for (int i = 0; i < 4; i++)
+		{
+			pos += shift;
+			if (pos < 0 || pos >= BOARDSIZE || is_offside(pos - shift, pos))
+				break;
+			if (get_player(pos) == player)
+				count++;
+			else if (get_player(pos) == -player)
+				break;
+			else if (!(pos + shift < 0 || pos - shift >= BOARDSIZE || is_offside(pos + shift, pos)) && get_player(pos + shift) == player)
+				gaps++;
+			else
+				open++;
+		}
+	}
+	return count == 2 && gaps < 2 && open + gaps > 2;
+}
+
+bool					Board::check_free_threes(int move, int player) const
+{
+	int result = 0;
+	// still need to check if last move was NOT a capture
+	for (int i = 0; i < 4; i++)
+		result += free_threes_direction(move, i, player);
+	return result > 1;
+}
+
 bool					Board::is_game_finished() const
 {
 	return false;
@@ -159,7 +200,7 @@ std::vector<int> Board::get_moves_vect(std::vector<int> &filled_positions) const
 	return moves;
 }
 
-void Board::get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves)
+void Board::get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARDSIZE> &moves, int player)
 {
 	for (int index : filled_positions)
 	{
@@ -173,6 +214,8 @@ void Board::get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARD
 				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
 					continue;
 				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
+					continue;
+				else if (check_free_threes(n_index, player))
 					continue;
 				moves[n_index] = 1;
 			}
@@ -222,7 +265,7 @@ std::vector<Board>		Board::generate_children_bits(std::vector<int> &filled_posit
     std::vector<Board> nodes;
 	std::bitset<BOARDSIZE> moves;
 
-	get_moves_bits(filled_positions, moves);
+	get_moves_bits(filled_positions, moves, player);
 	for (int i = 0; i < BOARDSIZE; i++)
 	{
 		if (moves[i])

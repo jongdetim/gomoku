@@ -36,7 +36,7 @@ void    			print_bitboard(BITBOARD bitmap)
 	}
 }
 
-static bool			is_offside(int prev_index, int index)
+bool			is_offside(int prev_index, int index)
 {
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
