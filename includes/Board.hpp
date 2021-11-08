@@ -28,7 +28,7 @@ typedef struct	s_player
 // globals
 const int NEIGHBOURS[8] = {DIAGUPL, UP, DIAGUPR, LEFT, RIGHT, DIAGDWNL, DOWN, DIAGDWNR};
 
-class Board
+class	Board
 {
 public:
 	Board(void);
