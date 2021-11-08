@@ -3,8 +3,8 @@
 
 Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1), filled_pos(0)
 {
-	this->player1 = t_player{0,0};
-	this->player2 = t_player{0,0};
+	this->player1 = t_player{0};
+	this->player2 = t_player{0};
 }
 
 Board::~Board() {}
@@ -15,8 +15,8 @@ void					Board::reset(void)
 	this->state.reset();
 	this->last_move = -1;
 	this->stones_played = 0;
-	this->player1 = t_player{0,0};
-	this->player2 = t_player{0,0};
+	this->player1 = t_player{0};
+	this->player2 = t_player{0};
 	this->filled_pos.reset();
 }
 
@@ -74,9 +74,9 @@ void					Board::show_last_move(void) const
 	}
 }
 
-bool					Board::place(int row, int col, int player) { return this->place(this->calculate_index(row, col), player); }
-
 int						Board::get_player_index(int index, int player) const { return player == PLAYER1 ? index << 1 : (index << 1) + 1; }
+
+bool					Board::place(int row, int col, int player) { return this->place(this->calculate_index(row, col), player); }
 
 bool					Board::place(int index, int player)
 {
@@ -91,7 +91,9 @@ bool					Board::place(int index, int player)
 
 	this->state[this->get_player_index(index, player)] = 1;
 	this->stones_played++;
-	this->check_capture(player);
+
+	int captures = this->check_captures(player);
+	this->update_player(player, captures);
 	return true;
 }
 
@@ -99,79 +101,21 @@ bool					Board::is_game_won(void) const { return this->heuristic.check_win(this)
 
 bool					Board::is_game_finished(void) const { return this->is_full(); }
 
-void					Board::capture(int dir, int index)
-{
-	for (int i = 1; i < 3; i++)
-		this->remove(index + (i * dir));
-}
-
-void					Board::check_capture(int player)
-{
-	bool capture;
-	int index;
-
-	for (auto dir : DIRECTIONS)
-	{
-		capture = false;
-		index = this->last_move;
-		for (int i = 1; i < 4; i++)
-		{
-			index += dir;
-			if (is_offside(index - dir, index))
-				break ;
-			if (i == 3 && this->get_player(index) == player)
-				capture = true;
-			else if (this->get_player(index) != -player)
-				break ;
-		}
-		if (capture)
-			this->capture(dir, this->last_move);
-	}
-}
-
-// creates a set of positions surrounding the currently occupied spaces
-std::bitset<BOARDSIZE>	Board::get_moves(void) const
-{
-	std::bitset<BOARDSIZE> moves{0};
-
-	for (int index = 0; index < this->filled_pos.size(); index++)
-	{
-		if (!this->filled_pos[index])
-			continue ;
-		for (int i = 0; i < 8; i++)
-		{
-			int n_index = index + DIRECTIONS[i];
-			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
-			{
-				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
-					continue;
-				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
-					continue;
-				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
-					continue;
-				moves[n_index] = 1;
-			}
-		}
-	}
-	return moves;
-}
-
 std::vector<Board>		Board::generate_children(int player) const
 {
 	Board board_copy;
     std::vector<Board> nodes;
 
 	auto moves = get_moves();
-	for (int i = 0; i < BOARDSIZE; i++)
+	for (int i = 0; i < moves.size(); i++)
 	{
-		if (moves[i])
-		{
-			board_copy = *this;
-			board_copy.place(i, player);
-			nodes.push_back(board_copy);
-			// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
-			// nodes.insert(nodes.begin(), board_copy);
-		}
+		if (!moves[i])
+			continue;
+		board_copy = *this;
+		board_copy.place(i, player);
+		nodes.push_back(board_copy);
+		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
+		// nodes.insert(nodes.begin(), board_copy);
 	}
     return nodes;
 }
@@ -211,24 +155,51 @@ int						Board::calculate_index(int row, int col) const { return (row * BOARD_LE
 
 int						Board::get_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
 
+int						Board::get_stones_played(void) const { return this->stones_played; }
+
 /* PRIVATE METHODS */
+
+int						Board::check_captures(int player)
+{
+	bool capture;
+	int index;
+	int amount = 0;
+
+	for (auto dir : DIRECTIONS)
+	{
+		capture = false;
+		index = this->last_move;
+		for (int i = 1; i < 4; i++)
+		{
+			index += dir;
+			if (is_offside(index - dir, index))
+				break ;
+			if (i == 3 && this->get_player(index) == player)
+				capture = true;
+			else if (this->get_player(index) != -player)
+				break ;
+		}
+		if (capture)
+		{
+			this->capture(dir, this->last_move);
+			amount++;
+		}
+	}
+	return amount;
+}
+
+void					Board::capture(int dir, int index)
+{
+	for (int i = 1; i < 3; i++)
+		this->remove(index + (i * dir));
+}
 
 void					Board::update_player(int player, int captures)
 {
 	if (player == PLAYER1)
-	{
-		this->player1.stones_played++;
 		this->player1.captures += captures;
-
-		this->player2.stones_played -= (captures << 1);
-	}
 	else if (player == PLAYER2)
-	{
-		this->player2.stones_played++;
 		this->player2.captures += captures;
-
-		this->player1.stones_played -= (captures << 1);
-	}
 }
 
 bool					Board::is_valid_move(int index, int player) const
@@ -238,7 +209,32 @@ bool					Board::is_valid_move(int index, int player) const
 	return true;
 }
 
-int						Board::get_stones_played(void) const { return this->stones_played; }
+// creates a set of positions surrounding the currently occupied spaces
+std::bitset<BOARDSIZE>	Board::get_moves(void) const
+{
+	std::bitset<BOARDSIZE> moves{0};
+
+	for (int index = 0; index < this->filled_pos.size(); index++)
+	{
+		if (!this->filled_pos[index])
+			continue ;
+		for (int i = 0; i < 8; i++)
+		{
+			int n_index = index + DIRECTIONS[i];
+			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
+			{
+				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
+					continue;
+				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
+					continue;
+				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
+					continue;
+				moves[n_index] = 1;
+			}
+		}
+	}
+	return moves;
+}
 
 /* OPERATOR OVERLOADS: */
 

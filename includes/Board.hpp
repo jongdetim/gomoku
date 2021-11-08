@@ -20,9 +20,7 @@
 
 typedef struct	s_player
 {
-	int			stones_played;
 	int			captures;
-
 }				t_player;
 
 // globals
@@ -73,7 +71,7 @@ private:
 	t_player				player2;
 	int						stones_played;
 
-	void					check_capture(int player);
+	int						check_captures(int player);
 	void					capture(int dir, int index);
 	void					update_player(int player, int captures);
 	bool					is_valid_move(int index, int player) const;
