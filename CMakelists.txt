@@ -9,12 +9,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-add_definitions("-std=c++17 -Ofast") #-Wall -Werror -Wextra 
 
-include_directories(${PROJECT_SOURCE_DIR}/includes)
-link_directories(${CMAKE_SOURCE_DIR}/lib)
+add_definitions("-Ofast") #-Wall -Werror -Wextra
+
+
+find_package(SDL2 REQUIRED)
+include_directories(${PROJECT_SOURCE_DIR}/includes ${SDL2_INCLUDE_DIRS})
 
 file(GLOB_RECURSE gomoku_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 add_executable(gomoku ${gomoku_SOURCES})
-target_link_libraries(gomoku SDL2)
+target_link_libraries(gomoku ${SDL2_LIBRARIES})
