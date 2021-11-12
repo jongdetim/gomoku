@@ -113,13 +113,13 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 		for (int i = 0; i < 4; i++)
 		{
 			pos += shift;
-			if (pos < 0 || pos >= BOARDSIZE || is_offside(pos - shift, pos))
+			if (is_offside(pos - shift, pos))
 				break;
 			if (get_player(pos) == player)
 				count++;
 			else if (get_player(pos) == -player)
 				break;
-			else if (!(pos + shift < 0 || pos - shift >= BOARDSIZE || is_offside(pos + shift, pos)) && get_player(pos + shift) == player)
+			else if (!(is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
 				gaps++;
 			else
 				open++;
@@ -133,7 +133,11 @@ bool					Board::check_free_threes(int move, int player) const
 	int result = 0;
 	// still need to check if last move was NOT a capture
 	for (int i = 0; i < 4; i++)
+	{
 		result += free_threes_direction(move, i, player);
+		if (result > 1)
+			break;
+	}
 	return result > 1;
 }
 

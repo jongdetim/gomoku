@@ -82,8 +82,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		tt_entry.game_finished = is_finished;
 		h_table.insert(node, tt_entry);
 		t_table.insert(node, tt_entry);
-		std::cout << hashfn(node.get_state()) << std::endl;
-		std::cout << node.get_state() << std::endl;
+		// std::cout << hashfn(node.get_state()) << std::endl;
+		// std::cout << node.get_state() << std::endl;
 
 		return (value);
 	}

@@ -41,7 +41,7 @@ bool			is_offside(int prev_index, int index)
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
 
-	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1));
+	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1) || index < 0 || index >= BOARDSIZE);
 }
 
 void				place_pieces(Board &board, int player, int start_pos, int amount, int offset, std::vector<int> &filled_positions)
