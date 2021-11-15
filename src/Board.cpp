@@ -219,8 +219,8 @@ void Board::get_moves_bits(std::vector<int> &filled_positions, std::bitset<BOARD
 					continue;
 				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
 					continue;
-				else if (check_free_threes(n_index, player))
-					continue;
+				// else if (check_free_threes(n_index, player))
+				// 	continue;
 				moves[n_index] = 1;
 			}
 		}
