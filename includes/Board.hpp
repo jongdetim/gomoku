@@ -60,7 +60,7 @@ public:
 	bool					is_game_won(void) const;
 	int						calculate_index(int row, int col) const;
 	int						get_captures(int player) const;
-	int						get_stones_played(void) const;
+	int						get_stones_in_play(void) const;
 	int						get_player_index(int index, int player) const;
 
 private:
@@ -69,7 +69,7 @@ private:
 	BoardHeuristic			heuristic;
 	t_player				player1;
 	t_player				player2;
-	int						stones_played;
+	int						stones_in_play;
 
 	int						check_captures(int player);
 	void					capture(int dir, int index);

@@ -24,13 +24,13 @@ int main()
 
 
     PRINT("Stones played");
-    PRINT(board.get_stones_played());
+    PRINT(board.get_stones_in_play());
     board.print();
     PRINT("--------------");
 
     board.place(index, PLAYER2);
     PRINT("Stones played");
-    PRINT(board.get_stones_played());
+    PRINT(board.get_stones_in_play());
     board.show_last_move();
     
     PRINT("--------------");
@@ -42,13 +42,13 @@ int main()
 
 
     PRINT("Stones played");
-    PRINT(board.get_stones_played());
+    PRINT(board.get_stones_in_play());
     board.print();
     PRINT("--------------");
 
     board.place(index, PLAYER1);
     PRINT("Stones played");
-    PRINT(board.get_stones_played());
+    PRINT(board.get_stones_in_play());
     board.show_last_move();
     
     std::cout << std::endl;

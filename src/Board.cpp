@@ -1,7 +1,7 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-Board::Board(void) : h(0), state(0), stones_played(0), last_move(-1), filled_pos(0)
+Board::Board(void) : h(0), state(0), stones_in_play(0), last_move(-1), filled_pos(0)
 {
 	this->player1 = t_player{0};
 	this->player2 = t_player{0};
@@ -14,7 +14,7 @@ void					Board::reset(void)
 	this->h = 0;
 	this->state.reset();
 	this->last_move = -1;
-	this->stones_played = 0;
+	this->stones_in_play = 0;
 	this->player1 = t_player{0};
 	this->player2 = t_player{0};
 	this->filled_pos.reset();
@@ -90,10 +90,9 @@ bool					Board::place(int index, int player)
 	this->last_move = index;
 
 	this->state[this->get_player_index(index, player)] = 1;
-	this->stones_played++;
+	this->stones_in_play++;
 
-	int captures = this->check_captures(player);
-	this->update_player(player, captures);
+	this->update_player(player, this->check_captures(player));
 	return true;
 }
 
@@ -130,7 +129,7 @@ void					Board::remove(int index)
 	index <<= 1;
 	this->state[index] = 0;
 	this->state[index+1] = 0;
-	this->stones_played--;
+	this->stones_in_play--;
 }
 
 bool					Board::is_empty_place(int index) const { return this->filled_pos[index] == 0; }
@@ -147,7 +146,7 @@ int						Board::get_player(int index) const
 
 int						Board::get_last_player(void) const { return this->get_player(this->last_move); }
 
-bool					Board::is_full(void) const { return (this->stones_played == BOARDSIZE); }
+bool					Board::is_full(void) const { return (this->stones_in_play == BOARDSIZE); }
 
 void					Board::set_state(BITBOARD new_state) { this->state = new_state; }
 
@@ -155,7 +154,7 @@ int						Board::calculate_index(int row, int col) const { return (row * BOARD_LE
 
 int						Board::get_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
 
-int						Board::get_stones_played(void) const { return this->stones_played; }
+int						Board::get_stones_in_play(void) const { return this->stones_in_play; }
 
 /* PRIVATE METHODS */
 
