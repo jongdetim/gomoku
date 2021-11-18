@@ -1,5 +1,9 @@
 #include "Board.hpp"
 #include "misc.hpp"
+#include "heuristic.hpp"
+
+// deze staat ook in heuristic
+int						g_points[6]{0,0,ROW2,ROW3,ROW4,ROW5};
 
 Board::Board(void) : last_move(-1), h(0), state(0), stones_played(0) {}
 
@@ -97,11 +101,66 @@ bool					Board::place(int index, int player)
 	return true;
 }
 
+int						Board::determine_score(int count, int gaps, int open)
+{
+	int score = 0;
+	// placeholder
+	int gap_penalty = 0;
+
+if (count + gaps + open)
+	gap_penalty += gaps;
+	if (gaps == 0)
+		gap_penalty += 1;
+	score += g_points[count];
+	score /= gap_penalty;
+	return score
+}
+
+bool					Board::get_heuristic_direction(int move, int direction, int player) const
+{
+	int pos;
+	int gaps = 0;
+	int count = 1;
+	int open = 0;
+	int shift;
+	int score;
+	for (int j = 0; j < 2; j++)
+	{
+		pos = move;
+		shift = NEIGHBOURS[direction + 4 * j];
+		if (gaps > 1)
+			return false;
+		for (int i = 0; i < 4; i++)
+		{
+			pos += shift;
+			if (is_offside(pos - shift, pos))
+				break;
+			if (get_player(pos) == player)
+				count++;
+			else if (get_player(pos) == -player)
+				break;
+			else if (!(is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
+				gaps++;
+			else
+			{
+				open++;
+				break;
+			}
+		}
+	}
+	
+	score += determine_score(count, gaps, open);
+
+	if (count == 3 && gaps < 2 && open + gaps > 2)
+		return false;
+	return true;
+}
+
 bool					Board::free_threes_direction(int move, int direction, int player) const
 {
 	int pos;
 	int gaps = 0;
-	int count = 0;
+	int count = 1;
 	int open = 0;
 	int shift;
 	for (int j = 0; j < 2; j++)
@@ -122,10 +181,13 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 			else if (!(is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
 				gaps++;
 			else
+			{
 				open++;
+				break;
+			}
 		}
 	}
-	return count == 2 && gaps < 2 && open + gaps > 2;
+	return count == 3 && gaps < 2 && open + gaps > 2;
 }
 
 bool					Board::check_free_threes(int move, int player) const
