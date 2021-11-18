@@ -107,7 +107,7 @@ int						Board::determine_score(int count, int gaps, int open)
 	// placeholder
 	int gap_penalty = 0;
 
-if (count + gaps + open)
+	if (count + gaps + open)
 	gap_penalty += gaps;
 	if (gaps == 0)
 		gap_penalty += 1;
