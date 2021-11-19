@@ -6,7 +6,7 @@ BoardHeuristic::BoardHeuristic(void) { }
 
 BoardHeuristic::~BoardHeuristic() { }
 
-int				BoardHeuristic::count_direction(const Board *board, int index, int player, int size, int dir) const
+int				BoardHeuristic::count_direction(const Board *board, int index, int player, int dir, int size) const
 {
 	int length = 0;
 	int prev_index = index;
@@ -22,54 +22,51 @@ int				BoardHeuristic::count_direction(const Board *board, int index, int player
 	return length;
 }
 
-int				BoardHeuristic::count_diag_down(const Board *board) const
+int				BoardHeuristic::count_both_dir(const Board *board, int index, int player, int dir) const
 {
 	int total = 0;
 
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, DIAGUPL);
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, DIAGDWNR);
+	total += count_direction(board, index, player, -(dir), 5);
+	total += count_direction(board, index, player, dir, 5);
 	return total - 1;
 }
 
-int				BoardHeuristic::count_diag_up(const Board *board) const
+bool			BoardHeuristic::check_wincodition_all_dir(const Board *board, int index, int player) const
 {
-	int total = 0;
+	int directions[4] = {DOWN, RIGHT, DIAGDWNL, DIAGDWNR};
 
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, DIAGUPR);
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, DIAGDWNL);
-	return total - 1;
+	for (int i = 0; i < 4; i++)
+	{
+		if (this->count_both_dir(board, index, player, directions[i]) >= WINCONDITION)
+			return true;
+	}
+	return false;
 }
 
-int				BoardHeuristic::count_ver(const Board *board) const
+bool			BoardHeuristic::continue_game(const Board *board, int index, int player) const
 {
-	int total = 0;
+	int op_player = -player;
+	int captures = board->get_player_captures(op_player);
+	Board tmp;
 
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, UP);
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, DOWN);
-	return total - 1;
+
+	for (int i = 0; i < BOARDSIZE; i++)
+	{
+		if (board->filled_pos[i])
+			continue;
+		tmp = *board;
+		if ((tmp.check_captures(op_player, i) + captures) >= CAPTUREWIN
+		|| !this->check_wincodition_all_dir(&tmp, index, player))
+			return true;
+	}
+	return false;
 }
 
-int				BoardHeuristic::count_hor(const Board *board) const
+bool			BoardHeuristic::has_won(const Board *board, int index, int player) const
 {
-	int total = 0;
-
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, LEFT);
-	total += count_direction(board, board->get_last_move(), board->get_last_player(), 5, RIGHT);
-	return total - 1;
-}
-
-bool			BoardHeuristic::check_win(const Board *board) const
-{
-	return (
-		board->get_captures(PLAYER1) >= CAPTUREWIN || \
-		board->get_captures(PLAYER2) >= CAPTUREWIN || \
-		count_hor(board) >= WINCONDITION || \
-		count_ver(board) >= WINCONDITION || \
-		count_diag_down(board) >= WINCONDITION || \
-		count_diag_up(board) >= WINCONDITION);
-}
-
-short			BoardHeuristic::get_pattern(int index, int player) const
-{
-	return 0;
+	if (board->get_player_captures(player) >= CAPTUREWIN)
+		return true;
+	if (this->check_wincodition_all_dir(board, index, player))
+		return !this->continue_game(board, index, player);
+	return false;
 }

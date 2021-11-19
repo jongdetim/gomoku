@@ -47,21 +47,24 @@ public:
 	void					remove(int index);
 	void					reset(void);
 	bool					is_empty_place(int index) const;
+	void					set_state(BITBOARD new_state);
+	int						get_player(int index) const;
+	int						get_last_player(void) const;
+	bool					is_full(void) const;
+	bool					is_game_won(void) const;
+	bool					is_game_won(int index, int player) const;
+	int						calculate_index(int row, int col) const;
+	int						get_stones_in_play(void) const;
+	int						get_player_index(int index, int player) const;
+	int						get_player_captures(int player) const;
+	int						check_captures(int player, int index);
+	
 	bool					operator==(Board const &rhs) const;
 	bool					operator!=(Board const &rhs) const;
 	bool					operator==(int const rhs) const;
 	bool					operator!=(int const rhs) const;
 	BITBOARD				operator&(Board const &rhs) const;
 	BITBOARD				operator&(BITBOARD const &rhs) const;
-	void					set_state(BITBOARD new_state);
-	int						get_player(int index) const;
-	int						get_last_player(void) const;
-	bool					is_full(void) const;
-	bool					is_game_won(void) const;
-	int						calculate_index(int row, int col) const;
-	int						get_captures(int player) const;
-	int						get_stones_in_play(void) const;
-	int						get_player_index(int index, int player) const;
 
 private:
 	BITBOARD				state;
@@ -71,7 +74,7 @@ private:
 	t_player				player2;
 	int						stones_in_play;
 
-	int						check_captures(int player);
+	bool					can_capture(int player, int index, int dir) const;
 	void					capture(int dir, int index);
 	void					update_player(int player, int captures);
 	bool					is_valid_move(int index, int player) const;

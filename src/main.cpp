@@ -4,54 +4,27 @@
 
 #define PRINT(x) std::cout << x << std::endl
 
-void create_star(Board &board, int index, int size, int player)
-{
-    for (auto dir : DIRECTIONS)
-    {
-        place_pieces(board, player, index, size, dir);
-    }
-}
-
 int main()
 {
     Board board;
-    BoardHeuristic heuristic;
+    int index = calc_index(8, 6);
+    int star_index = calc_index(3, 16); 
 
-    int index = calc_index(3, 16);
-    create_star(board, index, 3, PLAYER1);
-    create_star(board, index, 4, PLAYER2);
-    board.remove(index);
+    create_star(board, star_index, 3, PLAYER1);
+    create_star(board, star_index, 4, PLAYER2);
+    
+    board.remove(star_index);
 
+    // board.place(star_index, PLAYER2);
+    // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
 
-    PRINT("Stones played");
-    PRINT(board.get_stones_in_play());
-    board.print();
-    PRINT("--------------");
-
-    board.place(index, PLAYER2);
-    PRINT("Stones played");
-    PRINT(board.get_stones_in_play());
+    place_pieces(board, PLAYER1, index, 5, RIGHT);
     board.show_last_move();
     
-    PRINT("--------------");
-
-    index = calc_index(8, 6);
-    create_star(board, index, 3, PLAYER2);
-    create_star(board, index, 4, PLAYER1);
-    board.remove(index);
-
-
-    PRINT("Stones played");
-    PRINT(board.get_stones_in_play());
-    board.print();
-    PRINT("--------------");
-
-    board.place(index, PLAYER1);
-    PRINT("Stones played");
-    PRINT(board.get_stones_in_play());
-    board.show_last_move();
-    
-    std::cout << std::endl;
+    if (board.is_game_won())
+        std::cout << "Won!!!" << std::endl;
+    else
+        std::cout << "Not Won :(" << std::endl;
 
     return 0;
 }

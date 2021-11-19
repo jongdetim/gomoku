@@ -17,12 +17,18 @@ int					calc_index(int row, int col)
 	return (row * BOARD_LENGTH + col);
 }
 
-bool				is_offside(int index, int prev_index)
+bool				is_offside(int prev_index, int index)
 {
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
 
 	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1) || index < 0 || index >= BOARDSIZE);
+}
+
+void				create_star(Board &board, int index, int size, int player)
+{
+    for (auto dir : DIRECTIONS)
+        place_pieces(board, player, index, size, dir);
 }
 
 void    			print_bitboard(BITBOARD bitmap)

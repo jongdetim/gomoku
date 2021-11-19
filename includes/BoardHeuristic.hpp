@@ -21,13 +21,11 @@ public:
 	BoardHeuristic(void);
 	~BoardHeuristic();
 
-	bool				check_win(const Board *board) const;
-	int					count_diag_down(const Board *board) const;
-	int					count_diag_up(const Board *board) const;
-	int					count_ver(const Board *board) const;
-	int					count_hor(const Board *board) const;
-	short				get_pattern(int index, int player) const;
-	int					count_direction(const Board *board, int index, int player, int size, int dir) const;
+	bool				continue_game(const Board *board, int index, int player) const;
+	bool				has_won(const Board *board, int index, int player) const;
+	int					count_both_dir(const Board *board, int index, int player, int dir) const;
+	bool				check_wincodition_all_dir(const Board *board, int index, int player) const;
+	int					count_direction(const Board *board, int index, int player, int dir, int size) const;
 
 private:
 

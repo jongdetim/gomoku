@@ -92,11 +92,13 @@ bool					Board::place(int index, int player)
 	this->state[this->get_player_index(index, player)] = 1;
 	this->stones_in_play++;
 
-	this->update_player(player, this->check_captures(player));
+	this->update_player(player, this->check_captures(player, index));
 	return true;
 }
 
-bool					Board::is_game_won(void) const { return this->heuristic.check_win(this); }
+bool					Board::is_game_won(void) const { return this->heuristic.has_won(this, this->last_move, this->get_last_player()); }
+
+bool					Board::is_game_won(int index, int player) const { return this->heuristic.has_won(this, index, player); }
 
 bool					Board::is_game_finished(void) const { return this->is_full(); }
 
@@ -152,39 +154,41 @@ void					Board::set_state(BITBOARD new_state) { this->state = new_state; }
 
 int						Board::calculate_index(int row, int col) const { return (row * BOARD_LENGTH + col); }
 
-int						Board::get_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
-
 int						Board::get_stones_in_play(void) const { return this->stones_in_play; }
 
-/* PRIVATE METHODS */
+int						Board::get_player_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
 
-int						Board::check_captures(int player)
+int						Board::check_captures(int player, int index)
 {
-	bool capture;
-	int index;
 	int amount = 0;
 
 	for (auto dir : DIRECTIONS)
 	{
-		capture = false;
-		index = this->last_move;
-		for (int i = 1; i < 4; i++)
+		if (this->can_capture(player, index, dir))
 		{
-			index += dir;
-			if (is_offside(index - dir, index))
-				break ;
-			if (i == 3 && this->get_player(index) == player)
-				capture = true;
-			else if (this->get_player(index) != -player)
-				break ;
-		}
-		if (capture)
-		{
-			this->capture(dir, this->last_move);
+			this->capture(dir, index);
 			amount++;
 		}
 	}
 	return amount;
+}
+
+/* PRIVATE METHODS */
+
+// Assumes that on the given index the correct player is placed
+bool					Board::can_capture(int player, int index, int dir) const
+{
+	for (int i = 1; i < 4; i++)
+	{
+		if (is_offside(index, index + dir))
+			break ;
+		index += dir;
+		if (i == 3 && this->get_player(index) == player)
+			return true;
+		else if (this->get_player(index) != -player)
+			break ;
+	}
+	return false;
 }
 
 void					Board::capture(int dir, int index)
