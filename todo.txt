@@ -3,6 +3,7 @@
     principal variation
     killer moves
     history moves (?)
+    threat detection (by checking for enemy moves instead of own moves)
 -generate_children optimization (remember the moves and only change for this.last_move)
 DONE-write a wrapper for the first negamax call to catch data such as best move
 -filled_positions could be a bitset too. would be faster AND updating filled_positions is easier in recursion
@@ -10,9 +11,9 @@ DONE-write a wrapper for the first negamax call to catch data such as best move
 
 // heuristic
     -last move instead of entire heuristic for the whole board every time
-    DONE-bitset static array instead of unordered_set
+    -more meaningful heuristic implementation
 
 
 // other
     -tweak t_table & h_table. check for collisions & spread across buckets
-
+    - GUI

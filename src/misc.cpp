@@ -1,21 +1,11 @@
 #include "misc.hpp"
-#include "heuristic.hpp"
-#include "BoardHeuristic.hpp"
+#include "Board.hpp"
 
-int					get_col(int index)
-{
-	return (index % BOARD_LENGTH);
-}
+int					get_col(int index) { return (index % BOARD_LENGTH); }
 
-int					get_row(int index)
-{
-	return (index / BOARD_LENGTH);
-}
+int					get_row(int index) { return (index / BOARD_LENGTH); }
 
-int					calc_index(int row, int col)
-{
-	return (row * BOARD_LENGTH + col);
-}
+int					calc_index(int row, int col) { return (row * BOARD_LENGTH + col); }
 
 bool				is_offside(int prev_index, int index)
 {
@@ -56,14 +46,12 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGTH*BOARD_LENGTH));
+	assert(start_pos >= 0 and start_pos < (BOARDSIZE));
 	for (int i = 0; i < amount; i++)
 	{
 		prev_index = index;
 		index = start_pos + (i * offset);
 		if (is_offside(prev_index, index))
-			break ;
-		if (index >= (BOARD_LENGTH*BOARD_LENGTH) or index < 0)
 			break ;
 		board.place(index, player);
 	}
@@ -115,93 +103,4 @@ Board				create_random_board(int seed)
 		}
 	}
 	return board;
-}
-
-static void			erase_el(std::vector<int> &vec, int value)
-{
-    vec.erase(std::remove(vec.begin(), vec.end(), value), vec.end());
-}
-
-inline double		map_value(double value, double in_minrange, double in_maxrange, double out_minrange, double out_maxrange)
-{
-    return ((double)value-in_minrange)/(in_maxrange-in_minrange)*(out_maxrange-out_minrange)+out_minrange;
-}
-
-std::vector<int>   create_empty_array(void)
-{
-    std::vector<int> empty;
-
-    for (int i = 0; i < BOARDSIZE; i++)
-        empty.push_back(i);
-    return empty;
-}
-
-int    				play_random_game(Board board, int player, bool verbose)
-{
-    int index;
-	srand(time(NULL));
-
-	auto empty = create_empty_array();
-    while (true)
-    {
-        index = rand() % empty.size();
-        board.place(index, player);
-        erase_el(empty, index);
-        if (board.is_game_won())
-            break ;
-		if (board.is_full())
-		{
-			player = 0;
-			break ;
-		}
-        player = -player;
-    }
-    if (verbose)
-        board.show_last_move();
-	return player;
-}
-
-int    				play_random_game(Board board, int player, std::vector<int> empty, bool verbose)
-{
-    int index;
-
-    while (true)
-    {
-        index = rand() % empty.size();
-        board.place(index, player);
-        erase_el(empty, index);
-        if (board.is_game_won())
-            break ;
-		if (board.is_full())
-		{
-			player = 0;
-			break ;
-		}
-        player = -player;
-    }
-    if (verbose)
-        board.show_last_move();
-	return player;
-}
-
-int					play_random_games(Board &board, int start_player, int amount, bool verbose)
-{
-	srand(time(NULL));
-	auto empty = create_empty_array();
-	int wins = 0;
-
-	for (int i = 0; i < amount; i++)
-		wins += play_random_game(board, start_player, empty, verbose) == start_player ? 1 : 0;
-	return wins;
-}	
-
-int					play_random_games(Board &board, int start_player, int amount, bool verbose, int seed)
-{
-	srand(seed);
-	auto empty = create_empty_array();
-	int wins = 0;
-
-	for (int i = 0; i < amount; i++)
-		wins += play_random_game(board, start_player, empty, verbose) == start_player ? 1 : 0;
-	return wins;
 }

@@ -1,20 +1,27 @@
-#ifndef HEURISTIC_HPP
-# define HEURISTIC_HPP
+#ifndef BOARDHEURISTIC_HPP
+# define BOARDHEURISTIC_HPP
 
-# include <cmath>
-# include <bitset>
-# include <iostream>
-# include <cassert>
-# include <algorithm>
-# include "Board.hpp"
+# include "gomoku.hpp"
 
-# define ROW5 1000
-# define ROW4 100
-# define ROW3 10
-# define ROW2 1
+class Board;
 
-int				calc_heuristic(Board &state);
-// int				calc_heuristic_tim_from_parent(std::vector<int> filled_positions, Board &node);
-int				calc_heuristic_tim(Board &node);
+class Heuristic
+{
+public:
+	Heuristic(void);
+	~Heuristic();
+
+	bool				continue_game(const Board *board, int index, int player) const;
+	bool				has_won(const Board *board, int index, int player) const;
+	int					count_both_dir(const Board *board, int index, int player, int dir) const;
+	bool				check_wincodition_all_dir(const Board *board, int index, int player) const;
+	int					count_direction(const Board *board, int index, int player, int dir, int size) const;
+	int					calc_heuristic(Board &node);
+	int					eight_directions_heuristic(int index, std::bitset<BOARDSIZE> &checked_indices, int player, Board &node);
+	int					get_heuristic_last_move(Board *board);
+
+private:
+
+};
 
 #endif

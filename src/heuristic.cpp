@@ -1,198 +1,100 @@
-#include "heuristic.hpp"
-#include "misc.hpp"
+# include "Heuristic.hpp"
+# include "Board.hpp"
+# include "misc.hpp"
 
-int						g_points[6]{0,0,ROW2,ROW3,ROW4,ROW5};
+Heuristic::Heuristic(void) { }
 
-static int				go_down(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
+Heuristic::~Heuristic() { }
+
+int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size) const
 {
 	int length = 0;
+	int prev_index = index;
+
+	for (int i = 0; i < size; i++)
+	{
+		if (is_offside(index, prev_index) || board->get_player(index) != player)
+			break ;
+		length++;
+		prev_index = index;
+		index += dir;
+	}
+	return length;
+}
+
+int				Heuristic::count_both_dir(const Board *board, int index, int player, int dir) const
+{
+	int total = 0;
+
+	total += count_direction(board, index, player, -(dir), 5);
+	total += count_direction(board, index, player, dir, 5);
+	return total - 1;
+}
+
+bool			Heuristic::check_wincodition_all_dir(const Board *board, int index, int player) const
+{
+	int directions[4] = {DOWN, RIGHT, DIAGDWNL, DIAGDWNR};
 
 	for (int i = 0; i < 4; i++)
 	{
-		index += BOARD_LENGTH;
-		if (index >= BOARDSIZE || node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		length++;
+		if (this->count_both_dir(board, index, player, directions[i]) >= WINCONDITION)
+			return true;
 	}
-	return length;
+	return false;
 }
 
-static int				go_up(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
+bool			Heuristic::continue_game(const Board *board, int index, int player) const
 {
-	int length = 0;
+	int op_player = -player;
+	int captures = board->get_player_captures(op_player);
+	Board tmp;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < BOARDSIZE; i++)
 	{
-		index -= BOARD_LENGTH;
-		if (index < 0 || node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		length++;
+		if (!board->is_empty_place(i))
+			continue;
+		tmp = *board;
+		if ((tmp.check_captures(op_player, i) + captures) >= CAPTUREWIN
+		|| !this->check_wincodition_all_dir(&tmp, index, player))
+			return true;
 	}
-	return length;
+	return false;
 }
 
-int						count_ver(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
+bool			Heuristic::has_won(const Board *board, int index, int player) const
 {
-	int total = 1;
-
-	total += go_up(node, index, player, checked_indices);
-	total += go_down(node, index, player, checked_indices);
-	// std::cout << "VER:       " << total << " points: " << g_points[total] << std::endl;
-	return total;
+	if (board->get_player_captures(player) >= CAPTUREWIN)
+		return true;
+	if (this->check_wincodition_all_dir(board, index, player))
+		return !this->continue_game(board, index, player);
+	return false;
 }
 
-static int				go_left(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int length = 0;
-	int col = get_col(index);
-	int offside = col < 4 ?  col : 4;
-
-	for (int i = 0; i < offside; i++)
-	{
-		index--;
-		if (node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		length++;
-		
-	}
-	return length;
-}
-
-static int				go_right(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int length = 0;
-	int offset = (BOARD_LENGTH-1) - get_col(index);
-	int offside = offset < 4 ?  offset : 4;
-
-	for (int i = 0; i < offside; i++)
-	{
-		index++;
-		if (node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		length++;
-		
-	}
-	return length;
-}
-
-int						count_hor(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int total = 1;
-
-	total += go_left(node, index, player, checked_indices);
-	total += go_right(node, index, player, checked_indices);
-	// std::cout << "HOR:       " << total  << " points: " << g_points[total] << std::endl;
-	return total;
-}
-
-static int				diag_upR(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int length = 0;
-	int offset = (BOARD_LENGTH-1) - get_col(index);
-	int offside = offset < 4 ?  offset : 4;
-
-	for (int i = 0; i < offside; i++)
-	{
-		index -= (BOARD_LENGTH - 1);
-		if (index < 0 || node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		length++;
-	}
-	return length;
-}
-
-static int				diag_downL(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int length = 0;
-	int col = get_col(index);
-	int offside = col < 4 ?  col : 4;
-
-	for (int i = 0; i < offside; i++)
-	{
-		index += (BOARD_LENGTH-1);
-		if (index >= BOARDSIZE || node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		length++;
-		
-	}
-	return length;
-}
-
-int						count_diag_up(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int total = 1;
-
-	total += diag_upR(node, index, player, checked_indices);
-	total += diag_downL(node, index, player, checked_indices);
-	// std::cout << "DIAG_UP:   " << total  << " points: " << g_points[total] << std::endl;
-	return total;
-}
-
-static int				diag_upL(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int length = 0;
-	int col = get_col(index);
-	int offside = col < 4 ?  col : 4;
-
-	for (int i = 0; i < offside; i++)
-	{
-		index -= (BOARD_LENGTH+1);
-		if (index < 0 || node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		length++;
-	}
-	return length;
-}
-
-static int				diag_downR(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int length = 0;
-	int offset = (BOARD_LENGTH-1) - get_col(index);
-	int offside = offset < 4 ?  offset : 4;
-
-	for (int i = 0; i < offside; i++)
-	{
-		index += (BOARD_LENGTH+1);
-		if (index >= BOARDSIZE || node.get_player(index) != player)
-			break ;
-		checked_indices[index] = 1;
-		
-		length++;
-	}
-	return length;
-}
-
-int						count_diag_down(Board &node, int index, int player, std::bitset<BOARDSIZE> &checked_indices)
-{
-	int total = 1;
-
-	total += diag_upL(node, index, player, checked_indices);
-	total += diag_downR(node, index, player, checked_indices);
-	// std::cout << "DIAG_DOWN: " << total  << " points: " << g_points[total] << std::endl;
-	return total;
-}
-
-int		eight_directions_heuristic(int index, std::bitset<BOARDSIZE> &checked_indices, int player, Board &node)
+int				Heuristic::eight_directions_heuristic(int index, std::bitset<BOARDSIZE> &checked_indices, int player, Board &node)
 {
 	int points = 0;
 
-	points += g_points[count_hor(node, index, player, checked_indices)];
-	points += g_points[count_ver(node, index, player, checked_indices)];
-	points += g_points[count_diag_down(node, index, player, checked_indices)];
-	points += g_points[count_diag_up(node, index, player, checked_indices)];
+	// points += POINTS[count_hor(node, index, player, checked_indices)];
+	// points += POINTS[count_ver(node, index, player, checked_indices)];
+	// points += POINTS[count_diag_down(node, index, player, checked_indices)];
+	// points += POINTS[count_diag_up(node, index, player, checked_indices)];
 
 	return points;
 }
 
+int				Heuristic::get_heuristic_last_move(Board *board)
+{
+	int points = 0;
 
-int		calc_heuristic_tim(Board &node)
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), RIGHT)];
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNR)];
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DOWN)];
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNL)];
+
+	return points;
+}
+
+int				Heuristic::calc_heuristic(Board &node)
 {
 	std::bitset<BOARDSIZE> checked_indices = 0;
 	int total_score = 0;
@@ -200,7 +102,9 @@ int		calc_heuristic_tim(Board &node)
 
 	for (int index = 0; index < node.filled_pos.size(); index++)
 	{
-		if (!node.filled_pos[index] || checked_indices[index])
+		if (node.is_empty_place(index))
+			continue;
+		if (checked_indices[index])
 			continue;
 		player = node.get_player(index);
 		if (player == 0)
@@ -208,14 +112,14 @@ int		calc_heuristic_tim(Board &node)
 		total_score += eight_directions_heuristic(index, checked_indices, player, node);
 		checked_indices[index] = 1;
 	}
-
 	if (node.filled_pos.size() != checked_indices.count())
 	{
 		node.print();
 		for (int i = 0; i < node.filled_pos.size(); i++)
 		{
-			if (node.filled_pos[i])
-				std::cout << i << " ";
+			if (node.is_empty_place(i))
+				continue;
+			std::cout << i << " ";
 		}
 		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
 		for (int j = 0; j < BOARDSIZE; j++)

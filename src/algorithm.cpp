@@ -1,4 +1,7 @@
 #include "algorithm.hpp"
+#include "Board.hpp"
+#include "Heuristic.hpp"
+#include "TranspositionTable.hpp"
 
 int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
@@ -36,6 +39,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	int value = -std::numeric_limits<int>::max();
 	bool is_finished;
 	int best_move = -1;
+	std::hash<std::bitset<722>> hashfn;
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -67,9 +71,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		TOTAL_LEAVES += 1;
 		// node.print();
 
-		if (h_table.lookup(node, tt_entry))
-			std::cout << "impossible ding" << std::endl;
-		value = color * calc_heuristic_tim(node);
+		// if (h_table.lookup(node, tt_entry))
+		// 	std::cout << "impossible ding" << std::endl;
+		value = color * node.heuristic.calc_heuristic(node);
 
 		// node.print();
 		// std::cout << "value: " << value * color << std::endl;
@@ -80,13 +84,17 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		tt_entry.game_finished = is_finished;
 		h_table.insert(node, tt_entry);
 		t_table.insert(node, tt_entry);
+		// std::cout << hashfn(node.get_state()) << std::endl;
+		// std::cout << node.get_state() << std::endl;
+
 		return (value);
 	}
 	std::vector<Board> child_nodes;
-	child_nodes = node.generate_children(color);
+	// for (int i = 0; i < 100; i++)
+		child_nodes = node.generate_children(color);
 
 		// for (auto &it : child_nodes)
-		// 	std::cout << it.get_last_move() << std::endl;
+		// 	std::cout << it.last_move << std::endl;
 		// exit(1);
 
 	auto comp = [&](Board a, Board b)-> bool
@@ -111,10 +119,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			{
 				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = -color * calc_heuristic_tim(child);
+			    child.h = -color * node.heuristic.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
-				h_table.insert(child, ht_entry);
+				// h_table.insert(child, ht_entry);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
@@ -129,6 +137,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	{
 		int old_value = value;
 
+		if (child.check_free_threes(child.get_last_move(), color))
+			continue;
 		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, t_table, h_table, false));
 		alpha = std::max(alpha, value);
 		if (initial_call && value > old_value)

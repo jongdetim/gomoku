@@ -74,8 +74,6 @@ void					Board::show_last_move(void) const
 	}
 }
 
-int						Board::get_player_index(int index, int player) const { return player == PLAYER1 ? index << 1 : (index << 1) + 1; }
-
 bool					Board::place(int row, int col, int player) { return this->place(this->calculate_index(row, col), player); }
 
 bool					Board::place(int index, int player)
@@ -120,6 +118,61 @@ std::vector<Board>		Board::generate_children(int player) const
 	}
     return nodes;
 }
+
+// int						Board::determine_score(int count, int gaps, int open)
+// {
+// 	int score = 0;
+// 	// placeholder
+// 	int gap_penalty = 0;
+
+// 	if (count + gaps + open)
+// 	gap_penalty += gaps;
+// 	if (gaps == 0)
+// 		gap_penalty += 1;
+// 	score += g_points[count];
+// 	score /= gap_penalty;
+// 	return score
+// }
+
+// bool					Board::get_heuristic_direction(int move, int direction, int player) const
+// {
+// 	int pos;
+// 	int gaps = 0;
+// 	int count = 1;
+// 	int open = 0;
+// 	int shift;
+// 	int score;
+// 	for (int j = 0; j < 2; j++)
+// 	{
+// 		pos = move;
+// 		shift = DIRECTIONS[direction + 4 * j];
+// 		if (gaps > 1)
+// 			return false;
+// 		for (int i = 0; i < 4; i++)
+// 		{
+// 			pos += shift;
+// 			if (is_offside(pos - shift, pos))
+// 				break;
+// 			if (get_player(pos) == player)
+// 				count++;
+// 			else if (get_player(pos) == -player)
+// 				break;
+// 			else if (!(is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
+// 				gaps++;
+// 			else
+// 			{
+// 				open++;
+// 				break;
+// 			}
+// 		}
+// 	}
+	
+// 	score += determine_score(count, gaps, open);
+
+// 	if (count == 3 && gaps < 2 && open + gaps > 2)
+// 		return false;
+// 	return true;
+// }
 
 void					Board::remove(int row, int col) { this->remove(this->calculate_index(row, col)); }
 
@@ -173,7 +226,56 @@ int						Board::check_captures(int player, int index)
 	return amount;
 }
 
+bool					Board::is_valid_move(int index, int player) const
+{
+	if (!this->is_empty_place(index))
+		return false;
+	return true;
+}
+
+bool					Board::check_free_threes(int move, int player) const
+{
+	int result = 0;
+	// still need to check if last move was NOT a capture
+	for (int i = 0; i < 4; i++)
+	{
+		result += free_threes_direction(move, i, player);
+		if (result > 1)
+			break;
+	}
+	return result > 1;
+}
+
 /* PRIVATE METHODS */
+
+int						Board::get_player_index(int index, int player) const { return player == PLAYER1 ? index << 1 : (index << 1) + 1; }
+
+// creates a set of positions surrounding the currently occupied spaces
+std::bitset<BOARDSIZE>	Board::get_moves(void) const
+{
+	std::bitset<BOARDSIZE> moves{0};
+
+	for (int index = 0; index < this->filled_pos.size(); index++)
+	{
+		if (!this->filled_pos[index])
+			continue ;
+		for (int i = 0; i < 8; i++)
+		{
+			int n_index = index + DIRECTIONS[i];
+			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
+			{
+				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
+					continue;
+				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
+					continue;
+				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
+					continue;
+				moves[n_index] = 1;
+			}
+		}
+	}
+	return moves;
+}
 
 // Assumes that on the given index the correct player is placed
 bool					Board::can_capture(int player, int index, int dir) const
@@ -205,38 +307,38 @@ void					Board::update_player(int player, int captures)
 		this->player2.captures += captures;
 }
 
-bool					Board::is_valid_move(int index, int player) const
+bool					Board::free_threes_direction(int move, int direction, int player) const
 {
-	if (!this->is_empty_place(index))
-		return false;
-	return true;
-}
-
-// creates a set of positions surrounding the currently occupied spaces
-std::bitset<BOARDSIZE>	Board::get_moves(void) const
-{
-	std::bitset<BOARDSIZE> moves{0};
-
-	for (int index = 0; index < this->filled_pos.size(); index++)
+	int pos;
+	int gaps = 0;
+	int count = 1;
+	int open = 0;
+	int shift;
+	for (int j = 0; j < 2; j++)
 	{
-		if (!this->filled_pos[index])
-			continue ;
-		for (int i = 0; i < 8; i++)
+		pos = move;
+		shift = DIRECTIONS[direction + 4 * j];
+		if (gaps > 1)
+			return false;
+		for (int i = 0; i < 4; i++)
 		{
-			int n_index = index + DIRECTIONS[i];
-			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
+			pos += shift;
+			if (is_offside(pos - shift, pos))
+				break;
+			if (get_player(pos) == player)
+				count++;
+			else if (get_player(pos) == -player)
+				break;
+			else if (!(is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
+				gaps++;
+			else
 			{
-				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
-					continue;
-				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
-					continue;
-				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
-					continue;
-				moves[n_index] = 1;
+				open++;
+				break;
 			}
 		}
 	}
-	return moves;
+	return count == 3 && gaps < 2 && open + gaps > 2;
 }
 
 /* OPERATOR OVERLOADS: */
