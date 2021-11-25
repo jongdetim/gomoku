@@ -119,61 +119,6 @@ std::vector<Board>		Board::generate_children(int player) const
     return nodes;
 }
 
-// int						Board::determine_score(int count, int gaps, int open)
-// {
-// 	int score = 0;
-// 	// placeholder
-// 	int gap_penalty = 0;
-
-// 	if (count + gaps + open)
-// 	gap_penalty += gaps;
-// 	if (gaps == 0)
-// 		gap_penalty += 1;
-// 	score += g_points[count];
-// 	score /= gap_penalty;
-// 	return score
-// }
-
-// bool					Board::get_heuristic_direction(int move, int direction, int player) const
-// {
-// 	int pos;
-// 	int gaps = 0;
-// 	int count = 1;
-// 	int open = 0;
-// 	int shift;
-// 	int score;
-// 	for (int j = 0; j < 2; j++)
-// 	{
-// 		pos = move;
-// 		shift = DIRECTIONS[direction + 4 * j];
-// 		if (gaps > 1)
-// 			return false;
-// 		for (int i = 0; i < 4; i++)
-// 		{
-// 			pos += shift;
-// 			if (is_offside(pos - shift, pos))
-// 				break;
-// 			if (get_player(pos) == player)
-// 				count++;
-// 			else if (get_player(pos) == -player)
-// 				break;
-// 			else if (!(is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
-// 				gaps++;
-// 			else
-// 			{
-// 				open++;
-// 				break;
-// 			}
-// 		}
-// 	}
-	
-// 	score += determine_score(count, gaps, open);
-
-// 	if (count == 3 && gaps < 2 && open + gaps > 2)
-// 		return false;
-// 	return true;
-// }
-
 void					Board::remove(int row, int col) { this->remove(this->calculate_index(row, col)); }
 
 void					Board::remove(int index)
@@ -245,6 +190,10 @@ bool					Board::check_free_threes(int move, int player) const
 	}
 	return result > 1;
 }
+
+int						Board::calc_heuristic(void) { return this->heuristic.calc_heuristic(this); }
+
+int						Board::calc_heuristic(Board &node) { return this->heuristic.calc_heuristic(&node); }
 
 /* PRIVATE METHODS */
 

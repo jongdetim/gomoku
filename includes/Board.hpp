@@ -31,6 +31,8 @@ public:
 	int						check_captures(int player, int index);
 	std::vector<Board>		generate_children(int player) const;
 	bool					check_free_threes(int move, int player) const;
+	int						calc_heuristic(void);
+	int						calc_heuristic(Board &node);
 
 	int						get_player(int index) const;
 	int						get_last_player(void) const;

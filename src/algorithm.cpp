@@ -73,7 +73,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = color * node.heuristic.calc_heuristic(node);
+		value = color * node.calc_heuristic();
 
 		// node.print();
 		// std::cout << "value: " << value * color << std::endl;
@@ -119,7 +119,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			{
 				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = -color * node.heuristic.calc_heuristic(child);
+			    child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
 				// h_table.insert(child, ht_entry);
