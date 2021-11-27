@@ -61,29 +61,55 @@ bool			Heuristic::get_direction(const Board *board, int move, int direction, int
 	return true;
 }
 
-int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size) const
+int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices) const
 {
 	int length = 0;
-	int prev_index = index;
+	int prev_index;
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		if (is_offside(index, prev_index) || board->get_player(index) != player)
-			break ;
-		length++;
 		prev_index = index;
 		index += dir;
+		if (is_offside(index, prev_index) || board->get_player(index) != player)
+			break ;
+		checked_indices[index] = 1;
+		length++;
 	}
 	return length;
 }
 
+int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size) const
+{
+	int length = 0;
+	int prev_index;
+
+	for (int i = 0; i < size; i++)
+	{
+		prev_index = index;
+		index += dir;
+		if (is_offside(index, prev_index) || board->get_player(index) != player)
+			break ;
+		length++;
+	}
+	return length;
+}
+
+int				Heuristic::count_both_dir(const Board *board, int index, int player, int dir, std::bitset<BOARDSIZE> &checked_indices) const
+{
+	int total = 1;
+
+	total += count_direction(board, index, player, -(dir), 5, checked_indices);
+	total += count_direction(board, index, player, dir, 5, checked_indices);
+	return total;
+}
+
 int				Heuristic::count_both_dir(const Board *board, int index, int player, int dir) const
 {
-	int total = 0;
+	int total = 1;
 
 	total += count_direction(board, index, player, -(dir), 5);
 	total += count_direction(board, index, player, dir, 5);
-	return total - 1;
+	return total;
 }
 
 bool			Heuristic::check_wincodition_all_dir(const Board *board, int index, int player) const
@@ -125,14 +151,15 @@ bool			Heuristic::has_won(const Board *board, int index, int player) const
 	return false;
 }
 
-int				Heuristic::eight_directions_heuristic(Board *node, int index, std::bitset<BOARDSIZE> &checked_indices, int player)
+int				Heuristic::eight_directions_heuristic(Board *board, int index, std::bitset<BOARDSIZE> &checked_indices, int player)
 {
 	int points = 0;
 
-	// points += POINTS[count_hor(node, index, player, checked_indices)];
-	// points += POINTS[count_ver(node, index, player, checked_indices)];
-	// points += POINTS[count_diag_down(node, index, player, checked_indices)];
-	// points += POINTS[count_diag_up(node, index, player, checked_indices)];
+
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), RIGHT, checked_indices)];
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNR, checked_indices)];
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DOWN, checked_indices)];
+	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNL, checked_indices)];
 
 	return points;
 }
