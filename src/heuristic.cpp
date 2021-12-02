@@ -6,60 +6,76 @@ Heuristic::Heuristic(void) { }
 
 Heuristic::~Heuristic() { }
 
-int				Heuristic::determine_score(int count, int gaps, int open) const
-{
-	int score = 0;
-	// placeholder
-	int gap_penalty = 0;
+// Pattern search_subpattern(t_pattern &pat, t_pattern &sub)
+// {
+//     uint8_t times = pat.length - sub.length;
 
-	if (count + gaps + open)
-	gap_penalty += gaps;
-	if (gaps == 0)
-		gap_penalty += 1;
-	score += POINTS[count];
-	score /= gap_penalty;
-	return score;
-}
+//     for (uint8_t i = 0; i < times + 1; i++)
+//     {
+//         if(uint8_t(pat.pattern << i) >> times == sub.pattern)
+//         {
+//             std::cout << std::bitset<8>(uint8_t(pat.pattern << i) >> times) << std::endl;
+//             // pattern found, do the thing
+//         }
+//     }
+//     return none;
+// }
 
-bool			Heuristic::get_direction(const Board *board, int move, int direction, int player) const
-{
-	int pos;
-	int gaps = 0;
-	int count = 1;
-	int open = 0;
-	int shift;
-	int score;
-	for (int j = 0; j < 2; j++)
-	{
-		pos = move;
-		shift = DIRECTIONS[direction + 4 * j];
-		if (gaps > 1)
-			return false;
-		for (int i = 0; i < 4; i++)
-		{
-			pos += shift;
-			if (is_offside(pos - shift, pos))
-				break;
-			if (board->get_player(pos) == player)
-				count++;
-			else if (board->get_player(pos) == -player)
-				break;
-			else if (!(is_offside(pos, pos + shift)) && board->get_player(pos + shift) == player)
-				gaps++;
-			else
-			{
-				open++;
-				break;
-			}
-		}
-	}
+
+// int				Heuristic::determine_score(int count, int gaps, int open) const
+// {
+// 	int score = 0;
+// 	// placeholder
+// 	int gap_penalty = 0;
+
+// 	if (count + gaps + open)
+// 	gap_penalty += gaps;
+// 	if (gaps == 0)
+// 		gap_penalty += 1;
+// 	score += POINTS[count];
+// 	score /= gap_penalty;
+// 	return score;
+// }
+
+// bool			Heuristic::get_direction(const Board *board, int move, int direction, int player) const
+// {
+// 	int pos;
+// 	int gaps = 0;
+// 	int count = 1;
+// 	int open = 0;
+// 	int shift;
+// 	int score;
+// 	for (int j = 0; j < 2; j++)
+// 	{
+// 		pos = move;
+// 		shift = DIRECTIONS[direction + 4 * j];
+// 		if (gaps > 1)
+// 			return false;
+// 		for (int i = 0; i < 4; i++)
+// 		{
+// 			pos += shift;
+// 			if (is_offside(pos - shift, pos))
+// 				break;
+// 			if (board->get_player(pos) == player)
+// 				count++;
+// 			else if (board->get_player(pos) == -player)
+// 				break;
+// 			else if (!(is_offside(pos, pos + shift)) && board->get_player(pos + shift) == player)
+// 				gaps++;
+// 			else
+// 			{
+// 				open++;
+// 				break;
+// 			}
+// 		}
+// 	}
 	
-	score += determine_score(count, gaps, open);
+// 	score += determine_score(count, gaps, open);
 
-	if (count == 3 && gaps < 2 && open + gaps > 2)
-		return false;
-	return true;
-}
+// 	if (count == 3 && gaps < 2 && open + gaps > 2)
+// 		return false;
+// 	return true;
+// }
 
 int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices) const
 {

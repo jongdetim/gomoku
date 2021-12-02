@@ -27,7 +27,7 @@
 # define LOWERBOUND 1
 
 const int				POINTS[6]{0,0,ROW2,ROW3,ROW4,ROW5};
-const int				DIRECTIONS[8] = {DIAGUPL, UP, DIAGUPR, RIGHT, DIAGDWNR, DOWN, DIAGDWNL, LEFT};
+const int				DIRECTIONS[8] = {LEFT, DIAGUPL, UP, DIAGUPR, RIGHT, DIAGDWNR, DOWN, DIAGDWNL};
 
 # include <iostream>
 # include <cassert>

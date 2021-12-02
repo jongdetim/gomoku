@@ -5,6 +5,17 @@
 
 class Board;
 
+enum Pattern {none, closed2, open2, closed3, open3, closed4, open4, five};
+
+typedef struct s_pattern
+{
+	int left_right[2];
+	int count;
+	int space;
+    int length;
+    unsigned char pattern;
+}   t_pattern;
+
 class Heuristic
 {
 public:
