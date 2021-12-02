@@ -4,6 +4,16 @@
 # include "gomoku.hpp"
 # include "Heuristic.hpp"
 
+# define BLACK "\033[0;30m"
+# define RED "\033[0;31m"
+# define GREEN "\033[0;32m"
+# define YELLOW "\033[0;33m"
+# define BLUE "\033[0;34m"
+# define PURPLE "\033[0;35m"
+# define CYAN "\033[0;36m"
+# define WHITE "\033[0;37m"
+# define DEFAULT "\033[0m"
+
 typedef struct	s_player
 {
 	int			captures;
@@ -19,6 +29,7 @@ public:
 	std::bitset<BOARDSIZE>	filled_pos;
 	Heuristic				heuristic;
 	
+	void					play(void);
 	void					print(void) const;
 	void					show_last_move(void) const;
 	bool					place(int row, int col, int player);
@@ -27,7 +38,6 @@ public:
 	void					remove(int index);
 	void					reset(void);
 	void					set_state(BITBOARD new_state);
-	int						calculate_index(int row, int col) const;
 	int						check_captures(int player, int index);
 	std::vector<Board>		generate_children(int player) const;
 	bool					check_free_threes(int move, int player) const;
@@ -62,12 +72,15 @@ private:
 	t_player				player2;
 	int						stones_in_play;
 
+	std::vector<std::string>tokenize(std::string &str, char delim);
+	bool					try_parse_input(std::string &input, int &out);
 	int						get_player_index(int index, int player) const;
 	bool					can_capture(int player, int index, int dir) const;
 	void					capture(int dir, int index);
 	void					update_player(int player, int captures);
 	std::bitset<BOARDSIZE>	get_moves(void) const;
 	bool					free_threes_direction(int move, int direction, int player) const;
+
 
 };
 

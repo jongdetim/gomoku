@@ -58,14 +58,14 @@ void					Board::show_last_move(void) const
 			else if (this->state[index<<1])
 			{
 				if (this->last_move == index)
-					printf("\x1B[33mO \033[0m");
+					printf("%sO %s", CYAN, DEFAULT);
 				else
 					std::cout << 'o' << ' ';
 			}
 			else
 			{
 				if (this->last_move == index)
-					printf("\x1B[33mX \033[0m");
+					printf("%sX %s", RED, DEFAULT);
 				else
 					std::cout << 'x' << ' ';
 			}
@@ -74,12 +74,12 @@ void					Board::show_last_move(void) const
 	}
 }
 
-bool					Board::place(int row, int col, int player) { return this->place(this->calculate_index(row, col), player); }
+bool					Board::place(int row, int col, int player) { return this->place(calc_index(row, col), player); }
 
 bool					Board::place(int index, int player)
 {
 	assert(player == PLAYER1 || player == PLAYER2);
-	assert(index >= 0 && index < BOARDSIZE);
+	// assert(index >= 0 && index < BOARDSIZE);
 
 	if (!this->is_valid_move(index, player))
 		return false;
@@ -119,7 +119,7 @@ std::vector<Board>		Board::generate_children(int player) const
     return nodes;
 }
 
-void					Board::remove(int row, int col) { this->remove(this->calculate_index(row, col)); }
+void					Board::remove(int row, int col) { this->remove(calc_index(row, col)); }
 
 void					Board::remove(int index)
 {
@@ -150,8 +150,6 @@ bool					Board::is_full(void) const { return (this->stones_in_play == BOARDSIZE)
 
 void					Board::set_state(BITBOARD new_state) { this->state = new_state; }
 
-int						Board::calculate_index(int row, int col) const { return (row * BOARD_LENGTH + col); }
-
 int						Board::get_stones_in_play(void) const { return this->stones_in_play; }
 
 int						Board::get_player_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
@@ -173,6 +171,8 @@ int						Board::check_captures(int player, int index)
 
 bool					Board::is_valid_move(int index, int player) const
 {
+	if (index < 0 || index >= BOARDSIZE)
+		return false;
 	if (!this->is_empty_place(index))
 		return false;
 	return true;
@@ -195,7 +195,73 @@ int						Board::calc_heuristic(void) { return this->heuristic.calc_heuristic(thi
 
 int						Board::calc_heuristic(Board &node) { return this->heuristic.calc_heuristic(&node); }
 
+void					Board::play(void)
+{
+	int player = random(1, 2) == PLAYER1 ? PLAYER1 : PLAYER2;
+	std::string input;
+	int index;
+
+	while (input != "quit" && input != "exit")
+	{
+		system("clear");
+		std::cout << std::endl;
+		std::cout << "Captures:" << std::endl;
+		std::cout << "\tP1 " << this->get_player_captures(PLAYER1) << "\t\t\tP2 " << this->get_player_captures(PLAYER2) << std::endl;
+		std::cout << std::endl;
+		this->show_last_move();
+
+		std::cout << "P" << (player == PLAYER1 ? 1 : 2);
+		std::cout << " place: ";
+   		std::getline(std::cin, input);
+		if (!this->try_parse_input(input, index))
+			continue;
+		if (!this->place(index, player))
+			continue;
+		if (this->is_game_won(index, player))
+		{
+			std::cout << "*** PLAYER" << (player == PLAYER1 ? 1 : 2) << " WINS!!! ***";
+			break;
+		}
+		player = -player;
+	}
+}
+
 /* PRIVATE METHODS */
+
+std::vector<std::string>Board::tokenize(std::string &str, char delim)
+{
+	size_t start;
+	size_t end = 0;
+    std::vector<std::string> tokens;
+
+	while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
+	{
+		end = str.find(delim, start);
+		tokens.push_back(str.substr(start, end - start));
+	}
+	return tokens;
+}
+
+bool					Board::try_parse_input(std::string &input, int &out)
+{
+	auto tokens = tokenize(input, ' ');
+	int col;
+
+	if (tokens.size() > 2 || tokens.size() == 0)
+		return false;
+
+	try
+	{
+		out = std::stoi(tokens[0]);
+		if (tokens.size() == 2)
+		{
+			col = std::stoi(tokens[1]);
+			out = calc_index(out, col);
+		}
+	} catch (...) { return false; }
+
+	return true;
+}
 
 int						Board::get_player_index(int index, int player) const { return player == PLAYER1 ? index << 1 : (index << 1) + 1; }
 

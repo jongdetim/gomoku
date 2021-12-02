@@ -1,6 +1,17 @@
 #include "misc.hpp"
 #include "Board.hpp"
 
+int					random(int min, int max)
+{
+   static bool first = true;
+   if (first) 
+   {  
+      srand( time(NULL) );
+      first = false;
+   }
+   return min + rand() % (( max + 1 ) - min);
+}
+
 int					get_col(int index) { return (index % BOARD_LENGTH); }
 
 int					get_row(int index) { return (index / BOARD_LENGTH); }
