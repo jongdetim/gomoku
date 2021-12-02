@@ -30,8 +30,7 @@ private:
 	void			draw_state(BITBOARD state);
 	void			update_window(void);
 	game_loop		handle_events(SDL_Event &e);
-
-
+	void			draw_circle(int32_t centreX, int32_t centreY, int32_t radius);
 
 };
 

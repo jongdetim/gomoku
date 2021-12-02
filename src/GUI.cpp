@@ -22,6 +22,15 @@ bool		GUI::initiate_GUI(std::string title, int width, int height)
 	return true;
 }
 
+GUI::~GUI()
+{
+    if (this->renderer)
+		SDL_DestroyRenderer(this->renderer);
+	if (this->window)
+    	SDL_DestroyWindow(this->window);
+	SDL_Quit();
+}
+
 void		GUI::game(const Board &board)
 {
 	SDL_Event e;
@@ -30,15 +39,6 @@ void		GUI::game(const Board &board)
 	{
 		this->draw_state(board.get_state());
     }
-}
-
-GUI::~GUI()
-{
-    if (this->renderer)
-		SDL_DestroyRenderer(this->renderer);
-	if (this->window)
-    	SDL_DestroyWindow(this->window);
-	SDL_Quit();
 }
 
 /* Private Methods */
@@ -59,6 +59,25 @@ game_loop	GUI::handle_events(SDL_Event &event)
 			int x, y;
 			SDL_GetMouseState( &x, &y );
 			printf("Mouse clicked: X:%d, Y:%d\n", x, y);
+
+			// SDL_RenderClear(this->renderer);
+
+			SDL_Rect rect;
+			rect.w = 200;
+			rect.h = 200;
+			rect.x = x - (rect.w >> 1);
+			rect.y = y - (rect.h >> 1);
+
+			SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+			// SDL_RenderDrawRect(this->renderer, &rect);
+			
+			draw_circle(x, y, 100);
+
+			// SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+
+			SDL_RenderPresent(this->renderer);
+
+			
 		}
 	}
 	return loop;
@@ -68,7 +87,7 @@ void		GUI::update_window(void) { SDL_UpdateWindowSurface(this->window); }
 
 
 
-void DrawCircle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, int32_t radius)
+void		GUI::draw_circle(int32_t centreX, int32_t centreY, int32_t radius)
 {
    const int32_t diameter = (radius * 2);
 
@@ -81,27 +100,27 @@ void DrawCircle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, int32
    while (x >= y)
 	{
 		//  Each of the following renders an octant of the circle
-		SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
-		SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
-		SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
-		SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
-		SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
-		SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
-		SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
-		SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
+		SDL_RenderDrawPoint(this->renderer, centreX + x, centreY - y);
+		SDL_RenderDrawPoint(this->renderer, centreX + x, centreY + y);
+		SDL_RenderDrawPoint(this->renderer, centreX - x, centreY - y);
+		SDL_RenderDrawPoint(this->renderer, centreX - x, centreY + y);
+		SDL_RenderDrawPoint(this->renderer, centreX + y, centreY - x);
+		SDL_RenderDrawPoint(this->renderer, centreX + y, centreY + x);
+		SDL_RenderDrawPoint(this->renderer, centreX - y, centreY - x);
+		SDL_RenderDrawPoint(this->renderer, centreX - y, centreY + x);
 
 		if (error <= 0)
 		{
-		++y;
-		error += ty;
-		ty += 2;
+			++y;
+			error += ty;
+			ty += 2;
 		}
 
 		if (error > 0)
 		{
-		--x;
-		tx += 2;
-		error += (tx - diameter);
+			--x;
+			tx += 2;
+			error += (tx - diameter);
 		}
    }
 }
