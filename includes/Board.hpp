@@ -39,7 +39,8 @@ public:
 	void					play(player_fn p1_fn);
 	void					play(player_fn p1_fn, player_fn p2_fn);
 	void					print(void) const;
-	void					show_last_move(void) const;
+	void					show_move(void) const;
+	void					show_move(int show_index) const;
 	bool					place(int row, int col, int player);
 	bool					place(int index, int player);
 	bool					place(int index, Player &player);
@@ -59,8 +60,6 @@ public:
 	int						get_last_move(void) const;
 	Player					*get_player_by_id(int id);
 	
-	bool					has_won(void) const;
-	bool					has_won(Player &player) const;
 	bool					is_empty_place(int index) const;
 	bool					is_game_finished() const;
 	bool					is_full(void) const;
@@ -80,9 +79,11 @@ private:
 	Player					player2;
 	Heuristic				heuristic;
 
+	bool					has_won(void) const;
+	bool					has_won(Player &player) const;
+	bool					still_winning(Player &player) const;
 	void					set_players(void);
-	void					reset_player(Player &player);
-	void					print_winner(void) const;
+	void					print_winner(Player &player) const;
 	void					print_stats(void) const;
 	bool					can_capture(int player, int index, int dir) const;
 	void					capture(int dir, int index);

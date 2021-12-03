@@ -12,6 +12,7 @@ public:
 	Heuristic(void);
 	~Heuristic();
 
+	bool				still_winning(const Board *board, Player &player) const;
 	bool				continue_game(const Board *board, Player &player) const;
 	bool				has_won(const Board *board, Player &player) const;
 	int					count_both_dir(const Board *board, int index, int player, int dir) const;

@@ -66,3 +66,13 @@ void						Player::print(void)
 	std::cout << "LastMove." << this->last_move << std::endl;
 	std::cout << "StonesInPlay." << this->stones_in_play << std::endl;
 }
+
+void						Player::reset(void)
+{
+	this->last_move = -1;
+	this->captures = 0;
+	this->stones_in_play = 0;
+	this->winning_index = -1;
+}
+
+bool						Player::has_wincondition(void) { return this->winning_index != -1; }

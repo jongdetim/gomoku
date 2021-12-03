@@ -141,12 +141,21 @@ bool			Heuristic::continue_game(const Board *board, Player &player) const
 	return false;
 }
 
+bool			Heuristic::still_winning(const Board *board, Player &player) const
+{
+	if (this->check_wincodition_all_dir(board, player.winning_index, player.id))
+		return true;
+	player.winning_index = -1;
+	return false;
+}
+
 bool			Heuristic::has_won(const Board *board, Player &player) const
 {
-	if (player.captures >= CAPTUREWIN)
-		return true;
 	if (this->check_wincodition_all_dir(board, player.last_move, player.id))
+	{
+		player.winning_index = player.last_move;
 		return !this->continue_game(board, player);
+	}
 	return false;
 }
 

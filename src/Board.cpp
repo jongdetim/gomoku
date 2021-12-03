@@ -13,27 +13,16 @@ void					Board::set_players(void)
 	PLAYER1.name = "P1";
 	PLAYER1.id = PLAYER1_ID;
 	PLAYER1.index_offset = 0;
-	PLAYER1.last_move = -1;
-	PLAYER1.captures = 0;
-	PLAYER1.stones_in_play = 0;
+	PLAYER1.reset();
 	
 	PLAYER2.name = "P2";
 	PLAYER2.id = PLAYER2_ID;
 	PLAYER2.index_offset = 1;
-	PLAYER2.last_move = -1;
-	PLAYER2.captures = 0;
-	PLAYER2.stones_in_play = 0;
+	PLAYER2.reset();
 	PLAYER2.next = &PLAYER1;
 
 	PLAYER1.next = &PLAYER2;
 	PLAYER = &PLAYER1;
-}
-
-void					Board::reset_player(Player &player)
-{
-	player.last_move = -1;
-	player.captures = 0;
-	player.stones_in_play = 0;
 }
 
 void					Board::reset(void)
@@ -41,8 +30,8 @@ void					Board::reset(void)
 	this->h = 0;
 	this->state.reset();
 	this->last_move = -1;
-	this->reset_player(PLAYER1);
-	this->reset_player(PLAYER2);
+	PLAYER1.reset();
+	PLAYER2.reset();
 	this->filled_pos.reset();
 }
 
@@ -70,7 +59,9 @@ void					Board::print(void) const
 	}
 }
 
-void					Board::show_last_move(void) const
+void					Board::show_move(void) const { this->show_move(this->last_move); }
+
+void					Board::show_move(int show_index) const
 {
 	std::cout << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
 	for (int row = 0; row < BOARD_LENGTH; row++)
@@ -83,14 +74,14 @@ void					Board::show_last_move(void) const
 				std::cout << ". ";
 			else if (this->state[index<<1])
 			{
-				if (this->last_move == index)
+				if (show_index == index)
 					printf("%sO %s", CYAN, DEFAULT);
 				else
 					std::cout << 'o' << ' ';
 			}
 			else
 			{
-				if (this->last_move == index)
+				if (show_index == index)
 					printf("%sX %s", RED, DEFAULT);
 				else
 					std::cout << 'x' << ' ';
@@ -117,10 +108,6 @@ bool					Board::place(int index, Player &player)
 	player.captures += this->check_captures(player.id, index);
 	return true;
 }
-
-bool					Board::has_won(void) const { return this->heuristic.has_won(this, *PLAYER); }
-
-bool					Board::has_won(Player &player) const { return this->heuristic.has_won(this, player); }
 
 bool					Board::is_game_finished(void) const { return (this->is_full() || this->has_won()); }
 
@@ -241,34 +228,40 @@ void					Board::play(player_fn p1_fn, player_fn p2_fn)
 	while (!this->is_full())
 	{
 		this->print_stats();
-		this->show_last_move();
-
+		this->show_move();
 
 		index = PLAYER->fn();
+
 		if (index == quit)
 			break;
-		if (index == error)
+		if (index == error || !this->place(index, *PLAYER))
 			continue;
-		if (!this->place(index, PLAYER->id))
-			continue;
-		if (this->has_won(*PLAYER))
+		
+		if (PLAYER->captures >= CAPTUREWIN)
+			break;
+
+		if (PLAYER->next->has_wincondition() && this->still_winning(*PLAYER->next))
 		{
-			this->print_winner();
+			PLAYER = PLAYER->next;
 			break;
 		}
+
+		if (this->has_won(*PLAYER))
+			break;
+
 		PLAYER = PLAYER->next;
 	}
-	if (this->is_full())
-		std::cout << "*** TIE ***" << std::endl;
+	this->print_winner(*PLAYER);
 }
 
 /* PRIVATE METHODS */
 
-void					Board::print_winner(void) const
+void					Board::print_winner(Player &player) const
 {
 	this->print_stats();
-	this->show_last_move();
-	std::cout << "*** " << PLAYER->name << " WINS!!! ***" << std::endl;
+	this->show_move(player.last_move);
+	if (!this->is_full())
+		std::cout << "*** " << player.name << " WINS!!! ***" << std::endl;
 }
 
 void					Board::print_stats(void) const
@@ -280,6 +273,7 @@ void					Board::print_stats(void) const
 	printf("Captures.%-*d Captures.%d\n", 14, PLAYER1.captures, PLAYER2.captures);
 	printf("LastMove.%-*d LastMove.%d\n", 14, PLAYER1.last_move, PLAYER2.last_move);
 	printf("StonesInPlay.%-*d StonesInPlay.%d\n", 10, PLAYER1.stones_in_play, PLAYER2.stones_in_play);
+	printf("WinningIndex.%-*d WinningIndex.%d\n", 10, PLAYER1.winning_index, PLAYER2.winning_index);
 	std::cout << std::endl;
 	std::cout << "Current Player: " << PLAYER->name << std::endl;
 	std::cout << std::endl;
@@ -367,6 +361,12 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 	}
 	return count == 3 && gaps < 2 && open + gaps > 2;
 }
+
+bool					Board::has_won(void) const { return this->heuristic.has_won(this, *PLAYER); }
+
+bool					Board::has_won(Player &player) const { return this->heuristic.has_won(this, player); }
+
+bool					Board::still_winning(Player &player) const { return this->heuristic.still_winning(this, player); }
 
 /* OPERATOR OVERLOADS: */
 
