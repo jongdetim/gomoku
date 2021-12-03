@@ -40,11 +40,11 @@ bool			Heuristic::get_direction(const Board *board, int move, int direction, int
 			pos += shift;
 			if (is_offside(pos - shift, pos))
 				break;
-			if (board->get_player(pos) == player)
+			if (board->get_player_id(pos) == player)
 				count++;
-			else if (board->get_player(pos) == -player)
+			else if (board->get_player_id(pos) == -player)
 				break;
-			else if (!(is_offside(pos, pos + shift)) && board->get_player(pos + shift) == player)
+			else if (!(is_offside(pos, pos + shift)) && board->get_player_id(pos + shift) == player)
 				gaps++;
 			else
 			{
@@ -70,7 +70,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	{
 		prev_index = index;
 		index += dir;
-		if (is_offside(prev_index, index) || board->get_player(index) != player)
+		if (is_offside(prev_index, index) || board->get_player_id(index) != player)
 			break ;
 		checked_indices[index] = 1;
 		length++;
@@ -87,7 +87,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	{
 		prev_index = index;
 		index += dir;
-		if (is_offside(prev_index, index) || board->get_player(index) != player)
+		if (is_offside(prev_index, index) || board->get_player_id(index) != player)
 			break ;
 		length++;
 	}
@@ -124,10 +124,9 @@ bool			Heuristic::check_wincodition_all_dir(const Board *board, int index, int p
 	return false;
 }
 
-bool			Heuristic::continue_game(const Board *board, int index, int player) const
+bool			Heuristic::continue_game(const Board *board, Player &player) const
 {
-	int op_player = -player;
-	int captures = board->get_player_captures(op_player);
+	Player op_player = *player.next;
 	Board tmp;
 
 	for (int i = 0; i < BOARDSIZE; i++)
@@ -135,19 +134,19 @@ bool			Heuristic::continue_game(const Board *board, int index, int player) const
 		if (!board->is_empty_place(i))
 			continue;
 		tmp = *board;
-		if ((tmp.check_captures(op_player, i) + captures) >= CAPTUREWIN
-		|| !this->check_wincodition_all_dir(&tmp, index, player))
+		if ((tmp.check_captures(op_player.id, i) + op_player.captures) >= CAPTUREWIN
+		|| !this->check_wincodition_all_dir(&tmp, player.last_move, player.id))
 			return true;
 	}
 	return false;
 }
 
-bool			Heuristic::has_won(const Board *board, int index, int player) const
+bool			Heuristic::has_won(const Board *board, Player &player) const
 {
-	if (board->get_player_captures(player) >= CAPTUREWIN)
+	if (player.captures >= CAPTUREWIN)
 		return true;
-	if (this->check_wincodition_all_dir(board, index, player))
-		return !this->continue_game(board, index, player);
+	if (this->check_wincodition_all_dir(board, player.last_move, player.id))
+		return !this->continue_game(board, player);
 	return false;
 }
 
@@ -156,22 +155,22 @@ int				Heuristic::eight_directions_heuristic(Board *board, int index, std::bitse
 	int points = 0;
 
 
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), RIGHT, checked_indices)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNR, checked_indices)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DOWN, checked_indices)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNL, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, RIGHT, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, DIAGDWNR, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, DOWN, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, DIAGDWNL, checked_indices)];
 
 	return points;
 }
 
-int				Heuristic::get_heuristic_last_move(Board *board)
+int				Heuristic::get_heuristic_from_player(Board *board, Player &player)
 {
 	int points = 0;
 
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), RIGHT)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNR)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DOWN)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNL)];
+	points += POINTS[count_both_dir(board, player.last_move, player.id, RIGHT)];
+	points += POINTS[count_both_dir(board, player.last_move, player.id, DIAGDWNR)];
+	points += POINTS[count_both_dir(board, player.last_move, player.id, DOWN)];
+	points += POINTS[count_both_dir(board, player.last_move, player.id, DIAGDWNL)];
 
 	return points;
 }
@@ -188,7 +187,7 @@ int				Heuristic::calc_heuristic(Board *board)
 			continue;
 		if (checked_indices[index])
 			continue;
-		player = board->get_player(index);
+		player = board->get_player_id(index);
 		if (player == 0)
 			std::cout << index << std::endl;
 		total_score += eight_directions_heuristic(board, index, checked_indices, player);

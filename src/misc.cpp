@@ -1,13 +1,24 @@
 #include "misc.hpp"
 #include "Board.hpp"
 
+int					random_int(void)
+{
+   static bool first = true;
+   if (first) 
+   {  
+		srand( time(NULL) );
+		first = false;
+   }
+   return rand();
+}
+
 int					random(int min, int max)
 {
    static bool first = true;
    if (first) 
    {  
-      srand( time(NULL) );
-      first = false;
+		srand( time(NULL) );
+		first = false;
    }
    return min + rand() % (( max + 1 ) - min);
 }
@@ -74,7 +85,7 @@ Board				create_random_board(void)
 
 	srand (time(NULL));
 
-	int players[2]{PLAYER2, PLAYER1};
+	int players[2]{PLAYER2_ID, PLAYER1_ID};
 	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 

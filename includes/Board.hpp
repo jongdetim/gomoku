@@ -2,6 +2,7 @@
 # define BOARD_HPP
 
 # include "gomoku.hpp"
+# include "Player.hpp"
 # include "Heuristic.hpp"
 
 # define BLACK "\033[0;30m"
@@ -14,10 +15,15 @@
 # define WHITE "\033[0;37m"
 # define DEFAULT "\033[0m"
 
-typedef struct	s_player
+# define PLAYER this->current_player
+# define PLAYER1 this->player1
+# define PLAYER2 this->player2
+
+enum play_loop
 {
-	int			captures;
-}				t_player;
+	error = -1,
+	quit = -2,
+};
 
 class Board
 {
@@ -27,36 +33,38 @@ public:
 	
 	int						h;
 	std::bitset<BOARDSIZE>	filled_pos;
-	Heuristic				heuristic;
+	Player					*current_player;
 	
 	void					play(void);
+	void					play(player_fn p1_fn);
+	void					play(player_fn p1_fn, player_fn p2_fn);
 	void					print(void) const;
 	void					show_last_move(void) const;
 	bool					place(int row, int col, int player);
 	bool					place(int index, int player);
+	bool					place(int index, Player &player);
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
 	void					set_state(BITBOARD new_state);
-	int						check_captures(int player, int index);
+	int						check_captures(int player_id, int index);
 	std::vector<Board>		generate_children(int player) const;
 	bool					check_free_threes(int move, int player) const;
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
 
-	int						get_player(int index) const;
-	int						get_last_player(void) const;
+	int						get_player_id(int index) const;
 	int						get_stones_in_play(void) const;
-	int						get_player_captures(int player) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
+	Player					*get_player_by_id(int id);
 	
 	bool					has_won(void) const;
-	bool					has_won(int index, int player) const;
+	bool					has_won(Player &player) const;
 	bool					is_empty_place(int index) const;
 	bool					is_game_finished() const;
 	bool					is_full(void) const;
-	bool					is_valid_move(int index, int player) const;
+	bool					is_valid_move(int index, Player &player) const;
 	
 	bool					operator==(Board const &rhs) const;
 	bool					operator!=(Board const &rhs) const;
@@ -68,22 +76,18 @@ public:
 private:
 	BITBOARD				state;
 	int						last_move;
-	t_player				player1;
-	t_player				player2;
-	int						stones_in_play;
-	int						current_player;
+	Player					player1;
+	Player					player2;
+	Heuristic				heuristic;
+
+	void					set_players(void);
+	void					reset_player(Player &player);
 	void					print_winner(void) const;
 	void					print_stats(void) const;
-	std::vector<std::string>tokenize(std::string &str, char delim);
-	bool					try_parse_input(std::string &input, int &out);
-	int						get_player_index(int index, int player) const;
 	bool					can_capture(int player, int index, int dir) const;
 	void					capture(int dir, int index);
-	void					update_player(int player, int captures);
 	std::bitset<BOARDSIZE>	get_moves(void) const;
 	bool					free_threes_direction(int move, int direction, int player) const;
-
-
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

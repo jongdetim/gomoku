@@ -19,8 +19,8 @@
 # define BOARDSIZE		(BOARD_LENGTH*BOARD_LENGTH)
 # define MASKSIZE		((BOARD_LENGTH*BOARD_LENGTH)<<1)
 # define MASK_LENGTH	(BOARD_LENGTH<<1)
-# define PLAYER1		1
-# define PLAYER2		-1
+# define PLAYER1_ID		1
+# define PLAYER2_ID		-1
 # define BITBOARD		std::bitset<MASKSIZE>
 # define EXACT 0
 # define UPPERBOUND 2
@@ -39,5 +39,6 @@ const int				DIRECTIONS[8] = {DIAGUPL, UP, DIAGUPR, RIGHT, DIAGDWNR, DOWN, DIAGD
 # include <unordered_map>
 # include <stdlib.h>
 # include <time.h>
+# include <memory>
 
 #endif

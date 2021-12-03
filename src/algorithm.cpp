@@ -164,7 +164,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		std::cout << "depth: " << depth << std::endl;
 		std::cout << "best move is: " << best_move << std::endl;
 		std::cout << "heuristic value is: " << value << std::endl;
-		node.place(best_move, PLAYER2);
+		node.place(best_move, PLAYER2_ID);
 		node.print();
 	}
 	return value;
