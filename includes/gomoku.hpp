@@ -39,6 +39,5 @@ const int				DIRECTIONS[8] = {DIAGUPL, UP, DIAGUPR, RIGHT, DIAGDWNR, DOWN, DIAGD
 # include <unordered_map>
 # include <stdlib.h>
 # include <time.h>
-# include <memory>
 
 #endif

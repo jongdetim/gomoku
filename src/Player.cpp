@@ -56,3 +56,13 @@ void						Player::set_fn(player_fn fn)
 	else
 		this->fn = fn;
 }
+
+void						Player::print(void)
+{
+	std::cout << "Name." << this->name << std::endl;
+	std::cout << "Id." << this->id << std::endl;
+	std::cout << "IndexOffset." << this->index_offset << std::endl;
+	std::cout << "Captures." << this->captures << std::endl;
+	std::cout << "LastMove." << this->last_move << std::endl;
+	std::cout << "StonesInPlay." << this->stones_in_play << std::endl;
+}

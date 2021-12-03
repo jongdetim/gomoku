@@ -5,7 +5,6 @@
 
 class Player;
 
-// typedef std::shared_ptr<Player> playerPtr;
 typedef int (*player_fn)(void);
 
 class Player
@@ -21,11 +20,9 @@ public:
 	player_fn					fn;
 
 	void						set_fn(player_fn fn);
+	void						print(void);
 
 private:
-	// int							get_player_input(void);
-	// std::vector<std::string>	tokenize(std::string &str, char delim);
-	// bool						try_parse_input(std::string &input, int &out);
 };
 
 #endif

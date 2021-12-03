@@ -10,7 +10,6 @@ Board::~Board() {}
 
 void					Board::set_players(void)
 {
-	// PLAYER1 = std::make_shared<t_player>();
 	PLAYER1.name = "P1";
 	PLAYER1.id = PLAYER1_ID;
 	PLAYER1.index_offset = 0;
@@ -18,7 +17,6 @@ void					Board::set_players(void)
 	PLAYER1.captures = 0;
 	PLAYER1.stones_in_play = 0;
 	
-	// PLAYER2 = std::make_shared<t_player>();
 	PLAYER2.name = "P2";
 	PLAYER2.id = PLAYER2_ID;
 	PLAYER2.index_offset = 1;
@@ -113,9 +111,10 @@ bool					Board::place(int index, Player &player)
 	
 	this->filled_pos[index] = 1;
 	this->last_move = player.last_move = index;
+	player.stones_in_play++;
 
 	this->state[(index << 1) + player.index_offset] = 1;
-	player.captures = this->check_captures(player.id, index);
+	player.captures += this->check_captures(player.id, index);
 	return true;
 }
 
@@ -238,11 +237,12 @@ void					Board::play(player_fn p1_fn, player_fn p2_fn)
 	PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next;
 	PLAYER1.set_fn(p1_fn);
 	PLAYER2.set_fn(p2_fn);
-	while (true)
+
+	while (!this->is_full())
 	{
 		this->print_stats();
 		this->show_last_move();
-		std::cout << PLAYER->name << " place: "; 
+
 
 		index = PLAYER->fn();
 		if (index == quit)
@@ -251,13 +251,15 @@ void					Board::play(player_fn p1_fn, player_fn p2_fn)
 			continue;
 		if (!this->place(index, PLAYER->id))
 			continue;
-		if (this->has_won(*PLAYER) || this->is_full())
+		if (this->has_won(*PLAYER))
 		{
 			this->print_winner();
 			break;
 		}
 		PLAYER = PLAYER->next;
 	}
+	if (this->is_full())
+		std::cout << "*** TIE ***" << std::endl;
 }
 
 /* PRIVATE METHODS */
@@ -266,20 +268,21 @@ void					Board::print_winner(void) const
 {
 	this->print_stats();
 	this->show_last_move();
-	if (this->is_full())
-		std::cout << "*** TIE ***" << std::endl;
-	else
-		std::cout << "*** " << PLAYER->name << " WINS!!! ***" << std::endl;
+	std::cout << "*** " << PLAYER->name << " WINS!!! ***" << std::endl;
 }
 
 void					Board::print_stats(void) const
 {
 	system("clear");
 	std::cout << std::endl;
-	std::cout << "Captures:" << std::endl;
-	std::cout << "\t" << PLAYER1.name << ' ' << PLAYER1.captures;
-	std::cout << "\t\t\t" << PLAYER2.name << ' ' << PLAYER2.captures;
-	std::cout << std::endl << std::endl;
+
+	printf("Name.%-*s Name.%s\n", 18, PLAYER1.name.c_str(), PLAYER2.name.c_str());
+	printf("Captures.%-*d Captures.%d\n", 14, PLAYER1.captures, PLAYER2.captures);
+	printf("LastMove.%-*d LastMove.%d\n", 14, PLAYER1.last_move, PLAYER2.last_move);
+	printf("StonesInPlay.%-*d StonesInPlay.%d\n", 10, PLAYER1.stones_in_play, PLAYER2.stones_in_play);
+	std::cout << std::endl;
+	std::cout << "Current Player: " << PLAYER->name << std::endl;
+	std::cout << std::endl;
 }
 
 // creates a set of positions surrounding the currently occupied spaces
