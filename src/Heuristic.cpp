@@ -70,7 +70,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	{
 		prev_index = index;
 		index += dir;
-		if (is_offside(index, prev_index) || board->get_player(index) != player)
+		if (is_offside(prev_index, index) || board->get_player(index) != player)
 			break ;
 		checked_indices[index] = 1;
 		length++;
@@ -87,7 +87,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	{
 		prev_index = index;
 		index += dir;
-		if (is_offside(index, prev_index) || board->get_player(index) != player)
+		if (is_offside(prev_index, index) || board->get_player(index) != player)
 			break ;
 		length++;
 	}

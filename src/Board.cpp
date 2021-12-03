@@ -1,7 +1,7 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-Board::Board(void) : h(0), state(0), stones_in_play(0), last_move(-1), filled_pos(0)
+Board::Board(void) : h(0), state(0), stones_in_play(0), last_move(-1), filled_pos(0), current_player(1)
 {
 	this->player1 = t_player{0};
 	this->player2 = t_player{0};
@@ -18,6 +18,7 @@ void					Board::reset(void)
 	this->player1 = t_player{0};
 	this->player2 = t_player{0};
 	this->filled_pos.reset();
+	this->current_player = 1;
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -94,11 +95,11 @@ bool					Board::place(int index, int player)
 	return true;
 }
 
-bool					Board::is_game_won(void) const { return this->heuristic.has_won(this, this->last_move, this->get_last_player()); }
+bool					Board::has_won(void) const { return this->heuristic.has_won(this, this->last_move, this->get_last_player()); }
 
-bool					Board::is_game_won(int index, int player) const { return this->heuristic.has_won(this, index, player); }
+bool					Board::has_won(int index, int player) const { return this->heuristic.has_won(this, index, player); }
 
-bool					Board::is_game_finished(void) const { return this->is_full(); }
+bool					Board::is_game_finished(void) const { return (this->is_full() || this->has_won()); }
 
 std::vector<Board>		Board::generate_children(int player) const
 {
@@ -197,36 +198,51 @@ int						Board::calc_heuristic(Board &node) { return this->heuristic.calc_heuris
 
 void					Board::play(void)
 {
-	int player = random(1, 2) == PLAYER1 ? PLAYER1 : PLAYER2;
 	std::string input;
 	int index;
 
+	this->current_player = random(1, 2) == PLAYER1 ? PLAYER1 : PLAYER2;
 	while (input != "quit" && input != "exit")
 	{
-		system("clear");
-		std::cout << std::endl;
-		std::cout << "Captures:" << std::endl;
-		std::cout << "\tP1 " << this->get_player_captures(PLAYER1) << "\t\t\tP2 " << this->get_player_captures(PLAYER2) << std::endl;
-		std::cout << std::endl;
+		this->print_stats();
 		this->show_last_move();
+		std::cout << "P" << (this->current_player == PLAYER1 ? 1 : 2) << " place: "; 
 
-		std::cout << "P" << (player == PLAYER1 ? 1 : 2);
-		std::cout << " place: ";
    		std::getline(std::cin, input);
 		if (!this->try_parse_input(input, index))
 			continue;
-		if (!this->place(index, player))
+
+		if (!this->place(index, this->current_player))
 			continue;
-		if (this->is_game_won(index, player))
+		if (this->has_won(index, this->current_player) || this->is_full())
 		{
-			std::cout << "*** PLAYER" << (player == PLAYER1 ? 1 : 2) << " WINS!!! ***";
+			this->print_winner();
 			break;
 		}
-		player = -player;
+		this->current_player = -this->current_player;
 	}
 }
 
 /* PRIVATE METHODS */
+
+void					Board::print_winner(void) const
+{
+	this->print_stats();
+	this->show_last_move();
+	if (this->is_full())
+		std::cout << "*** TIE ***" << std::endl;
+	else
+		std::cout << "*** PLAYER" << (this->current_player == PLAYER1 ? 1 : 2) << " WINS!!! ***" << std::endl;
+}
+
+void					Board::print_stats(void) const
+{
+	system("clear");
+	std::cout << std::endl;
+	std::cout << "Captures:" << std::endl;
+	std::cout << "\tP1 " << this->get_player_captures(PLAYER1) << "\t\t\tP2 " << this->get_player_captures(PLAYER2) << std::endl;
+	std::cout << std::endl;
+}
 
 std::vector<std::string>Board::tokenize(std::string &str, char delim)
 {

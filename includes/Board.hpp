@@ -51,11 +51,11 @@ public:
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	
+	bool					has_won(void) const;
+	bool					has_won(int index, int player) const;
 	bool					is_empty_place(int index) const;
 	bool					is_game_finished() const;
 	bool					is_full(void) const;
-	bool					is_game_won(void) const;
-	bool					is_game_won(int index, int player) const;
 	bool					is_valid_move(int index, int player) const;
 	
 	bool					operator==(Board const &rhs) const;
@@ -71,7 +71,9 @@ private:
 	t_player				player1;
 	t_player				player2;
 	int						stones_in_play;
-
+	int						current_player;
+	void					print_winner(void) const;
+	void					print_stats(void) const;
 	std::vector<std::string>tokenize(std::string &str, char delim);
 	bool					try_parse_input(std::string &input, int &out);
 	int						get_player_index(int index, int player) const;
