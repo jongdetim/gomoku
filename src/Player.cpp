@@ -49,13 +49,7 @@ int							get_player_input(void)
 	return index;
 }
 
-void						Player::set_fn(player_fn fn)
-{
-	if (!fn)
-		this->fn = &get_player_input;
-	else
-		this->fn = fn;
-}
+void						Player::set_fn(player_fn fn) { this->fn = !fn ? &get_player_input : fn; }
 
 void						Player::print(void)
 {

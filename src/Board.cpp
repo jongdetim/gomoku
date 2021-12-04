@@ -91,9 +91,11 @@ void					Board::show_move(int show_index) const
 	}
 }
 
-bool					Board::place(int row, int col, int player) { return this->place(calc_index(row, col), player); }
+bool					Board::place(int row, int col) { return this->place(calc_index(row, col)); }
 
-bool					Board::place(int index, int player) { return this->place(index, *this->get_player_by_id(player)); }
+// bool					Board::place(int index, int player) { return this->place(index, *this->get_player_by_id(player)); }
+
+bool					Board::place(int index) { return this->place(index, *PLAYER); }
 
 bool					Board::place(int index, Player &player)
 {
@@ -111,7 +113,7 @@ bool					Board::place(int index, Player &player)
 
 bool					Board::is_game_finished(void) const { return (this->is_full() || this->has_won()); }
 
-std::vector<Board>		Board::generate_children(int player) const
+std::vector<Board>		Board::generate_children(void) const
 {
 	Board board_copy;
     std::vector<Board> nodes;
@@ -121,8 +123,8 @@ std::vector<Board>		Board::generate_children(int player) const
 	{
 		if (!moves[i])
 			continue;
-		board_copy = *this;
-		board_copy.place(i, player);
+		board_copy = this->get_copy();
+		board_copy.place(i);
 		nodes.push_back(board_copy);
 		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
 		// nodes.insert(nodes.begin(), board_copy);
@@ -252,6 +254,14 @@ void					Board::play(player_fn p1_fn, player_fn p2_fn)
 		PLAYER = PLAYER->next;
 	}
 	this->print_winner(*PLAYER);
+}
+
+Board					Board::get_copy(void) const
+{
+	Board copy =  *this;
+	copy.current_player = copy.get_player_by_id(PLAYER->id);
+
+	return copy;
 }
 
 /* PRIVATE METHODS */

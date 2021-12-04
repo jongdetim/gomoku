@@ -16,7 +16,7 @@ int main()
 {
     Board board;
 
-    board.play();//&random_board_int, &random_board_int);
+    board.play(&random_board_int);//, &random_board_int);
     
     return 0;
 }

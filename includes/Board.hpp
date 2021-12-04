@@ -41,15 +41,15 @@ public:
 	void					print(void) const;
 	void					show_move(void) const;
 	void					show_move(int show_index) const;
-	bool					place(int row, int col, int player);
-	bool					place(int index, int player);
+	bool					place(int row, int col);
+	bool					place(int index);
 	bool					place(int index, Player &player);
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
 	void					set_state(BITBOARD new_state);
 	int						check_captures(int player_id, int index);
-	std::vector<Board>		generate_children(int player) const;
+	std::vector<Board>		generate_children(void) const;
 	bool					check_free_threes(int move, int player) const;
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
@@ -59,7 +59,8 @@ public:
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	Player					*get_player_by_id(int id);
-	
+	Board					get_copy(void) const;
+
 	bool					is_empty_place(int index) const;
 	bool					is_game_finished() const;
 	bool					is_full(void) const;
