@@ -10,6 +10,6 @@ extern int TOTAL_LEAVES;
 extern int FOUND_IN_TABLE;
 extern int TOTAL_BRANCHES_PRUNED;
 
-int negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &_table, bool initial_call);
+int negamax(Board node, int depth, int alpha, int beta, TranspositionTable &t_table,TranspositionTable &_table, bool initial_call);
 
 #endif

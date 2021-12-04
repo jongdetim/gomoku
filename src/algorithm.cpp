@@ -32,7 +32,7 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int     	negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
+int     	negamax(Board node, int depth, int alpha, int beta, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
 {
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
@@ -73,7 +73,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = color * node.calc_heuristic();
+		value = node.current_player->id * node.calc_heuristic();
 
 		// node.print();
 		// std::cout << "value: " << value * color << std::endl;
@@ -91,7 +91,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	}
 	std::vector<Board> child_nodes;
 	// for (int i = 0; i < 100; i++)
-		child_nodes = node.generate_children(color);
+		child_nodes = node.generate_children();
 
 		// for (auto &it : child_nodes)
 		// 	std::cout << it.last_move << std::endl;
@@ -119,7 +119,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			{
 				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = -color * node.calc_heuristic(child);
+			    child.h = -node.current_player->id * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
 				// h_table.insert(child, ht_entry);
@@ -137,9 +137,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	{
 		int old_value = value;
 
-		if (child.check_free_threes(child.get_last_move(), color))
+		if (child.check_free_threes(child.get_last_move(), node.current_player->id))
 			continue;
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, t_table, h_table, false));
+		node.current_player = node.current_player->next;
+		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, t_table, h_table, false));
 		alpha = std::max(alpha, value);
 		if (initial_call && value > old_value)
 			best_move = child.get_last_move();
