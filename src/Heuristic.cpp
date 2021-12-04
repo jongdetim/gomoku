@@ -134,7 +134,7 @@ bool			Heuristic::continue_game(const Board *board, Player &player) const
 		if (!board->is_empty_place(i))
 			continue;
 		tmp = *board;
-		if ((tmp.check_captures(op_player.id, i) + op_player.captures) >= CAPTUREWIN
+		if ((tmp.check_captures(op_player, i) + op_player.captures) >= CAPTUREWIN
 		|| !this->check_wincodition_all_dir(&tmp, player.last_move, player.id))
 			return true;
 	}

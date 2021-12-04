@@ -1,6 +1,7 @@
 #include "Player.hpp"
 #include "misc.hpp"
 
+/* ======PlayerFn======= */
 std::vector<std::string>	tokenize(std::string &str, char delim)
 {
 	size_t start;
@@ -48,6 +49,7 @@ int							get_player_input(void)
 		return error;
 	return index;
 }
+/* ===================== */
 
 void						Player::set_fn(player_fn fn) { this->fn = !fn ? &get_player_input : fn; }
 
@@ -70,3 +72,11 @@ void						Player::reset(void)
 }
 
 bool						Player::has_wincondition(void) { return this->winning_index != -1; }
+
+bool						Player::operator==(Player &rhs) const { return this->id == rhs.id; }
+
+bool						Player::operator==(int id) const { return this->id == id; }
+
+bool						Player::operator!=(Player &rhs) const { return  this->id != rhs.id; }
+
+bool						Player::operator!=(int id) const { return  this->id != id; }

@@ -26,6 +26,11 @@ public:
 	void						reset(void);
 	bool						has_wincondition(void);
 
+	bool					operator==(Player &rhs) const;
+	bool					operator==(int id) const;
+	bool					operator!=(Player &rhs) const;
+	bool					operator!=(int id) const;
+
 private:
 };
 

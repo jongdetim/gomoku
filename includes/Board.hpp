@@ -33,6 +33,8 @@ public:
 	
 	int						h;
 	std::bitset<BOARDSIZE>	filled_pos;
+	Player					player1;
+	Player					player2;
 	Player					*current_player;
 	
 	void					play(void);
@@ -41,18 +43,21 @@ public:
 	void					print(void) const;
 	void					show_move(void) const;
 	void					show_move(int show_index) const;
-	bool					place(int row, int col);
 	bool					place(int index);
+	bool					place(int index, int player_id);
 	bool					place(int index, Player &player);
+	bool					place(int row, int col, int player_id);
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
 	void					set_state(BITBOARD new_state);
-	int						check_captures(int player_id, int index);
+	int						check_captures(Player &player_id, int index);
 	std::vector<Board>		generate_children(void) const;
 	bool					check_free_threes(int move, int player) const;
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
+	void					next_player(void);
+	void					switch_to_player(int id);
 
 	int						get_player_id(int index) const;
 	int						get_stones_in_play(void) const;
@@ -76,8 +81,6 @@ public:
 private:
 	BITBOARD				state;
 	int						last_move;
-	Player					player1;
-	Player					player2;
 	Heuristic				heuristic;
 
 	bool					has_won(void) const;
@@ -86,7 +89,7 @@ private:
 	void					set_players(void);
 	void					print_winner(Player &player) const;
 	void					print_stats(void) const;
-	bool					can_capture(int player, int index, int dir) const;
+	bool					can_capture(Player &player, int index, int dir) const;
 	void					capture(int dir, int index);
 	std::bitset<BOARDSIZE>	get_moves(void) const;
 	bool					free_threes_direction(int move, int direction, int player) const;

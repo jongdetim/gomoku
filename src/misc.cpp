@@ -39,8 +39,9 @@ bool				is_offside(int prev_index, int index)
 
 void				create_star(Board &board, int index, int size, int player)
 {
+	board.switch_to_player(player);
     for (auto dir : DIRECTIONS)
-        place_pieces(board, player, index, size, dir);
+        place_pieces(board, index, size, dir);
 }
 
 void    			print_bitboard(BITBOARD bitmap)
@@ -63,7 +64,7 @@ void    			print_bitboard(BITBOARD bitmap)
 	}
 }
 
-void				place_pieces(Board &board, int player, int start_pos, int amount, int offset)
+void				place_pieces(Board &board, int start_pos, int amount, int offset)
 {
 	int index = start_pos;
 	int prev_index;
@@ -75,7 +76,7 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 		index = start_pos + (i * offset);
 		if (is_offside(prev_index, index))
 			break ;
-		board.place(index, player);
+		board.place(index);
 	}
 }
 
@@ -85,18 +86,18 @@ Board				create_random_board(void)
 
 	srand (time(NULL));
 
-	int players[2]{PLAYER2_ID, PLAYER1_ID};
 	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
-	for (int i = 1; i < 6; i++)
+	for (int amount = 1; amount < 6; amount++)
 	{
 		for (auto offset: offsets)
 		{
-			for (auto player : players)
+			for (int i = 0; i < 2; i++)
 			{
 				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset);
+				place_pieces(board, start_pos, amount, offset);
+				board.next_player();
 			}
 		}
 	}
@@ -109,18 +110,18 @@ Board				create_random_board(int seed)
 
 	srand (seed);
 
-	int players[2]{-1, 1};
 	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
-	for (int i = 1; i < 6; i++)
+	for (int amount = 1; amount < 6; amount++)
 	{
 		for (auto offset: offsets)
 		{
-			for (auto player : players)
+			for (int i = 0; i < 2; i++)
 			{
 				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset);
+				place_pieces(board, start_pos, amount, offset);
+				board.next_player();
 			}
 		}
 	}

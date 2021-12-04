@@ -91,9 +91,17 @@ void					Board::show_move(int show_index) const
 	}
 }
 
-bool					Board::place(int row, int col) { return this->place(calc_index(row, col)); }
+bool					Board::place(int row, int col, int player_id)
+{
+	this->switch_to_player(player_id);
+	return this->place(calc_index(row, col));
+}
 
-// bool					Board::place(int index, int player) { return this->place(index, *this->get_player_by_id(player)); }
+bool					Board::place(int index, int player_id)
+{
+	this->switch_to_player(player_id);
+	return this->place(index, *PLAYER);
+}
 
 bool					Board::place(int index) { return this->place(index, *PLAYER); }
 
@@ -107,7 +115,7 @@ bool					Board::place(int index, Player &player)
 	player.stones_in_play++;
 
 	this->state[(index << 1) + player.index_offset] = 1;
-	player.captures += this->check_captures(player.id, index);
+	player.captures += this->check_captures(player, index);
 	return true;
 }
 
@@ -165,6 +173,8 @@ int						Board::get_stones_in_play(void) const { return PLAYER->stones_in_play +
 
 Player					*Board::get_player_by_id(int id)
 {
+	assert(id == PLAYER1_ID || id == PLAYER2_ID);
+
 	if (id == PLAYER1.id)
 		return &PLAYER1;
 	
@@ -174,13 +184,13 @@ Player					*Board::get_player_by_id(int id)
 	return NULL;
 }
 
-int						Board::check_captures(int player_id, int index)
+int						Board::check_captures(Player &player, int index)
 {
 	int amount = 0;
 
 	for (auto dir : DIRECTIONS)
 	{
-		if (this->can_capture(player_id, index, dir))
+		if (this->can_capture(player, index, dir))
 		{
 			this->capture(dir, index);
 			amount++;
@@ -214,6 +224,16 @@ bool					Board::check_free_threes(int move, int player) const
 int						Board::calc_heuristic(void) { return this->heuristic.calc_heuristic(this); }
 
 int						Board::calc_heuristic(Board &node) { return this->heuristic.calc_heuristic(&node); }
+
+void					Board::next_player(void) { PLAYER = PLAYER->next; }
+
+void					Board::switch_to_player(int id)
+{
+	if (id == PLAYER1_ID)
+		PLAYER = &PLAYER1;
+	else if (id == PLAYER2_ID)
+		PLAYER = &PLAYER2;
+}
 
 void					Board::play(void) { this->play(NULL, NULL); }
 
@@ -260,6 +280,8 @@ Board					Board::get_copy(void) const
 {
 	Board copy =  *this;
 	copy.current_player = copy.get_player_by_id(PLAYER->id);
+	copy.player1.next = &copy.player2;
+	copy.player2.next = &copy.player1;
 
 	return copy;
 }
@@ -317,16 +339,16 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 }
 
 // Assumes that on the given index the correct player is placed
-bool					Board::can_capture(int player_id, int index, int dir) const
+bool					Board::can_capture(Player &player, int index, int dir) const
 {
 	for (int i = 1; i < 4; i++)
 	{
 		if (is_offside(index, index + dir))
 			break ;
 		index += dir;
-		if (i == 3 && this->get_player_id(index) == player_id)
+		if (i == 3 && player == this->get_player_id(index))
 			return true;
-		else if (this->get_player_id(index) != -player_id)
+		else if (this->get_player_id(index) != -player.id)
 			break ;
 	}
 	return false;
