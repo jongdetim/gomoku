@@ -11,6 +11,8 @@ class Player
 {
 public:
 
+	Player(int player_id, std::string name);
+
 	std::string					name;
 	int							id;
 	int							index_offset;
@@ -22,14 +24,15 @@ public:
 	player_fn					fn;
 
 	void						set_fn(player_fn fn);
-	void						print(void);
+	void						print(void) const;
 	void						reset(void);
-	bool						has_wincondition(void);
+	bool						has_wincondition(void) const;
+	int							index(int index) const;
 
-	bool					operator==(Player &rhs) const;
-	bool					operator==(int id) const;
-	bool					operator!=(Player &rhs) const;
-	bool					operator!=(int id) const;
+	bool						operator==(Player &rhs) const;
+	bool						operator==(int id) const;
+	bool						operator!=(Player &rhs) const;
+	bool						operator!=(int id) const;
 
 private:
 };

@@ -66,7 +66,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	int length = 0;
 	int prev_index;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < size - 1; i++)
 	{
 		prev_index = index;
 		index += dir;
@@ -83,7 +83,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	int length = 0;
 	int prev_index;
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size - 1; i++)
 	{
 		prev_index = index;
 		index += dir;
@@ -133,7 +133,7 @@ bool			Heuristic::continue_game(const Board *board, Player &player) const
 	{
 		if (!board->is_empty_place(i))
 			continue;
-		tmp = *board;
+		tmp = board->get_copy();
 		if ((tmp.check_captures(op_player, i) + op_player.captures) >= CAPTUREWIN
 		|| !this->check_wincodition_all_dir(&tmp, player.last_move, player.id))
 			return true;

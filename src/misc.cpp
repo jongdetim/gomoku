@@ -125,5 +125,5 @@ Board				create_random_board(int seed)
 			}
 		}
 	}
-	return board;
+	return board.get_copy();
 }

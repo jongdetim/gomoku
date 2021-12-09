@@ -64,7 +64,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, TranspositionTable 
 			return tt_entry.value;
 	}
 
-	is_finished = node.is_game_finished();
+	is_finished = node.is_game_finished(); // Checked nu of de current platyer heeft gewonnen???
 
 	if (depth == 0 || is_finished)
 	{
@@ -137,10 +137,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, TranspositionTable 
 	{
 		int old_value = value;
 
-		if (child.check_free_threes(child.get_last_move(), node.current_player->id))
+		if (child.check_free_threes(child.current_player->last_move, node.current_player->id)) // Welke last move wil je hier hebben? Waarom doen we deze check niet in Generate children?
 			continue;
 		child.next_player();
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, t_table, h_table, false));
+		value = std::max(value, -negamax(child.get_copy(), depth - 1, -beta, -alpha, t_table, h_table, false)); // Copy mee geven
 		alpha = std::max(alpha, value);
 		if (initial_call && value > old_value)
 			best_move = child.get_last_move();

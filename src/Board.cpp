@@ -1,29 +1,14 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-Board::Board(void) : h(0), state(0), filled_pos(0)
+Board::Board(void) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1"), player2(PLAYER2_ID, "P2")
 {
-	this->set_players();
+	PLAYER1.next = &PLAYER2;
+	PLAYER2.next = &PLAYER1;
+	PLAYER = &PLAYER1;
 }
 
 Board::~Board() {}
-
-void					Board::set_players(void)
-{
-	PLAYER1.name = "P1";
-	PLAYER1.id = PLAYER1_ID;
-	PLAYER1.index_offset = 0;
-	PLAYER1.reset();
-	
-	PLAYER2.name = "P2";
-	PLAYER2.id = PLAYER2_ID;
-	PLAYER2.index_offset = 1;
-	PLAYER2.reset();
-	PLAYER2.next = &PLAYER1;
-
-	PLAYER1.next = &PLAYER2;
-	PLAYER = &PLAYER1;
-}
 
 void					Board::reset(void)
 {
@@ -94,7 +79,7 @@ void					Board::show_move(int show_index) const
 bool					Board::place(int row, int col, int player_id)
 {
 	this->switch_to_player(player_id);
-	return this->place(calc_index(row, col));
+	return this->place(calc_index(row, col), *PLAYER);
 }
 
 bool					Board::place(int index, int player_id)
@@ -114,12 +99,21 @@ bool					Board::place(int index, Player &player)
 	this->last_move = player.last_move = index;
 	player.stones_in_play++;
 
-	this->state[(index << 1) + player.index_offset] = 1;
+	this->state[player.index(index)] = 1;
 	player.captures += this->check_captures(player, index);
 	return true;
 }
 
-bool					Board::is_game_finished(void) const { return (this->is_full() || this->has_won()); }
+bool					Board::is_valid_move(int index, Player &player) const
+{
+	if (index < 0 || index >= BOARDSIZE)
+		return false;
+	if (!this->is_empty_place(index))
+		return false;
+	return true;
+}
+
+bool					Board::is_game_finished(void) const { return (this->has_won() || this->is_full()); }
 
 std::vector<Board>		Board::generate_children(void) const
 {
@@ -147,10 +141,9 @@ void					Board::remove(int index)
 	if (this->is_empty_place(index))
 		return ;
 	this->filled_pos[index] = 0;
-	this->get_player_by_id(this->get_player_id(index))->stones_in_play--;
-	index <<= 1;
-	this->state[index] = 0;
-	this->state[index+1] = 0;
+	auto p = this->get_player_by_id(this->get_player_id(index));
+	p->stones_in_play--;
+	this->state[p->index(index)] = 0;
 }
 
 bool					Board::is_empty_place(int index) const { return this->filled_pos[index] == 0; }
@@ -165,11 +158,9 @@ int						Board::get_player_id(int index) const
 	return 0;
 }
 
-bool					Board::is_full(void) const { return (this->get_stones_in_play() == BOARDSIZE); }
+bool					Board::is_full(void) const { return (this->total_stones_in_play() == BOARDSIZE); }
 
-void					Board::set_state(BITBOARD new_state) { this->state = new_state; }
-
-int						Board::get_stones_in_play(void) const { return PLAYER->stones_in_play + PLAYER->next->stones_in_play; }
+int						Board::total_stones_in_play(void) const { return PLAYER->stones_in_play + PLAYER->next->stones_in_play; }
 
 Player					*Board::get_player_by_id(int id)
 {
@@ -177,11 +168,8 @@ Player					*Board::get_player_by_id(int id)
 
 	if (id == PLAYER1.id)
 		return &PLAYER1;
+	return &PLAYER2;
 	
-	if (id == PLAYER2.id)
-		return &PLAYER2;
-	
-	return NULL;
 }
 
 int						Board::check_captures(Player &player, int index)
@@ -197,15 +185,6 @@ int						Board::check_captures(Player &player, int index)
 		}
 	}
 	return amount;
-}
-
-bool					Board::is_valid_move(int index, Player &player) const
-{
-	if (index < 0 || index >= BOARDSIZE)
-		return false;
-	if (!this->is_empty_place(index))
-		return false;
-	return true;
 }
 
 bool					Board::check_free_threes(int move, int player) const
@@ -244,20 +223,20 @@ void					Board::play(player_fn p1_fn, player_fn p2_fn)
 	int index;
 
 	PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next;
-	PLAYER1.set_fn(p1_fn);
-	PLAYER2.set_fn(p2_fn);
+	PLAYER1.set_fn(p1_fn); PLAYER2.set_fn(p2_fn);
+
+	this->print_stats();
+	this->print();
 
 	while (!this->is_full())
 	{
-		this->print_stats();
-		this->show_move();
-
 		index = PLAYER->fn();
 
-		if (index == quit)
-			break;
-		if (index == error || !this->place(index, *PLAYER))
+		if (index == -1 || !this->place(index, *PLAYER))
 			continue;
+	
+		this->print_stats();
+		this->show_move();
 		
 		if (PLAYER->captures >= CAPTUREWIN)
 			break;
@@ -338,7 +317,6 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 	return moves;
 }
 
-// Assumes that on the given index the correct player is placed
 bool					Board::can_capture(Player &player, int index, int dir) const
 {
 	for (int i = 1; i < 4; i++)
@@ -409,9 +387,5 @@ bool 					Board::operator!=(Board const &rhs) const { return (this->state != rhs
 bool 					Board::operator==(int const rhs) const { return (this->state == rhs); }
 
 bool 					Board::operator!=(int const rhs) const { return (this->state != rhs); }
-
-BITBOARD				Board::operator&(Board const &rhs) const { return this->state & rhs.state; }
-
-BITBOARD				Board::operator&(BITBOARD const &rhs) const { return this->state & rhs; }
 
 std::ostream			&operator<<(std::ostream &o, Board const &i) { return (o << i.get_state()); }

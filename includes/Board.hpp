@@ -19,12 +19,6 @@
 # define PLAYER1 this->player1
 # define PLAYER2 this->player2
 
-enum play_loop
-{
-	error = -1,
-	quit = -2,
-};
-
 class Board
 {
 public:
@@ -50,7 +44,6 @@ public:
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
-	void					set_state(BITBOARD new_state);
 	int						check_captures(Player &player_id, int index);
 	std::vector<Board>		generate_children(void) const;
 	bool					check_free_threes(int move, int player) const;
@@ -58,9 +51,9 @@ public:
 	int						calc_heuristic(Board &node);
 	void					next_player(void);
 	void					switch_to_player(int id);
+	int						total_stones_in_play(void) const;
 
 	int						get_player_id(int index) const;
-	int						get_stones_in_play(void) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	Player					*get_player_by_id(int id);
@@ -75,8 +68,6 @@ public:
 	bool					operator!=(Board const &rhs) const;
 	bool					operator==(int const rhs) const;
 	bool					operator!=(int const rhs) const;
-	BITBOARD				operator&(Board const &rhs) const;
-	BITBOARD				operator&(BITBOARD const &rhs) const;
 
 private:
 	BITBOARD				state;
@@ -86,7 +77,6 @@ private:
 	bool					has_won(void) const;
 	bool					has_won(Player &player) const;
 	bool					still_winning(Player &player) const;
-	void					set_players(void);
 	void					print_winner(Player &player) const;
 	void					print_stats(void) const;
 	bool					can_capture(Player &player, int index, int dir) const;

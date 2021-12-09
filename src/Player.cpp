@@ -43,17 +43,25 @@ int							get_player_input(void)
 	int index;
 
 	std::getline(std::cin, input);
-	if (input == "quit" || input == "exit")
-		return quit;
 	if (!try_parse_input(input, index))
-		return error;
+		return -1;
 	return index;
 }
 /* ===================== */
 
+Player::Player(int player_id, std::string name)
+{
+	assert(player_id == PLAYER1_ID || player_id == PLAYER2_ID);
+
+	this->name = name;
+	this->id = player_id;
+	this->index_offset = player_id == PLAYER1_ID ? 0 : 1;
+	this->reset();
+}
+
 void						Player::set_fn(player_fn fn) { this->fn = !fn ? &get_player_input : fn; }
 
-void						Player::print(void)
+void						Player::print(void) const
 {
 	std::cout << "Name." << this->name << std::endl;
 	std::cout << "Id." << this->id << std::endl;
@@ -61,6 +69,7 @@ void						Player::print(void)
 	std::cout << "Captures." << this->captures << std::endl;
 	std::cout << "LastMove." << this->last_move << std::endl;
 	std::cout << "StonesInPlay." << this->stones_in_play << std::endl;
+	std::cout << "Next." << this->next << std::endl;
 }
 
 void						Player::reset(void)
@@ -71,7 +80,9 @@ void						Player::reset(void)
 	this->winning_index = -1;
 }
 
-bool						Player::has_wincondition(void) { return this->winning_index != -1; }
+int							Player::index(int index) const { return (index << 1) + this->index_offset; }
+
+bool						Player::has_wincondition(void) const { return this->winning_index != -1; }
 
 bool						Player::operator==(Player &rhs) const { return this->id == rhs.id; }
 
