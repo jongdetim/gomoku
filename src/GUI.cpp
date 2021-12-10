@@ -2,9 +2,7 @@
 
 GUI::GUI(void) { }
 
-bool		GUI::initiate_GUI(std::string title) { return this->initiate_GUI(title, SCREEN_WIDTH, SCREEN_HEIGHT); }
-
-bool		GUI::initiate_GUI(std::string title, int width, int height)
+bool		GUI::initiate_GUI(std::string title)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -12,18 +10,31 @@ bool		GUI::initiate_GUI(std::string title, int width, int height)
         return false;
 	}
 
-	SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE, &this->window, &this->renderer);
+	SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN, &this->window, &this->renderer);
 
 	if (window == NULL) {
         SDL_Log("Unable to create window: %s", SDL_GetError());
         return false;
     }
 
+    this->image = SDL_LoadBMP(IMAGE_PATH);
+
+	if (this->image == NULL) {
+		SDL_Log("Unable to load background image: %s", SDL_GetError());
+		return false;
+    }
+
+    this->texture = SDL_CreateTextureFromSurface(this->renderer, this->image);
+
 	return true;
 }
 
 GUI::~GUI()
 {
+	if (this->image)
+	    SDL_FreeSurface(this->image);
+	if (this->texture)
+    	SDL_DestroyTexture(this->texture);
     if (this->renderer)
 		SDL_DestroyRenderer(this->renderer);
 	if (this->window)
@@ -33,11 +44,18 @@ GUI::~GUI()
 
 void		GUI::game(const Board &board)
 {
-	SDL_Event e;
+	bool quit = false;
+    
+    while (!quit)
+    {
+		// SDL_PollEvent(&this->event) // Use when always want updating, like active animations when no user input
+        SDL_WaitEvent(&this->event);
 
-    while (handle_events(e) != quit)
-	{
-		this->draw_state(board.get_state());
+        this->clear_render();
+		this->set_background();
+        SDL_RenderPresent(renderer);
+
+		quit = this->handle_events();
     }
 }
 
@@ -47,45 +65,48 @@ void		GUI::draw_state(BITBOARD state)
 {
 }
 
-game_loop	GUI::handle_events(SDL_Event &event)
+void		GUI::clear_render(void)
 {
-	while (SDL_PollEvent(&event) )
-	{                         
-		if (event.type == SDL_QUIT)
-			return quit;
-		if(event.type == SDL_MOUSEBUTTONUP)
-    	{
-			//Get mouse position
-			int x, y;
-			SDL_GetMouseState( &x, &y );
-			printf("Mouse clicked: X:%d, Y:%d\n", x, y);
-
-			// SDL_RenderClear(this->renderer);
-
-			SDL_Rect rect;
-			rect.w = 200;
-			rect.h = 200;
-			rect.x = x - (rect.w >> 1);
-			rect.y = y - (rect.h >> 1);
-
-			SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
-			// SDL_RenderDrawRect(this->renderer, &rect);
-			
-			draw_circle(x, y, 100);
-
-			// SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
-
-			SDL_RenderPresent(this->renderer);
-
-			
-		}
-	}
-	return loop;
+	SDL_SetRenderDrawColor(renderer, 220, 179, 92, 255);
+	SDL_RenderClear(renderer);
 }
 
-void		GUI::update_window(void) { SDL_UpdateWindowSurface(this->window); }
+void		GUI::set_background(void)
+{
+	SDL_Rect bg_rect = { 0, 0, SCREEN_HEIGHT, SCREEN_HEIGHT };
+	SDL_RenderCopy(this->renderer, this->texture, NULL, &bg_rect);
+}
 
+bool		GUI::handle_events(void)
+{         
+	switch (this->event.type)
+	{
+		case SDL_QUIT:
+			return true;
+		case SDL_MOUSEBUTTONUP:
+		{
+			int row, col;
+			this->get_placement(&row, &col);
+			// printf("Row:%d, Col:%d\n\n", row, col);
+			static Board board;
+			static int player = 1;
 
+			board.place(row, col, player);
+			player = -player;
+			system("clear");
+			board.show_last_move();
+			break;
+		}
+	}
+	return false;
+}
+
+void		GUI::get_placement(int *row, int *col)
+{
+	SDL_GetMouseState(col, row);
+	*row = (*row - OFFSET) / (double)GAP + .5;
+	*col = (*col - OFFSET) / (double)GAP + .5;
+}
 
 void		GUI::draw_circle(int32_t centreX, int32_t centreY, int32_t radius)
 {
