@@ -45,15 +45,16 @@ GUI::~GUI()
 void		GUI::game(const Board &board)
 {
 	bool quit = false;
+
+	this->update_window();
     
     while (!quit)
     {
 		// SDL_PollEvent(&this->event) // Use when always want updating, like active animations when no user input
         SDL_WaitEvent(&this->event);
 
-        this->clear_render();
-		this->set_background();
-        SDL_RenderPresent(renderer);
+		if (this->update)
+			this->update_window();
 
 		quit = this->handle_events();
     }
@@ -95,10 +96,21 @@ bool		GUI::handle_events(void)
 			player = -player;
 			system("clear");
 			board.show_last_move();
+
+			this->update = true;
+
 			break;
 		}
 	}
 	return false;
+}
+
+void		GUI::update_window(void)
+{
+	this->clear_render();
+	this->set_background();
+	SDL_RenderPresent(this->renderer);
+	this->update = false;
 }
 
 void		GUI::get_placement(int *row, int *col)

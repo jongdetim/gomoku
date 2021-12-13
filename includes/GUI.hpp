@@ -28,6 +28,7 @@ private:
 	SDL_Surface		*image;
 	SDL_Texture		*texture;
 	SDL_Event		event;
+	bool			update;
 
 	void			clear_render(void);
 	void			set_background(void);
