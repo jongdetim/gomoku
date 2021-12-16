@@ -30,6 +30,7 @@ public:
 	Player					player1;
 	Player					player2;
 	Player					*current_player;
+	int						winner;
 	
 	void					play(void);
 	void					play(player_fn p1_fn);
@@ -59,8 +60,11 @@ public:
 	Player					*get_player_by_id(int id);
 	Board					get_copy(void) const;
 
+	bool					is_game_finished(Player &player);
+	bool					check_win_other_player(Player &player) const;
+	bool					has_won(void) const;
+	bool					has_won(Player &player) const;
 	bool					is_empty_place(int index) const;
-	bool					is_game_finished() const;
 	bool					is_full(void) const;
 	bool					is_valid_move(int index, Player &player) const;
 	
@@ -74,10 +78,8 @@ private:
 	int						last_move;
 	Heuristic				heuristic;
 
-	bool					has_won(void) const;
-	bool					has_won(Player &player) const;
 	bool					still_winning(Player &player) const;
-	void					print_winner(Player &player) const;
+	void					print_winner(void) const;
 	void					print_stats(void) const;
 	bool					can_capture(Player &player, int index, int dir) const;
 	void					capture(int dir, int index);

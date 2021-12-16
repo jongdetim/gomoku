@@ -15,7 +15,6 @@ public:
 
 	std::string					name;
 	int							id;
-	int							index_offset;
 	int							last_move;
 	int							captures;
 	int							stones_in_play;
@@ -35,6 +34,7 @@ public:
 	bool						operator!=(int id) const;
 
 private:
+	int							index_offset;
 };
 
 #endif

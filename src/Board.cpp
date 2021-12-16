@@ -1,7 +1,7 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-Board::Board(void) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1"), player2(PLAYER2_ID, "P2")
+Board::Board(void) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1"), player2(PLAYER2_ID, "P2"), winner(0)
 {
 	PLAYER1.next = &PLAYER2;
 	PLAYER2.next = &PLAYER1;
@@ -15,6 +15,7 @@ void					Board::reset(void)
 	this->h = 0;
 	this->state.reset();
 	this->last_move = -1;
+	this->winner = 0;
 	PLAYER1.reset();
 	PLAYER2.reset();
 	this->filled_pos.reset();
@@ -112,8 +113,6 @@ bool					Board::is_valid_move(int index, Player &player) const
 		return false;
 	return true;
 }
-
-bool					Board::is_game_finished(void) const { return (this->has_won() || this->is_full()); }
 
 std::vector<Board>		Board::generate_children(void) const
 {
@@ -225,11 +224,11 @@ void					Board::play(player_fn p1_fn, player_fn p2_fn)
 	PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next;
 	PLAYER1.set_fn(p1_fn); PLAYER2.set_fn(p2_fn);
 
-	this->print_stats();
-	this->print();
-
-	while (!this->is_full())
+	while (true)
 	{
+		this->print_stats();
+		this->print();
+
 		index = PLAYER->fn();
 
 		if (index == -1 || !this->place(index, *PLAYER))
@@ -238,22 +237,33 @@ void					Board::play(player_fn p1_fn, player_fn p2_fn)
 		this->print_stats();
 		this->show_move();
 		
-		if (PLAYER->captures >= CAPTUREWIN)
-			break;
-
-		if (PLAYER->next->has_wincondition() && this->still_winning(*PLAYER->next))
-		{
-			PLAYER = PLAYER->next;
-			break;
-		}
-
-		if (this->has_won(*PLAYER))
+		if (this->is_game_finished(*PLAYER->next))
 			break;
 
 		PLAYER = PLAYER->next;
 	}
-	this->print_winner(*PLAYER);
+	this->switch_to_player(this->winner);
+	this->print_winner();
 }
+
+bool					Board::is_game_finished(Player &player)
+{
+	if (player.captures >= CAPTUREWIN)
+		this->winner = player.id;
+	else if (this->check_win_other_player(player))
+		this->winner = player.next->id;
+	else if (this->has_won(player))
+		this->winner = player.id;
+	else if (this->is_full())
+		return true;
+	return this->winner != 0;
+}
+
+bool					Board::check_win_other_player(Player &player) const { return (player.next->has_wincondition() && this->still_winning(*player.next)); }
+
+bool					Board::has_won(void) const { return this->heuristic.has_won(this, *PLAYER); }
+
+bool					Board::has_won(Player &player) const { return this->heuristic.has_won(this, player); }
 
 Board					Board::get_copy(void) const
 {
@@ -267,12 +277,12 @@ Board					Board::get_copy(void) const
 
 /* PRIVATE METHODS */
 
-void					Board::print_winner(Player &player) const
+void					Board::print_winner(void) const
 {
 	this->print_stats();
-	this->show_move(player.last_move);
+	this->show_move(PLAYER->last_move);
 	if (!this->is_full())
-		std::cout << "*** " << player.name << " WINS!!! ***" << std::endl;
+		std::cout << "*** " << PLAYER->name << " WINS!!! ***" << std::endl;
 }
 
 void					Board::print_stats(void) const
@@ -371,10 +381,6 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 	}
 	return count == 3 && gaps < 2 && open + gaps > 2;
 }
-
-bool					Board::has_won(void) const { return this->heuristic.has_won(this, *PLAYER); }
-
-bool					Board::has_won(Player &player) const { return this->heuristic.has_won(this, player); }
 
 bool					Board::still_winning(Player &player) const { return this->heuristic.still_winning(this, player); }
 
