@@ -70,11 +70,8 @@ void		GUI::draw_stones(Board &board)
 
 		texture = board.get_player_id(index) == PLAYER1_ID ? this->p1_texture : this->p2_texture;
 
-		row = get_row(index);
-		col = get_col(index);
-
-		row = (row * SIZE) + OFFSET - (SIZE >> 1);
-		col = (col * SIZE) + OFFSET - (SIZE >> 1);
+		row = (get_row(index) * SIZE) + OFFSET - (SIZE >> 1);
+		col = (get_col(index) * SIZE) + OFFSET - (SIZE >> 1);
 
 		this->set_texture(texture, SDL_Rect{col, row, SIZE, SIZE});
 	}
@@ -94,14 +91,12 @@ bool		GUI::handle_events(Board &board)
 		case SDL_MOUSEBUTTONUP:
 		{
 			int row, col;
+			SDL_GetMouseState(&col, &row);
 			
-			this->get_placement(&row, &col);
-
-			if (board.place(calc_index(row, col)))
-			{
-				board.next_player();
-				this->update = true;
-			}
+			if (row < SCREEN_HEIGHT && col < SCREEN_HEIGHT)
+				this->place_on_board(board, row, col);
+			// else
+			// 	click on info
 
 			break;
 		}
@@ -124,12 +119,16 @@ void		GUI::clear_render(void)
 	SDL_RenderClear(renderer);
 }
 
-void		GUI::get_placement(int *row, int *col)
+void		GUI::place_on_board(Board &board, int row, int col)
 {
-	SDL_GetMouseState(col, row);
-	
-	*row = (*row - OFFSET) / (double)SIZE + .5;
-	*col = (*col - OFFSET) / (double)SIZE + .5;
+	row = (row - OFFSET) / (double)SIZE + .5;
+	col = (col - OFFSET) / (double)SIZE + .5;
+
+	if (board.place(calc_index(row, col)))
+	{
+		board.next_player();
+		this->update = true;
+	}
 }
 
 SDL_Texture	*GUI::load_texture(std::string img_path)

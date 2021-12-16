@@ -49,17 +49,18 @@ int							get_player_input(void)
 }
 /* ===================== */
 
-Player::Player(int player_id, std::string name)
+Player::Player(int player_id, std::string name, player_fn fn)
 {
 	assert(player_id == PLAYER1_ID || player_id == PLAYER2_ID);
 
 	this->name = name;
 	this->id = player_id;
 	this->index_offset = player_id == PLAYER1_ID ? 0 : 1;
+	this->set_fn(fn);
 	this->reset();
 }
 
-void						Player::set_fn(player_fn fn) { this->fn = !fn ? &get_player_input : fn; }
+void						Player::set_fn(player_fn fn) { this->fn = !fn ? &get_player_input : fn; } // JUST SET TO NULL
 
 void						Player::print(void) const
 {

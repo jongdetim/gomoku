@@ -23,6 +23,8 @@ class	Board
 {
 public:
 	Board(void);
+	Board(player_fn p1_fn);
+	Board(player_fn p1_fn, player_fn p2_fn);
 	~Board();
 	
 	int						h;
@@ -33,8 +35,6 @@ public:
 	int						winner;
 	
 	void					play(void);
-	void					play(player_fn p1_fn);
-	void					play(player_fn p1_fn, player_fn p2_fn);
 	void					print(void) const;
 	void					show_move(void) const;
 	void					show_move(int show_index) const;

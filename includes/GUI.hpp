@@ -38,7 +38,7 @@ private:
 	void			draw_stones(Board &board);
 	void			update_renderer(Board &board);
 	bool			handle_events(Board &board);
-	void			get_placement(int *row, int *col);
+	void			place_on_board(Board &board, int row, int col);
 	SDL_Texture		*load_texture(std::string img_path);
 
 };

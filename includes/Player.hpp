@@ -11,7 +11,7 @@ class Player
 {
 public:
 
-	Player(int player_id, std::string name);
+	Player(int player_id, std::string name, player_fn fn);
 
 	std::string					name;
 	int							id;
