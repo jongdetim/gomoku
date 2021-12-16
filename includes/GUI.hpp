@@ -35,11 +35,10 @@ private:
 
 	void			clear_render(void);
 	void			set_texture(SDL_Texture *texture, SDL_Rect rect);
-	void			draw_state(BITBOARD state);
-	void			update_renderer(void);
+	void			draw_stones(Board &board);
+	void			update_renderer(Board &board);
 	bool			handle_events(Board &board);
 	void			get_placement(int *row, int *col);
-	void			draw_circle(int32_t centreX, int32_t centreY, int32_t radius);
 	SDL_Texture		*load_texture(std::string img_path);
 
 };

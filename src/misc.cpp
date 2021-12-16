@@ -27,7 +27,12 @@ int					get_col(int index) { return (index % BOARD_LENGTH); }
 
 int					get_row(int index) { return (index / BOARD_LENGTH); }
 
-int					calc_index(int row, int col) { return (row * BOARD_LENGTH + col); }
+int					calc_index(int row, int col)
+{
+	if (row < 0 || row >= 19 || col < 0 || col >= 19)
+		return -1;
+	return (row * BOARD_LENGTH + col);
+}
 
 bool				is_offside(int prev_index, int index)
 {

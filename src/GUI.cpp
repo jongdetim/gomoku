@@ -1,6 +1,7 @@
 #include "GUI.hpp"
+#include "misc.hpp"
 
-GUI::GUI(void) { }
+GUI::GUI(void) : update(true) { }
 
 GUI::~GUI()
 {
@@ -42,24 +43,42 @@ bool		GUI::initiate_GUI(std::string title)
 void		GUI::game(Board &board)
 {
 	bool quit = false;
-
-	this->update_renderer();
     
     while (!quit)
     {
-		// SDL_PollEvent(&this->event) // Use when always want updating, like active animations when no user input
-        SDL_WaitEvent(&this->event);
+		if (this->update)
+			this->update_renderer(board);
+	
+        SDL_WaitEvent(&this->event); // SDL_PollEvent(&this->event) --> Use when always want updating, like active animations when no user input
 
 		quit = this->handle_events(board);
 		
-		if (this->update)
-			this->update_renderer();
     }
 }
 
 /* Private Methods */
 
-void		GUI::draw_state(BITBOARD state) { }
+void		GUI::draw_stones(Board &board)
+{
+	SDL_Texture *texture;
+	int row, col;
+
+	for (int index = 0; index < board.filled_pos.size(); index++)
+	{
+		if (board.is_empty_place(index))
+			continue;
+
+		texture = board.get_player_id(index) == PLAYER1_ID ? this->p1_texture : this->p2_texture;
+
+		row = get_row(index);
+		col = get_col(index);
+
+		row = (row * SIZE) + OFFSET - (SIZE >> 1);
+		col = (col * SIZE) + OFFSET - (SIZE >> 1);
+
+		this->set_texture(texture, SDL_Rect{col, row, SIZE, SIZE});
+	}
+}
 
 void		GUI::set_texture(SDL_Texture *texture, SDL_Rect rect)
 {
@@ -75,12 +94,14 @@ bool		GUI::handle_events(Board &board)
 		case SDL_MOUSEBUTTONUP:
 		{
 			int row, col;
+			
 			this->get_placement(&row, &col);
 
-			// if (board.place())
-			// {
+			if (board.place(calc_index(row, col)))
+			{
+				board.next_player();
 				this->update = true;
-			// }
+			}
 
 			break;
 		}
@@ -88,10 +109,11 @@ bool		GUI::handle_events(Board &board)
 	return false;
 }
 
-void		GUI::update_renderer(void)
+void		GUI::update_renderer(Board &board)
 {
 	this->clear_render();
-	this->set_texture(this->board_texture, (SDL_Rect){0, 0, SCREEN_HEIGHT, SCREEN_HEIGHT});
+	this->set_texture(this->board_texture, SDL_Rect{0, 0, SCREEN_HEIGHT, SCREEN_HEIGHT});
+	this->draw_stones(board);
 	SDL_RenderPresent(this->renderer);
 	this->update = false;
 }
@@ -105,12 +127,12 @@ void		GUI::clear_render(void)
 void		GUI::get_placement(int *row, int *col)
 {
 	SDL_GetMouseState(col, row);
-
+	
 	*row = (*row - OFFSET) / (double)SIZE + .5;
 	*col = (*col - OFFSET) / (double)SIZE + .5;
 }
 
-SDL_Texture		*GUI::load_texture(std::string img_path)
+SDL_Texture	*GUI::load_texture(std::string img_path)
 {
 	SDL_Surface	*image;
 	SDL_Texture	*texture;
