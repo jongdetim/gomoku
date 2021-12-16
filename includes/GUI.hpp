@@ -8,11 +8,13 @@
 
 // # define OFFSET 0.03229
 # define OFFSET 31
-# define GAP 50
+# define SIZE 50
 # define INTERFACE_SIZE 320
 # define SCREEN_HEIGHT 960
 # define SCREEN_WIDTH (SCREEN_HEIGHT + INTERFACE_SIZE)
-# define IMAGE_PATH "../board.bmp"
+# define BOARD_PATH "../textures/board.bmp"
+# define P1_PATH "../textures/circle_white.bmp"
+# define P2_PATH "../textures/circle_black.bmp"
 
 class GUI
 {
@@ -20,23 +22,25 @@ public:
 	GUI(void);
 	~GUI();
 	bool			initiate_GUI(std::string title);
-	void			game(const Board &board);
+	void			game(Board &board);
 
 private:
 	SDL_Window		*window;
 	SDL_Renderer	*renderer;
-	SDL_Surface		*image;
-	SDL_Texture		*texture;
+	SDL_Texture		*board_texture;
+	SDL_Texture		*p1_texture;
+	SDL_Texture		*p2_texture;
 	SDL_Event		event;
 	bool			update;
 
 	void			clear_render(void);
-	void			set_background(void);
+	void			set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void			draw_state(BITBOARD state);
-	void			update_window(void);
-	bool			handle_events(void);
+	void			update_renderer(void);
+	bool			handle_events(Board &board);
 	void			get_placement(int *row, int *col);
 	void			draw_circle(int32_t centreX, int32_t centreY, int32_t radius);
+	SDL_Texture		*load_texture(std::string img_path);
 
 };
 
