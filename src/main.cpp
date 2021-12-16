@@ -41,6 +41,7 @@ t_pattern			get_pattern(const Board &board, int move, int direction, int player)
                 if (is_offside(pos - shift, pos) || board.get_player(pos) == -player)
                 {
                     pattern.left_right[j] = i;
+                    pattern.space++;
                     break;
                 }
                 if (board.get_player(pos) == player)
@@ -50,10 +51,10 @@ t_pattern			get_pattern(const Board &board, int move, int direction, int player)
                 else
                     open++;
             }
-			else if (!is_offside(pos - shift, pos) && board.get_player(pos) == (0 || player))
-				open++;
-            else
+			else if (is_offside(pos - shift, pos) || board.get_player(pos) == -player)
                 break;
+            else
+				open++; 
 			pattern.space++;
 			i++;
 		}
@@ -63,26 +64,52 @@ t_pattern			get_pattern(const Board &board, int move, int direction, int player)
 	return pattern;
 }
 
-Pattern search_subpattern(t_pattern &pat, t_pattern &sub)
-{
-    int8_t times = pat.length - sub.length;
+// bool search_subpattern(t_pattern &pat, t_pattern &sub)
+// {
+//     int8_t times = pat.length - sub.length;
 
-    if (times < 0)
+//     if (times < 0)
+//     {
+//         PRINT("subpattern does not fit inside of cutout pattern");
+//         exit(1);
+//     }
+//     for (int8_t i = 0; i < times + 1; i++)
+//     {
+//         PRINT(std::bitset<8>(uint8_t(pat.pattern << (8 - pat.length + i)) >> (times + (8 - pat.length))));
+//         if(uint8_t(pat.pattern << (8 - pat.length + i)) >> (times + (8 - pat.length)) == sub.pattern)
+//         {
+//             // std::cout << std::bitset<8>(uint8_t(pat.pattern << i) >> times) << std::endl;
+//             PRINT("PATTERN FOUND");
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+void    print_and_quit(const char *msg)
+{
+    PRINT(msg);
+    exit(1);
+}
+
+Pattern find_subpattern(t_pattern &pat, uint8_t length, std::map<uint8_t, Pattern> map)
+{
+    int8_t fit = pat.length - length;
+    Pattern result = none;
+
+    if (fit < 0)
+        print_and_quit("cutout pattern is too smol");
+    for (int8_t i = 0; i < fit + 1; i++)
     {
-        PRINT("subpattern does not fit inside of cutout pattern");
-        exit(1);
-    }
-    for (int8_t i = 0; i < times + 1; i++)
-    {
-        PRINT(std::bitset<8>(uint8_t(pat.pattern << (8 - pat.length + i)) >> (times + (8 - pat.length))));
-        if(uint8_t(pat.pattern << (8 - pat.length + i)) >> (times + (8 - pat.length)) == sub.pattern)
+        auto iter = map.find(uint8_t(pat.pattern << (8 - pat.length + i)) >> (fit + (8 - pat.length)));
+        if (iter != map.end() && iter->second > result)
         {
-            // std::cout << std::bitset<8>(uint8_t(pat.pattern << i) >> times) << std::endl;
-            PRINT("PATTERN FOUND");
-            // pattern found, do the thing
+            result = iter->second;
+            if (result == five || result == open4)
+                return result;
         }
     }
-    return none;
+    return result;
 }
 
 int main()
@@ -99,13 +126,12 @@ int main()
     // board.place(star_index, PLAYER2);
     // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
 
+    board.place(index + 1, PLAYER1);
     board.place(index, PLAYER1);
-    // board.place(index + 3, PLAYER1);
-    // board.place(index + 4, PLAYER1);
-    // board.place(index + 9, PLAYER1);
-    // board.place(index + 8, PLAYER1);
-    // board.place(index + 6, PLAYER1);
-    board.place(360, PLAYER1);
+    board.place(index + 4, PLAYER1);
+    board.place(index + 8, PLAYER1);
+    board.place(index + 6, PLAYER1);
+    // board.place(360, PLAYER1);
     board.show_last_move();
     // exit(1);
 
@@ -120,10 +146,13 @@ int main()
 
 
     // see if some sub-pattern is inside the cutout pattern
-    t_pattern sub;
-    sub.pattern = 0b00000001;
-    sub.length = 1;
-    search_subpattern(pat, sub);
+    // t_pattern sub;
+    // sub.pattern = 0b00000001;
+    // sub.length = 3;
+    Pattern result;
+    PRINT(PatternNames[result = find_subpattern(pat, 5, SUBPATTERNS_5)]);
+    if (result != five)
+        PRINT(PatternNames[result = find_subpattern(pat, 6, SUBPATTERNS_6)]);
     
     // if (board.is_game_won())
     //     std::cout << "Won!!!" << std::endl;

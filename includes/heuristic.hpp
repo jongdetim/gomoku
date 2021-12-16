@@ -6,6 +6,15 @@
 class Board;
 
 enum Pattern {none, closed2, open2, closed3, open3, closed4, open4, five};
+const char * const PatternNames[8] = {"none", "closed2", "open2", "closed3", "open3", "closed4", "open4", "five"};
+
+const std::map<uint8_t, Pattern> SUBPATTERNS_5 = {	{0b00011111, five},
+													{0b00001111, closed4}, {0b00011110, closed4}, {0b00010111, closed4}, {0b00011011, closed4}, {0b00011101, closed4},
+													{0b00001110, open3},
+													{0b00001010, open2}  };
+
+const std::map<uint8_t, Pattern> SUBPATTERNS_6 = {	{0b00011110, open4},
+													{0b00011010, open3}, {0b00010110, open3}  };
 
 typedef struct s_pattern
 {
@@ -16,9 +25,18 @@ typedef struct s_pattern
     unsigned char pattern;
 }   t_pattern;
 
+typedef struct s_subpattern
+{
+    int length;
+    unsigned char pattern;
+}   t_subpattern;
+
 class Heuristic
 {
 public:
+	int		score = 0;
+	uint8_t patterns[8] = {0};
+
 	Heuristic(void);
 	~Heuristic();
 
