@@ -1,4 +1,7 @@
 #include "algorithm.hpp"
+#include "Board.hpp"
+#include "Heuristic.hpp"
+#include "TranspositionTable.hpp"
 
 int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
@@ -29,13 +32,14 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vector<int> filled_positions, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
+int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
 {
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
 	int value = -std::numeric_limits<int>::max();
 	bool is_finished;
 	int best_move = -1;
+	std::hash<std::bitset<722>> hashfn;
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -60,17 +64,16 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			return tt_entry.value;
 	}
 
-	is_finished = node.is_game_finished();
-	filled_positions.push_back(node.get_last_move());
+	is_finished = node.is_game_finished(*node.current_player->next); // Checked nu of de current player heeft gewonnen???
 
 	if (depth == 0 || is_finished)
 	{
 		TOTAL_LEAVES += 1;
 		// node.print();
 
-		if (h_table.lookup(node, tt_entry))
-			std::cout << "impossible ding" << std::endl;
-		value = color * calc_heuristic_tim(filled_positions, node, false);
+		// if (h_table.lookup(node, tt_entry))
+		// 	std::cout << "impossible ding" << std::endl;
+		value = node.current_player->id * node.calc_heuristic();
 
 		// node.print();
 		// std::cout << "value: " << value * color << std::endl;
@@ -81,13 +84,17 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		tt_entry.game_finished = is_finished;
 		h_table.insert(node, tt_entry);
 		t_table.insert(node, tt_entry);
+		// std::cout << hashfn(node.get_state()) << std::endl;
+		// std::cout << node.get_state() << std::endl;
+
 		return (value);
 	}
 	std::vector<Board> child_nodes;
-	child_nodes = node.generate_children_bits(filled_positions, color);
+	// for (int i = 0; i < 100; i++)
+		child_nodes = node.generate_children();
 
 		// for (auto &it : child_nodes)
-		// 	std::cout << it.get_last_move() << std::endl;
+		// 	std::cout << it.last_move << std::endl;
 		// exit(1);
 
 	auto comp = [&](Board a, Board b)-> bool
@@ -112,10 +119,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 			{
 				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = -color * calc_heuristic_tim(filled_positions, child, true);
+			    child.h = -node.current_player->id * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
-				h_table.insert(child, ht_entry);
+				// h_table.insert(child, ht_entry);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
@@ -130,7 +137,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 	{
 		int old_value = value;
 
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, filled_positions, t_table, h_table, false));
+		if (child.check_free_threes(child.current_player->last_move, node.current_player->id)) // Welke last move wil je hier hebben?
+			continue;
+		child.next_player();
+		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, t_table, h_table, false)); // Copy mee geven
 		alpha = std::max(alpha, value);
 		if (initial_call && value > old_value)
 			best_move = child.get_last_move();
@@ -155,7 +165,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, std::vec
 		std::cout << "depth: " << depth << std::endl;
 		std::cout << "best move is: " << best_move << std::endl;
 		std::cout << "heuristic value is: " << value << std::endl;
-		node.place(best_move, PLAYER2);
+		node.place(best_move);
 		node.print();
 	}
 	return value;

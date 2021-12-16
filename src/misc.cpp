@@ -1,28 +1,47 @@
 #include "misc.hpp"
-#include "heuristic.hpp"
-#include "BoardHeuristic.hpp"
+#include "Board.hpp"
 
-int					get_col(int index)
+int					random_int(void)
 {
-	return (index % BOARD_LENGTH);
+   static bool first = true;
+   if (first) 
+   {  
+		srand( time(NULL) );
+		first = false;
+   }
+   return rand();
 }
 
-int					get_row(int index)
+int					random(int min, int max)
 {
-	return (index / BOARD_LENGTH);
+   static bool first = true;
+   if (first) 
+   {  
+		srand( time(NULL) );
+		first = false;
+   }
+   return min + rand() % (( max + 1 ) - min);
 }
 
-int					calc_index(int row, int col)
-{
-	return (row * BOARD_LENGTH + col);
-}
+int					get_col(int index) { return (index % BOARD_LENGTH); }
 
-bool				is_offside(int index, int prev_index)
+int					get_row(int index) { return (index / BOARD_LENGTH); }
+
+int					calc_index(int row, int col) { return (row * BOARD_LENGTH + col); }
+
+bool				is_offside(int prev_index, int index)
 {
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
 
-	return ((abs(prev_row - row) > 1) or (abs(prev_col - col) > 1));
+	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1) || index < 0 || index >= BOARDSIZE);
+}
+
+void				create_star(Board &board, int index, int size, int player)
+{
+	board.switch_to_player(player);
+    for (auto dir : DIRECTIONS)
+        place_pieces(board, index, size, dir);
 }
 
 void    			print_bitboard(BITBOARD bitmap)
@@ -45,42 +64,19 @@ void    			print_bitboard(BITBOARD bitmap)
 	}
 }
 
-void				place_pieces(Board &board, int player, int start_pos, int amount, int offset, std::vector<int> &filled_positions)
+void				place_pieces(Board &board, int start_pos, int amount, int offset)
 {
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGTH*BOARD_LENGTH));
-	for (int i = 1; i <= amount; i++)
-	{
-		prev_index = index;
-		index = start_pos + (i * offset);
-		if (is_offside(prev_index, index))
-			break ;
-		if (index >= (BOARD_LENGTH*BOARD_LENGTH) or index < 0)
-			break ;
-		// if (!board.is_empty_place(index))
-		// 	continue ;
-		board.place(index, player);
-		filled_positions.push_back(index);
-	}
-}
-
-void				place_pieces(Board &board, int player, int start_pos, int amount, int offset)
-{
-	int index = start_pos;
-	int prev_index;
-
-	assert(start_pos >= 0 and start_pos < (BOARD_LENGTH*BOARD_LENGTH));
+	assert(start_pos >= 0 and start_pos < (BOARDSIZE));
 	for (int i = 0; i < amount; i++)
 	{
 		prev_index = index;
 		index = start_pos + (i * offset);
 		if (is_offside(prev_index, index))
 			break ;
-		if (index >= (BOARD_LENGTH*BOARD_LENGTH) or index < 0)
-			break ;
-		board.place(index, player);
+		board.place(index);
 	}
 }
 
@@ -90,18 +86,18 @@ Board				create_random_board(void)
 
 	srand (time(NULL));
 
-	int players[2]{-1, 1};
 	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
-	for (int i = 1; i < 6; i++)
+	for (int amount = 1; amount < 6; amount++)
 	{
 		for (auto offset: offsets)
 		{
-			for (auto player : players)
+			for (int i = 0; i < 2; i++)
 			{
 				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset);
+				place_pieces(board, start_pos, amount, offset);
+				board.next_player();
 			}
 		}
 	}
@@ -114,157 +110,20 @@ Board				create_random_board(int seed)
 
 	srand (seed);
 
-	int players[2]{-1, 1};
 	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
 	int start_pos;
 
-	for (int i = 1; i < 6; i++)
+	for (int amount = 1; amount < 6; amount++)
 	{
 		for (auto offset: offsets)
 		{
-			for (auto player : players)
+			for (int i = 0; i < 2; i++)
 			{
 				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset);
+				place_pieces(board, start_pos, amount, offset);
+				board.next_player();
 			}
 		}
 	}
-	return board;
-}
-
-Board				create_random_board(std::vector<int> &filled_positions)
-{
-	Board board;
-
-	srand (time(NULL));
-
-	int players[2]{-1, 1};
-	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
-	int start_pos;
-
-	for (int i = 1; i < 6; i++)
-	{
-		for (auto offset: offsets)
-		{
-			for (auto player : players)
-			{
-				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset, filled_positions);
-			}
-		}
-	}
-	return board;
-}
-
-Board				create_random_board(int seed, std::vector<int> &filled_positions)
-{
-	Board board;
-
-	srand (seed);
-
-	int players[2]{-1, 1};
-	int	offsets[4]{RIGHT, DOWN, DIAGUPR, DIAGDWNR};
-	int start_pos;
-
-	for (int i = 1; i < 6; i++)
-	{
-		for (auto offset: offsets)
-		{
-			for (auto player : players)
-			{
-				start_pos = rand() % (BOARD_LENGTH*BOARD_LENGTH);
-				place_pieces(board, player, start_pos, i, offset, filled_positions);
-			}
-		}
-	}
-	return board;
-}
-
-static void			erase_el(std::vector<int> &vec, int value)
-{
-    vec.erase(std::remove(vec.begin(), vec.end(), value), vec.end());
-}
-
-inline double		map_value(double value, double in_minrange, double in_maxrange, double out_minrange, double out_maxrange)
-{
-    return ((double)value-in_minrange)/(in_maxrange-in_minrange)*(out_maxrange-out_minrange)+out_minrange;
-}
-
-std::vector<int>   create_empty_array(void)
-{
-    std::vector<int> empty;
-
-    for (int i = 0; i < BOARDSIZE; i++)
-        empty.push_back(i);
-    return empty;
-}
-
-int    				play_random_game(Board board, int player, bool verbose)
-{
-    int index;
-	srand(time(NULL));
-
-	auto empty = create_empty_array();
-    while (true)
-    {
-        index = rand() % empty.size();
-        board.place(index, player);
-        erase_el(empty, index);
-        if (board.is_game_won())
-            break ;
-		if (board.is_full())
-		{
-			player = 0;
-			break ;
-		}
-        player = -player;
-    }
-    if (verbose)
-        board.show_last_move();
-	return player;
-}
-
-int    				play_random_game(Board board, int player, std::vector<int> empty, bool verbose)
-{
-    int index;
-
-    while (true)
-    {
-        index = rand() % empty.size();
-        board.place(index, player);
-        erase_el(empty, index);
-        if (board.is_game_won())
-            break ;
-		if (board.is_full())
-		{
-			player = 0;
-			break ;
-		}
-        player = -player;
-    }
-    if (verbose)
-        board.show_last_move();
-	return player;
-}
-
-int					play_random_games(Board &board, int start_player, int amount, bool verbose)
-{
-	srand(time(NULL));
-	auto empty = create_empty_array();
-	int wins = 0;
-
-	for (int i = 0; i < amount; i++)
-		wins += play_random_game(board, start_player, empty, verbose) == start_player ? 1 : 0;
-	return wins;
-}	
-
-int					play_random_games(Board &board, int start_player, int amount, bool verbose, int seed)
-{
-	srand(seed);
-	auto empty = create_empty_array();
-	int wins = 0;
-
-	for (int i = 0; i < amount; i++)
-		wins += play_random_game(board, start_player, empty, verbose) == start_player ? 1 : 0;
-	return wins;
+	return board.get_copy();
 }
