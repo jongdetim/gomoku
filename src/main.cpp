@@ -33,7 +33,7 @@ t_pattern			get_pattern(const Board &board, int move, int direction, int player)
 		shift = DIRECTIONS[direction + 4 * j];
 		int i = 0;
 		int open = 0;
-		while (open < 2)
+		while (open < 3)
 		{
 			pos += shift;
             if (open == 0)
@@ -41,7 +41,6 @@ t_pattern			get_pattern(const Board &board, int move, int direction, int player)
                 if (is_offside(pos - shift, pos) || board.get_player(pos) == -player)
                 {
                     pattern.left_right[j] = i;
-                    pattern.space++;
                     break;
                 }
                 if (board.get_player(pos) == player)
@@ -49,7 +48,7 @@ t_pattern			get_pattern(const Board &board, int move, int direction, int player)
                 else if (board.get_player(pos - shift) == player) //leeg vakje maar vorige niet
                     pattern.left_right[j] = i + 1;
                 else
-                    open++;
+                    open = 2;
             }
 			else if (is_offside(pos - shift, pos) || board.get_player(pos) == -player)
                 break;
@@ -92,7 +91,12 @@ void    print_and_quit(const char *msg)
     exit(1);
 }
 
-Pattern find_subpattern(t_pattern &pat, uint8_t length, std::map<uint8_t, Pattern> map)
+void score_heuristic_data()
+{
+    return;
+}
+
+Pattern find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, Pattern> &map)
 {
     int8_t fit = pat.length - length;
     Pattern result = none;
@@ -112,6 +116,44 @@ Pattern find_subpattern(t_pattern &pat, uint8_t length, std::map<uint8_t, Patter
     return result;
 }
 
+Pattern get_heuristic_data(Board &board)
+{
+    // board.heuristic.score = 0;
+    // board.heuristic.patterns = {0};
+
+    Pattern result = none;
+
+    t_pattern pat = get_pattern(board, board.get_last_move(), 0, board.get_last_player());
+    // PRINT(pat.count);
+    // PRINT(pat.left_right[0]);
+    // PRINT(pat.left_right[1]);
+    // PRINT(pat.length);
+    // PRINT(pat.space);
+    // PRINT(std::bitset<8>(pat.pattern));
+
+    if (pat.count <= 1 || pat.space < 5)
+        return none;
+    if (pat.count == 2)
+    {
+        if (pat.space > 5 && ((pat.pattern == 0b00000110 && pat.length == 4) || (pat.pattern == 0b00001010 && pat.length == 5))) // .xx. with > 5 space OR .x.x. with > 5 space
+            return open2;
+        else
+            return closed2;
+    }
+    if (pat.space == 5 && pat.count == 3) // |x.x.x| & |.xxx.| & |.xx.x| etc.
+            return closed3;
+    if (pat.length >= 5)
+        result = find_subpattern(pat, 5, SUBPATTERNS_5);
+    if (result != five && pat.length >= 6)
+        result = std::max(result, find_subpattern(pat, 6, SUBPATTERNS_6));
+    if (result == none) // xxx. & .xxx & xx.x.x & x.x.x.x & x.x.x. & x.x.x
+    {
+        return closed3;
+        // klopt dit altijd? goed controleren!
+    }
+    return result;
+}
+
 int main()
 {
     Board board;
@@ -126,33 +168,23 @@ int main()
     // board.place(star_index, PLAYER2);
     // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
 
-    board.place(index + 1, PLAYER1);
-    board.place(index, PLAYER1);
-    board.place(index + 4, PLAYER1);
-    board.place(index + 8, PLAYER1);
-    board.place(index + 6, PLAYER1);
+    // board.place(index + 1, PLAYER1);
+    // board.place(index, PLAYER1);
+    // board.place(index + 4, PLAYER1);
+    // board.place(index + 8, PLAYER2);
+    // board.place(index + 6, PLAYER1);
     // board.place(360, PLAYER1);
+    board = create_random_board();
     board.show_last_move();
     // exit(1);
 
     // get the pattern
-    t_pattern pat = get_pattern(board, board.get_last_move(), 0, PLAYER1);
-    PRINT(pat.count);
-    PRINT(pat.left_right[0]);
-    PRINT(pat.left_right[1]);
-    PRINT(pat.length);
-    PRINT(pat.space);
-    PRINT(std::bitset<8>(pat.pattern));
-
+    PRINT(PatternNames[get_heuristic_data(board)]);
 
     // see if some sub-pattern is inside the cutout pattern
     // t_pattern sub;
     // sub.pattern = 0b00000001;
     // sub.length = 3;
-    Pattern result;
-    PRINT(PatternNames[result = find_subpattern(pat, 5, SUBPATTERNS_5)]);
-    if (result != five)
-        PRINT(PatternNames[result = find_subpattern(pat, 6, SUBPATTERNS_6)]);
     
     // if (board.is_game_won())
     //     std::cout << "Won!!!" << std::endl;

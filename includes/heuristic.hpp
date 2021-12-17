@@ -10,8 +10,8 @@ const char * const PatternNames[8] = {"none", "closed2", "open2", "closed3", "op
 
 const std::map<uint8_t, Pattern> SUBPATTERNS_5 = {	{0b00011111, five},
 													{0b00001111, closed4}, {0b00011110, closed4}, {0b00010111, closed4}, {0b00011011, closed4}, {0b00011101, closed4},
-													{0b00001110, open3},
-													{0b00001010, open2}  };
+													// {0b00010101, closed3}, {0b00010110, closed3}, {0b00001011, closed3},
+													{0b00001110, open3}	 };
 
 const std::map<uint8_t, Pattern> SUBPATTERNS_6 = {	{0b00011110, open4},
 													{0b00011010, open3}, {0b00010110, open3}  };
