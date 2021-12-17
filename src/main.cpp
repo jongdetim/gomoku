@@ -175,14 +175,14 @@ int main()
     // board.place(index + 6, PLAYER1);
     // board.place(360, PLAYER1);
     Pattern result;
-    for (int i = 0; i < 400; i++)
+    for (int i = 400; i < 800; i++)
     {
         board = create_random_board(i);
         // exit(1);
 
         // get the pattern
         result = get_heuristic_data(board);
-        if (result != none)
+        if (result == closed4)
         {  
             board.show_last_move();
             PRINT(PatternNames[result]);
