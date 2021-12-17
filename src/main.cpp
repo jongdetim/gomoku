@@ -157,7 +157,7 @@ Pattern get_heuristic_data(Board &board)
 int main()
 {
     Board board;
-    int index = calc_index(0, 0);
+    int index = calc_index(8, 18);
     // int star_index = calc_index(3, 16); 
 
     // create_star(board, star_index, 3, PLAYER1);
@@ -168,18 +168,26 @@ int main()
     // board.place(star_index, PLAYER2);
     // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
 
-    // board.place(index + 1, PLAYER1);
+    // board.place(index - 1, PLAYER1);
+    // board.place(index - 3, PLAYER1);
     // board.place(index, PLAYER1);
-    // board.place(index + 4, PLAYER1);
     // board.place(index + 8, PLAYER2);
     // board.place(index + 6, PLAYER1);
     // board.place(360, PLAYER1);
-    board = create_random_board();
-    board.show_last_move();
-    // exit(1);
+    Pattern result;
+    for (int i = 0; i < 400; i++)
+    {
+        board = create_random_board(i);
+        // exit(1);
 
-    // get the pattern
-    PRINT(PatternNames[get_heuristic_data(board)]);
+        // get the pattern
+        result = get_heuristic_data(board);
+        if (result != none)
+        {  
+            board.show_last_move();
+            PRINT(PatternNames[result]);
+        }
+    }
 
     // see if some sub-pattern is inside the cutout pattern
     // t_pattern sub;

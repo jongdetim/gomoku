@@ -22,14 +22,14 @@ typedef struct s_pattern
 	int count;
 	int space;
     int length;
-    unsigned char pattern;
+    uint8_t pattern = 0;
 }   t_pattern;
 
-typedef struct s_subpattern
-{
-    int length;
-    unsigned char pattern;
-}   t_subpattern;
+// typedef struct s_subpattern
+// {
+//     int length;
+//     unsigned char pattern;
+// }   t_subpattern;
 
 class Heuristic
 {
