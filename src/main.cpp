@@ -20,7 +20,7 @@ void               cutout_pattern(const Board &board, int move, int direction, i
     }
 }
 
-t_pattern			get_pattern(const Board &board, int move, int direction, int player)
+t_pattern			get_pattern_data(const Board &board, int move, int direction, int player)
 {
 	t_pattern pattern;
 	int pos;
@@ -59,7 +59,6 @@ t_pattern			get_pattern(const Board &board, int move, int direction, int player)
 		}
 	}
 	pattern.length = pattern.left_right[0] + pattern.left_right[1] + 1;
-    cutout_pattern(board, move, direction, player, pattern);
 	return pattern;
 }
 
@@ -116,14 +115,14 @@ Pattern find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, 
     return result;
 }
 
-Pattern get_heuristic_data(Board &board)
+Pattern get_heuristic_data(Board &board, const int &move, const int &direction, const int &player)
 {
     // board.heuristic.score = 0;
     // board.heuristic.patterns = {0};
 
     Pattern result = none;
 
-    t_pattern pat = get_pattern(board, board.get_last_move(), 0, board.get_last_player());
+    t_pattern pat = get_pattern_data(board, board.get_last_move(), 0, board.get_last_player());
     // PRINT(pat.count);
     // PRINT(pat.left_right[0]);
     // PRINT(pat.left_right[1]);
@@ -133,13 +132,16 @@ Pattern get_heuristic_data(Board &board)
 
     if (pat.count <= 1 || pat.space < 5)
         return none;
+    
     if (pat.count == 2)
     {
+        cutout_pattern(board, move, direction, player, pat);
         if (pat.space > 5 && ((pat.pattern == 0b00000110 && pat.length == 4) || (pat.pattern == 0b00001010 && pat.length == 5))) // .xx. with > 5 space OR .x.x. with > 5 space
             return open2;
         else
             return closed2;
     }
+    cutout_pattern(board, move, direction, player, pat);
     if (pat.space == 5 && pat.count == 3) // |x.x.x| & |.xxx.| & |.xx.x| etc.
             return closed3;
     if (pat.length >= 5)
@@ -174,14 +176,13 @@ int main()
     // board.place(index + 8, PLAYER2);
     // board.place(index + 6, PLAYER1);
     // board.place(360, PLAYER1);
-    Pattern result;
+    // Pattern result;
     for (int i = 0; i < 400; i++)
     {
         board = create_random_board(i);
-        // exit(1);
 
         // get the pattern
-        result = get_heuristic_data(board);
+        Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
         if (result != none)
         {  
             board.show_last_move();

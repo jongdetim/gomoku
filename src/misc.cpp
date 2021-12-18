@@ -46,13 +46,13 @@ void				place_pieces(Board &board, int player, int start_pos, int amount, int of
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARDSIZE));
+	assert(start_pos >= 0 && start_pos < (BOARDSIZE));
 	for (int i = 0; i < amount; i++)
 	{
 		prev_index = index;
 		index = start_pos + (i * offset);
 		if (is_offside(prev_index, index))
-			break ;
+			break;
 		board.place(index, player);
 	}
 }
