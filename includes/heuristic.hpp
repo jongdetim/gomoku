@@ -18,10 +18,10 @@ const std::map<uint8_t, Pattern> SUBPATTERNS_6 = {	{0b00011110, open4},
 
 typedef struct s_pattern
 {
-	int left_right[2];
-	int count;
-	int space;
-    int length;
+	uint8_t left_right[2];
+	uint8_t count;
+	uint8_t space;
+    uint8_t length;
     uint8_t pattern = 0;
 }   t_pattern;
 

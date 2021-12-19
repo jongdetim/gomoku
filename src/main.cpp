@@ -18,6 +18,7 @@ void               cutout_pattern(const Board &board, int move, int direction, i
             pat.pattern <<= 1;
         pos += shift;
     }
+    PRINT(std::bitset<8>(pat.pattern));
 }
 
 t_pattern			get_pattern_data(const Board &board, int move, int direction, int player)
@@ -90,9 +91,16 @@ void    print_and_quit(const char *msg)
     exit(1);
 }
 
-void score_heuristic_data()
+void score_heuristic_data(Board &board)
 {
-    return;
+    for (uint8_t i = 0; i < 8; i++) // skip first index which is none
+    {
+        if (i > 0 && board.heuristic.patterns[i] > 0)
+        {
+            PRINT(PatternNames[i]);
+            PRINT((int)board.heuristic.patterns[i]);
+        }
+    }
 }
 
 Pattern find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, Pattern> &map)
@@ -122,12 +130,13 @@ Pattern get_heuristic_data(Board &board, const int &move, const int &direction, 
 
     Pattern result = none;
 
-    t_pattern pat = get_pattern_data(board, board.get_last_move(), 0, board.get_last_player());
-    // PRINT(pat.count);
-    // PRINT(pat.left_right[0]);
-    // PRINT(pat.left_right[1]);
-    // PRINT(pat.length);
-    // PRINT(pat.space);
+    t_pattern pat = get_pattern_data(board, move, direction, player);
+
+    // PRINT((int)pat.count);
+    // PRINT((int)pat.left_right[0]);
+    // PRINT((int)pat.left_right[1]);
+    // PRINT((int)pat.length);
+    // PRINT((int)pat.space);
     // PRINT(std::bitset<8>(pat.pattern));
 
     if (pat.count <= 1 || pat.space < 5)
@@ -156,7 +165,20 @@ Pattern get_heuristic_data(Board &board, const int &move, const int &direction, 
     return result;
 }
 
-int main()
+void    get_heuristic(Board &board)
+{
+    int move = board.get_last_move();
+    int player = board.get_last_player();
+
+    for (int i = 0; i < 4; i++) // four directions
+    {
+        Pattern pattern = get_heuristic_data(board, move, i, player);
+        board.heuristic.patterns[pattern] += 1;
+    }
+    score_heuristic_data(board);
+}
+
+int     main()
 {
     Board board;
     int index = calc_index(8, 18);
@@ -177,16 +199,20 @@ int main()
     // board.place(index + 6, PLAYER1);
     // board.place(360, PLAYER1);
     // Pattern result;
-    for (int i = 0; i < 400; i++)
+    for (int i = 300; i < 350; i++)
     {
+        // seed 316 is a problem! current implementation cuts out the last 8 bits in the diagonal
+        // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
         board = create_random_board(i);
 
         // get the pattern
-        Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
-        if (result != none)
+        // Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
+        board.show_last_move();
+        get_heuristic(board);
+        if (board.heuristic.patterns[0] < 4)
         {  
-            board.show_last_move();
-            PRINT(PatternNames[result]);
+            // board.show_last_move();
+            // PRINT(PatternNames[result]);
         }
     }
 
