@@ -1,7 +1,23 @@
 #include "GUI.hpp"
 #include "misc.hpp"
 
-GUI::GUI(void) : update(true) { }
+GUI::GUI(int height) : update(true)
+{
+	this->screen_height = height;
+	this->interface_size = (height * INTERFACE_SIZE / (double)SCREEN_HEIGHT) + .5;
+	this->screen_width = height + this->interface_size;
+	this->size = (height * SIZE / (double)SCREEN_HEIGHT) + .5;
+	this->offset = height * OFFSET / (double)SCREEN_HEIGHT;
+}
+
+GUI::GUI(void) : update(true)
+{
+	this->screen_height = SCREEN_HEIGHT;
+	this->screen_width = SCREEN_WIDTH;
+	this->size = SIZE;
+	this->offset = OFFSET;
+	this->interface_size = INTERFACE_SIZE;
+}
 
 GUI::~GUI()
 {
@@ -26,7 +42,7 @@ bool		GUI::initiate_GUI(std::string title)
         return false;
 	}
 
-	SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN, &this->window, &this->renderer);
+	SDL_CreateWindowAndRenderer(this->screen_width, this->screen_height, SDL_WINDOW_SHOWN, &this->window, &this->renderer);
 
 	if (window == NULL) {
         SDL_Log("Unable to create window: %s", SDL_GetError());
@@ -70,10 +86,10 @@ void		GUI::draw_stones(Board &board)
 
 		texture = board.get_player_id(index) == PLAYER1_ID ? this->p1_texture : this->p2_texture;
 
-		row = (get_row(index) * SIZE) + OFFSET - (SIZE >> 1);
-		col = (get_col(index) * SIZE) + OFFSET - (SIZE >> 1);
+		row = (get_row(index) * this->size) + this->offset - (this->size >> 1);
+		col = (get_col(index) * this->size) + this->offset - (this->size >> 1);
 
-		this->set_texture(texture, SDL_Rect{col, row, SIZE, SIZE});
+		this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 	}
 }
 
@@ -93,7 +109,7 @@ bool		GUI::handle_events(Board &board)
 			int row, col;
 			SDL_GetMouseState(&col, &row);
 			
-			if (row < SCREEN_HEIGHT && col < SCREEN_HEIGHT)
+			if (row < this->screen_height && col < this->screen_height)
 				this->place_on_board(board, row, col);
 			// else
 			// 	click on info
@@ -107,7 +123,7 @@ bool		GUI::handle_events(Board &board)
 void		GUI::update_renderer(Board &board)
 {
 	this->clear_render();
-	this->set_texture(this->board_texture, SDL_Rect{0, 0, SCREEN_HEIGHT, SCREEN_HEIGHT});
+	this->set_texture(this->board_texture, SDL_Rect{0, 0, this->screen_height, this->screen_height});
 	this->draw_stones(board);
 	SDL_RenderPresent(this->renderer);
 	this->update = false;
@@ -121,8 +137,8 @@ void		GUI::clear_render(void)
 
 void		GUI::place_on_board(Board &board, int row, int col)
 {
-	row = (row - OFFSET) / (double)SIZE + .5;
-	col = (col - OFFSET) / (double)SIZE + .5;
+	row = (row - this->offset) / this->size + .5;
+	col = (col - this->offset) / this->size + .5;
 
 	if (board.place(calc_index(row, col)))
 	{

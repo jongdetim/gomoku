@@ -5,11 +5,9 @@
 # include <SDL2/SDL.h>
 # include "Board.hpp"
 
-
-// # define OFFSET 0.03229
 # define OFFSET 31
 # define SIZE 50
-# define INTERFACE_SIZE 320
+# define INTERFACE_SIZE 420
 # define SCREEN_HEIGHT 960
 # define SCREEN_WIDTH (SCREEN_HEIGHT + INTERFACE_SIZE)
 # define BOARD_PATH "../textures/board.bmp"
@@ -20,6 +18,7 @@ class GUI
 {
 public:
 	GUI(void);
+	GUI(int height);
 	~GUI();
 	bool			initiate_GUI(std::string title);
 	void			game(Board &board);
@@ -32,6 +31,11 @@ private:
 	SDL_Texture		*p2_texture;
 	SDL_Event		event;
 	bool			update;
+	int				screen_height;
+	int				screen_width;
+	int				size;
+	double			offset;
+	int				interface_size;
 
 	void			clear_render(void);
 	void			set_texture(SDL_Texture *texture, SDL_Rect rect);
