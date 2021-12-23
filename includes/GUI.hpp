@@ -14,11 +14,18 @@
 # define P1_PATH "../textures/circle_white.bmp"
 # define P2_PATH "../textures/circle_black.bmp"
 
+enum gui_size
+{
+	big,
+	medium,
+	small
+};
+
 class GUI
 {
 public:
 	GUI(void);
-	GUI(int height);
+	GUI(gui_size size);
 	~GUI();
 	bool			initiate_GUI(std::string title);
 	void			game(Board &board);
@@ -37,6 +44,7 @@ private:
 	double			offset;
 	int				interface_size;
 
+	bool			mouse_on_board(int row, int col);
 	void			clear_render(void);
 	void			set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void			draw_stones(Board &board);

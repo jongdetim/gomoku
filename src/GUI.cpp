@@ -1,8 +1,26 @@
 #include "GUI.hpp"
 #include "misc.hpp"
 
-GUI::GUI(int height) : update(true)
+GUI::GUI(gui_size size) : update(true)
 {
+	int height;
+
+	switch (size)
+	{
+	case big:
+		height = SCREEN_HEIGHT;
+		break;
+	case medium:
+		height = 768;
+		break;
+	case small:
+		height = 576;
+		break;
+	default:
+		height = SCREEN_HEIGHT;
+		break;
+	}
+
 	this->screen_height = height;
 	this->interface_size = (height * INTERFACE_SIZE / (double)SCREEN_HEIGHT) + .5;
 	this->screen_width = height + this->interface_size;
@@ -98,6 +116,8 @@ void		GUI::set_texture(SDL_Texture *texture, SDL_Rect rect)
 	SDL_RenderCopy(this->renderer, texture, NULL, &rect);
 }
 
+inline bool GUI::mouse_on_board(int row, int col) { return (row < this->screen_height && col < this->screen_height); }
+
 bool		GUI::handle_events(Board &board)
 {         
 	switch (this->event.type)
@@ -109,7 +129,7 @@ bool		GUI::handle_events(Board &board)
 			int row, col;
 			SDL_GetMouseState(&col, &row);
 			
-			if (row < this->screen_height && col < this->screen_height)
+			if (this->mouse_on_board(row, col))
 				this->place_on_board(board, row, col);
 			// else
 			// 	click on info
