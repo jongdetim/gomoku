@@ -37,7 +37,7 @@ bool						try_parse_input(std::string &input, int &out)
 	return true;
 }
 
-int							get_player_input(void)
+int							get_player_input(Board &_)
 {
 	std::string input;
 	int index;
@@ -56,11 +56,9 @@ Player::Player(int player_id, std::string name, player_fn fn)
 	this->name = name;
 	this->id = player_id;
 	this->index_offset = player_id == PLAYER1_ID ? 0 : 1;
-	this->set_fn(fn);
+	this->fn = fn;
 	this->reset();
 }
-
-void						Player::set_fn(player_fn fn) { this->fn = !fn ? &get_player_input : fn; } // JUST SET TO NULL
 
 void						Player::print(void) const
 {
@@ -84,6 +82,8 @@ void						Player::reset(void)
 int							Player::index(int index) const { return (index << 1) + this->index_offset; }
 
 bool						Player::has_wincondition(void) const { return this->winning_index != -1; }
+
+bool						Player::has_function(void) const { return this->fn; }
 
 bool						Player::operator==(Player &rhs) const { return this->id == rhs.id; }
 

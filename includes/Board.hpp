@@ -53,6 +53,8 @@ public:
 	void					next_player(void);
 	void					switch_to_player(int id);
 	int						total_stones_in_play(void) const;
+	void					random_player(void);
+	void					print_stats(void) const;
 
 	int						get_player_id(int index) const;
 	BITBOARD				get_state(void) const;
@@ -80,7 +82,6 @@ private:
 
 	bool					still_winning(Player &player) const;
 	void					print_winner(void) const;
-	void					print_stats(void) const;
 	bool					can_capture(Player &player, int index, int dir) const;
 	void					capture(int dir, int index);
 	std::bitset<BOARDSIZE>	get_moves(void) const;

@@ -3,9 +3,9 @@
 
 # include "gomoku.hpp"
 
-class Player;
+class Board;
 
-typedef int (*player_fn)(void);
+typedef int (*player_fn)(Board&);
 
 class Player
 {
@@ -22,10 +22,10 @@ public:
 	Player						*next;
 	player_fn					fn;
 
-	void						set_fn(player_fn fn);
 	void						print(void) const;
 	void						reset(void);
 	bool						has_wincondition(void) const;
+	bool						has_function(void) const;
 	int							index(int index) const;
 
 	bool						operator==(Player &rhs) const;
@@ -36,5 +36,7 @@ public:
 private:
 	int							index_offset;
 };
+
+int								get_player_input(Board &_);
 
 #endif

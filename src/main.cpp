@@ -17,6 +17,6 @@ int main()
         return 1;
     
     gui.game(board);
-
+    
     return 0;
 }

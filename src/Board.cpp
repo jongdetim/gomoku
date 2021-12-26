@@ -231,14 +231,14 @@ void					Board::play(void)
 {
 	int index;
 
-	PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next;
+	this->random_player();
 
 	while (true)
 	{
 		this->print_stats();
 		this->print();
 
-		index = PLAYER->fn();
+		index = PLAYER->fn(*this);
 
 		if (index == -1 || !this->place(index, *PLAYER))
 			continue;
@@ -283,6 +283,8 @@ Board					Board::get_copy(void) const
 
 	return copy;
 }
+
+void					Board::random_player(void) { PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next; }
 
 /* PRIVATE METHODS */
 
