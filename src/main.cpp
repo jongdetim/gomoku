@@ -18,16 +18,17 @@ void               cutout_pattern(const Board &board, int move, int direction, i
             pat.pattern <<= 1;
         pos += shift;
     }
-    PRINT(std::bitset<8>(pat.pattern));
+    // PRINT(std::bitset<8>(pat.pattern));
 }
 
-t_pattern			get_pattern_data(const Board &board, int move, int direction, int player)
+t_pattern			get_pattern_data(Board &board, int move, int direction, int player)
 {
 	t_pattern pattern;
 	int pos;
 	pattern.space = 1;
 	pattern.count = 1;
 	int shift;
+    board.checked_indices[move] = 1;
 	for (int j = 0; j < 2; j++)
 	{
 		pos = move;
@@ -45,7 +46,10 @@ t_pattern			get_pattern_data(const Board &board, int move, int direction, int pl
                     break;
                 }
                 if (board.get_player(pos) == player)
+                {
                     pattern.count++;
+                    board.checked_indices[pos] = 1;
+                }
                 else if (board.get_player(pos - shift) == player) //leeg vakje maar vorige niet
                     pattern.left_right[j] = i + 1;
                 else
@@ -91,14 +95,34 @@ void    print_and_quit(const char *msg)
     exit(1);
 }
 
+// unfinished, needs to assign a score to combinations and patterns
 void score_heuristic_data(Board &board)
 {
+    for (uint8_t j = 0; j < 2; j++)
+    {
+        PRINT("PLAYER: " << (j + 0));
+        for (uint8_t i = 0; i < 8; i++) // skip first index which is none
+        {
+            if (i > 0 && board.players[j].heuristic.patterns[i] > 0)
+            {
+                PRINT(PatternNames[i]);
+                PRINT((int)board.players[j].heuristic.patterns[i]);
+            }
+        }
+    }
+}
+
+// unfinished, needs to assign a score to combinations and patterns
+void score_heuristic_data_index(Board &board, int move)
+{
+    int player = board.get_player(move);
+    int index = player < 0 ? 0 : 1;
     for (uint8_t i = 0; i < 8; i++) // skip first index which is none
     {
-        if (i > 0 && board.heuristic.patterns[i] > 0)
+        if (i > 0 && board.players[index].heuristic.patterns[i] > 0)
         {
             PRINT(PatternNames[i]);
-            PRINT((int)board.heuristic.patterns[i]);
+            PRINT((int)board.players[index].heuristic.patterns[i]);
         }
     }
 }
@@ -158,27 +182,40 @@ Pattern get_heuristic_data(Board &board, const int &move, const int &direction, 
     if (result != five && pat.length >= 6)
         result = std::max(result, find_subpattern(pat, 6, SUBPATTERNS_6));
     if (result == none) // xxx. & .xxx & xx.x.x & x.x.x.x & x.x.x. & x.x.x
-    {
         return closed3;
-        // klopt dit altijd? goed controleren!
-    }
     return result;
 }
 
-void    get_heuristic(Board &board)
+void    get_heuristic_single(Board &board, int move)
 {
-    int move = board.get_last_move();
-    int player = board.get_last_player();
+    int player = board.get_player(move);
+    int index = player < 0 ? 0 : 1;
+    PRINT("move: " << move);
 
     for (int i = 0; i < 4; i++) // four directions
     {
         Pattern pattern = get_heuristic_data(board, move, i, player);
-        board.heuristic.patterns[pattern] += 1;
+        board.players[index].heuristic.patterns[pattern] += 1;
+
+        if (pattern != none)
+            PRINT(PatternNames[pattern]);
+    }
+    // score_heuristic_data_index(board, move);
+}
+
+void    get_heuristic_total(Board &board)
+{
+    board.checked_indices = 0;
+
+    for (int i = 0; i < BOARDSIZE; i++)
+    {
+        if (board.filled_pos[i] && !board.checked_indices[i])
+            get_heuristic_single(board, i);
     }
     score_heuristic_data(board);
 }
 
-int     main()
+void    test()
 {
     Board board;
     int index = calc_index(8, 18);
@@ -199,7 +236,7 @@ int     main()
     // board.place(index + 6, PLAYER1);
     // board.place(360, PLAYER1);
     // Pattern result;
-    for (int i = 300; i < 350; i++)
+    for (int i = 349; i < 350; i++)
     {
         // seed 316 is a problem! current implementation cuts out the last 8 bits in the diagonal
         // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
@@ -208,12 +245,13 @@ int     main()
         // get the pattern
         // Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
         board.show_last_move();
-        get_heuristic(board);
-        if (board.heuristic.patterns[0] < 4)
-        {  
-            // board.show_last_move();
-            // PRINT(PatternNames[result]);
-        }
+        // get_heuristic_single(board, board.get_last_move());
+        get_heuristic_total(board);
+        // if (board.heuristic.patterns[0] < 4)
+        // {  
+        //     // board.show_last_move();
+        //     // PRINT(PatternNames[result]);
+        // }
     }
 
     // see if some sub-pattern is inside the cutout pattern
@@ -226,5 +264,10 @@ int     main()
     // else
     //     std::cout << "Not Won :(" << std::endl;
 
+}
+
+int     main()
+{
+    test();
     return 0;
 }

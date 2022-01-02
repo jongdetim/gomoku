@@ -22,6 +22,8 @@
 # define PLAYER1		1
 # define PLAYER2		-1
 # define BITBOARD		std::bitset<MASKSIZE>
+
+// makes more sense to be enum?
 # define EXACT 0
 # define UPPERBOUND 2
 # define LOWERBOUND 1

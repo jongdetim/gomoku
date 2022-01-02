@@ -77,7 +77,7 @@ Heuristic::~Heuristic() { }
 // 	return true;
 // }
 
-int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices) const
+int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int length = 0;
 	int prev_index;
@@ -94,7 +94,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	return length;
 }
 
-int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size) const
+int				Heuristic::count_direction(const Board *board, int index, int player, int dir, int size)
 {
 	int length = 0;
 	int prev_index;
@@ -110,7 +110,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	return length;
 }
 
-int				Heuristic::count_both_dir(const Board *board, int index, int player, int dir, std::bitset<BOARDSIZE> &checked_indices) const
+int				Heuristic::count_both_dir(const Board *board, int index, int player, int dir, std::bitset<BOARDSIZE> &checked_indices)
 {
 	int total = 1;
 
@@ -119,7 +119,7 @@ int				Heuristic::count_both_dir(const Board *board, int index, int player, int 
 	return total;
 }
 
-int				Heuristic::count_both_dir(const Board *board, int index, int player, int dir) const
+int				Heuristic::count_both_dir(const Board *board, int index, int player, int dir)
 {
 	int total = 1;
 
@@ -128,19 +128,19 @@ int				Heuristic::count_both_dir(const Board *board, int index, int player, int 
 	return total;
 }
 
-bool			Heuristic::check_wincodition_all_dir(const Board *board, int index, int player) const
+bool			Heuristic::check_wincodition_all_dir(const Board *board, int index, int player)
 {
 	int directions[4] = {DOWN, RIGHT, DIAGDWNL, DIAGDWNR};
 
 	for (int i = 0; i < 4; i++)
 	{
-		if (this->count_both_dir(board, index, player, directions[i]) >= WINCONDITION)
+		if (count_both_dir(board, index, player, directions[i]) >= WINCONDITION)
 			return true;
 	}
 	return false;
 }
 
-bool			Heuristic::continue_game(const Board *board, int index, int player) const
+bool			Heuristic::continue_game(const Board *board, int index, int player)
 {
 	int op_player = -player;
 	int captures = board->get_player_captures(op_player);
@@ -152,18 +152,18 @@ bool			Heuristic::continue_game(const Board *board, int index, int player) const
 			continue;
 		tmp = *board;
 		if ((tmp.check_captures(op_player, i) + captures) >= CAPTUREWIN
-		|| !this->check_wincodition_all_dir(&tmp, index, player))
+		|| !check_wincodition_all_dir(&tmp, index, player))
 			return true;
 	}
 	return false;
 }
 
-bool			Heuristic::has_won(const Board *board, int index, int player) const
+bool			Heuristic::has_won(const Board *board, int index, int player)
 {
 	if (board->get_player_captures(player) >= CAPTUREWIN)
 		return true;
-	if (this->check_wincodition_all_dir(board, index, player))
-		return !this->continue_game(board, index, player);
+	if (check_wincodition_all_dir(board, index, player))
+		return !continue_game(board, index, player);
 	return false;
 }
 

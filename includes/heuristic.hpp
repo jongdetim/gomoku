@@ -40,18 +40,18 @@ public:
 	Heuristic(void);
 	~Heuristic();
 
-	bool				continue_game(const Board *board, int index, int player) const;
-	bool				has_won(const Board *board, int index, int player) const;
-	int					count_both_dir(const Board *board, int index, int player, int dir) const;
-	int					count_both_dir(const Board *board, int index, int player, int dir, std::bitset<BOARDSIZE> &checked_indices) const;
-	bool				check_wincodition_all_dir(const Board *board, int index, int player) const;
-	int					count_direction(const Board *board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices) const;
-	int					count_direction(const Board *board, int index, int player, int dir, int size) const;
-	int					calc_heuristic(Board *board);
-	int					eight_directions_heuristic(Board *node, int index, std::bitset<BOARDSIZE> &checked_indices, int player);
-	int					get_heuristic_last_move(Board *board);
-	int					determine_score(int count, int gaps, int open) const;
-	bool				get_direction(const Board *board, int move, int direction, int player) const;
+	static bool				continue_game(const Board *board, int index, int player);
+	static bool				has_won(const Board *board, int index, int player);
+	static int					count_both_dir(const Board *board, int index, int player, int dir);
+	static int					count_both_dir(const Board *board, int index, int player, int dir, std::bitset<BOARDSIZE> &checked_indices);
+	static bool				check_wincodition_all_dir(const Board *board, int index, int player);
+	static int					count_direction(const Board *board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices);
+	static int					count_direction(const Board *board, int index, int player, int dir, int size);
+	static int					calc_heuristic(Board *board);
+	static int					eight_directions_heuristic(Board *node, int index, std::bitset<BOARDSIZE> &checked_indices, int player);
+	static int					get_heuristic_last_move(Board *board);
+	static int					determine_score(int count, int gaps, int open);
+	static bool				get_direction(const Board *board, int move, int direction, int player);
 	
 private:
 

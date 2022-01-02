@@ -3,8 +3,8 @@
 
 Board::Board(void) : h(0), state(0), stones_in_play(0), last_move(-1), filled_pos(0)
 {
-	this->player1 = t_player{0};
-	this->player2 = t_player{0};
+	this->players[0] = t_player{0};
+	this->players[1] = t_player{0};
 }
 
 Board::~Board() {}
@@ -15,8 +15,8 @@ void					Board::reset(void)
 	this->state.reset();
 	this->last_move = -1;
 	this->stones_in_play = 0;
-	this->player1 = t_player{0};
-	this->player2 = t_player{0};
+	this->players[0] = t_player{0};
+	this->players[1] = t_player{0};
 	this->filled_pos.reset();
 }
 
@@ -58,14 +58,14 @@ void					Board::show_last_move(void) const
 			else if (this->state[index<<1])
 			{
 				if (this->last_move == index)
-					printf("\x1B[33mO \033[0m");
+					printf("\033[33mO \033[0m");
 				else
 					std::cout << 'o' << ' ';
 			}
 			else
 			{
 				if (this->last_move == index)
-					printf("\x1B[33mX \033[0m");
+					printf("\033[33mX \033[0m");
 				else
 					std::cout << 'x' << ' ';
 			}
@@ -154,7 +154,7 @@ int						Board::calculate_index(int row, int col) const { return (row * BOARD_LE
 
 int						Board::get_stones_in_play(void) const { return this->stones_in_play; }
 
-int						Board::get_player_captures(int player) const { return player == PLAYER1 ? this->player1.captures : this->player2.captures; }
+int						Board::get_player_captures(int player) const { return player == PLAYER1 ? this->players[0].captures : this->players[1].captures; }
 
 int						Board::check_captures(int player, int index)
 {
@@ -251,9 +251,9 @@ void					Board::capture(int dir, int index)
 void					Board::update_player(int player, int captures)
 {
 	if (player == PLAYER1)
-		this->player1.captures += captures;
+		this->players[0].captures += captures;
 	else if (player == PLAYER2)
-		this->player2.captures += captures;
+		this->players[1].captures += captures;
 }
 
 bool					Board::free_threes_direction(int move, int direction, int player) const

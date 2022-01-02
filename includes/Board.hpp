@@ -7,6 +7,7 @@
 typedef struct	s_player
 {
 	int			captures;
+	Heuristic	heuristic;
 }				t_player;
 
 class Board
@@ -15,9 +16,12 @@ public:
 	Board(void);
 	~Board();
 	
+	t_player				players[2];
 	int						h;
 	std::bitset<BOARDSIZE>	filled_pos;
+	// this Heuristic class is only to easily access class functions
 	Heuristic				heuristic;
+	std::bitset<BOARDSIZE> checked_indices = 0;
 	
 	void					print(void) const;
 	void					show_last_move(void) const;
@@ -58,8 +62,6 @@ public:
 private:
 	BITBOARD				state;
 	int						last_move;
-	t_player				player1;
-	t_player				player2;
 	int						stones_in_play;
 
 	int						get_player_index(int index, int player) const;
