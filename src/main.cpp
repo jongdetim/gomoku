@@ -21,14 +21,14 @@ void               cutout_pattern(const Board &board, int move, int direction, i
     // PRINT(std::bitset<8>(pat.pattern));
 }
 
-t_pattern			get_pattern_data(Board &board, int move, int direction, int player)
+t_pattern			get_pattern_data(Board &board, int move, int direction, int player, std::bitset<BOARDSIZE> *checked_indices)
 {
 	t_pattern pattern;
 	int pos;
 	pattern.space = 1;
 	pattern.count = 1;
 	int shift;
-    board.checked_indices[direction][move] = 1;
+    checked_indices[direction][move] = 1;
 	for (int j = 0; j < 2; j++)
 	{
 		pos = move;
@@ -48,7 +48,7 @@ t_pattern			get_pattern_data(Board &board, int move, int direction, int player)
                 if (board.get_player(pos) == player)
                 {
                     pattern.count++;
-                    board.checked_indices[direction][pos] = 1;
+                    checked_indices[direction][pos] = 1;
                 }
                 else if (board.get_player(pos - shift) == player) //leeg vakje maar vorige niet
                     pattern.left_right[j] = i + 1;
@@ -147,14 +147,14 @@ Pattern find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, 
     return result;
 }
 
-Pattern get_heuristic_data(Board &board, const int &move, const int &direction, const int &player)
+Pattern get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices)
 {
     // board.heuristic.score = 0;
     // board.heuristic.patterns = {0};
 
     Pattern result = none;
 
-    t_pattern pat = get_pattern_data(board, move, direction, player);
+    t_pattern pat = get_pattern_data(board, move, direction, player, checked_indices);
 
     // PRINT((int)pat.count);
     // PRINT((int)pat.left_right[0]);
@@ -186,7 +186,7 @@ Pattern get_heuristic_data(Board &board, const int &move, const int &direction, 
     return result;
 }
 
-void    get_heuristic_single(Board &board, int move)
+void    get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *checked_indices)
 {
     int player = board.get_player(move);
     int index = player < 0 ? 0 : 1;
@@ -194,9 +194,9 @@ void    get_heuristic_single(Board &board, int move)
 
     for (int dir = 0; dir < 4; dir++) // four directions
     {
-        if (board.checked_indices[dir][move])
+        if (checked_indices[dir][move] == 1)
             continue;
-        Pattern pattern = get_heuristic_data(board, move, dir, player);
+        Pattern pattern = get_heuristic_data(board, move, dir, player, checked_indices);
         board.players[index].heuristic.patterns[pattern] += 1;
 
         if (pattern != none)
@@ -207,13 +207,14 @@ void    get_heuristic_single(Board &board, int move)
 
 void    get_heuristic_total(Board &board)
 {
-    for (int dir = 0; dir < 4; dir++)
-        board.checked_indices[dir] = 0;
+    std::bitset<BOARDSIZE> checked_indices[4] = {0, 0, 0, 0};
 
+    // first check the patterns at last_move just to be sure it is correctly registered
+    get_heuristic_single(board, board.get_last_move(), checked_indices);
     for (int pos = 0; pos < BOARDSIZE; pos++)
     {
         if (board.filled_pos[pos])
-            get_heuristic_single(board, pos);
+            get_heuristic_single(board, pos, checked_indices);
     }
     score_heuristic_data(board);
 }

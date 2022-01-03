@@ -94,9 +94,9 @@ bool					Board::place(int index, int player)
 	return true;
 }
 
-bool					Board::is_game_won(void) const { return this->heuristic.has_won(this, this->last_move, this->get_last_player()); }
+bool					Board::is_game_won(void) const { return Heuristic::has_won(this, this->last_move, this->get_last_player()); }
 
-bool					Board::is_game_won(int index, int player) const { return this->heuristic.has_won(this, index, player); }
+bool					Board::is_game_won(int index, int player) const { return Heuristic::has_won(this, index, player); }
 
 bool					Board::is_game_finished(void) const { return this->is_full(); }
 
@@ -191,9 +191,9 @@ bool					Board::check_free_threes(int move, int player) const
 	return result > 1;
 }
 
-int						Board::calc_heuristic(void) { return this->heuristic.calc_heuristic(this); }
+int						Board::calc_heuristic(void) { return Heuristic::calc_heuristic(this); }
 
-int						Board::calc_heuristic(Board &node) { return this->heuristic.calc_heuristic(&node); }
+int						Board::calc_heuristic(Board &node) { return Heuristic::calc_heuristic(&node); }
 
 /* PRIVATE METHODS */
 
