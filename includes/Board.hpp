@@ -21,7 +21,7 @@ public:
 	std::bitset<BOARDSIZE>	filled_pos;
 	// this Heuristic class is only to easily access class functions
 	Heuristic				heuristic;
-	std::bitset<BOARDSIZE> checked_indices = 0;
+	std::bitset<BOARDSIZE>	checked_indices[4] = {0, 0, 0, 0};
 	
 	void					print(void) const;
 	void					show_last_move(void) const;

@@ -28,7 +28,7 @@ t_pattern			get_pattern_data(Board &board, int move, int direction, int player)
 	pattern.space = 1;
 	pattern.count = 1;
 	int shift;
-    board.checked_indices[move] = 1;
+    board.checked_indices[direction][move] = 1;
 	for (int j = 0; j < 2; j++)
 	{
 		pos = move;
@@ -48,7 +48,7 @@ t_pattern			get_pattern_data(Board &board, int move, int direction, int player)
                 if (board.get_player(pos) == player)
                 {
                     pattern.count++;
-                    board.checked_indices[pos] = 1;
+                    board.checked_indices[direction][pos] = 1;
                 }
                 else if (board.get_player(pos - shift) == player) //leeg vakje maar vorige niet
                     pattern.left_right[j] = i + 1;
@@ -192,9 +192,11 @@ void    get_heuristic_single(Board &board, int move)
     int index = player < 0 ? 0 : 1;
     PRINT("move: " << move);
 
-    for (int i = 0; i < 4; i++) // four directions
+    for (int dir = 0; dir < 4; dir++) // four directions
     {
-        Pattern pattern = get_heuristic_data(board, move, i, player);
+        if (board.checked_indices[dir][move])
+            continue;
+        Pattern pattern = get_heuristic_data(board, move, dir, player);
         board.players[index].heuristic.patterns[pattern] += 1;
 
         if (pattern != none)
@@ -205,12 +207,13 @@ void    get_heuristic_single(Board &board, int move)
 
 void    get_heuristic_total(Board &board)
 {
-    board.checked_indices = 0;
+    for (int dir = 0; dir < 4; dir++)
+        board.checked_indices[dir] = 0;
 
-    for (int i = 0; i < BOARDSIZE; i++)
+    for (int pos = 0; pos < BOARDSIZE; pos++)
     {
-        if (board.filled_pos[i] && !board.checked_indices[i])
-            get_heuristic_single(board, i);
+        if (board.filled_pos[pos])
+            get_heuristic_single(board, pos);
     }
     score_heuristic_data(board);
 }
