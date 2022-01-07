@@ -222,7 +222,7 @@ void    get_heuristic_total(Board &board)
 void    test()
 {
     Board board;
-    int index = calc_index(8, 18);
+    int index = calc_index(8, 8);
     // int star_index = calc_index(3, 16); 
 
     // create_star(board, star_index, 3, PLAYER1);
@@ -236,27 +236,36 @@ void    test()
     board.place(index - 1, PLAYER1);
     board.place(index - 3, PLAYER1);
     board.place(index, PLAYER1);
-    board.place(index + 8, PLAYER2);
-    board.place(index + 6, PLAYER1);
+    board.place(index + 1, PLAYER2);
+    // board.place(index - 21, PLAYER2);
+    board.place(index + 2, PLAYER1);
+    // #include "heuristic.hpp" 
+    // PRINT(board.calc_heuristic());
+    TranspositionTable h_table;
+    TranspositionTable t_table;
+    for (int depth = 1; depth < 7; depth++)
+        negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
+    PRINT(TOTAL_NODES);
+    PRINT(TOTAL_LEAVES);
     // board.place(360, PLAYER1);
     // Pattern result;
     // board = create_random_board(1);
-    for (int i = 0; i < 230000; i++)
-    {
-        // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
-        // board = create_random_board(1);
+    // for (int i = 0; i < 230000; i++)
+    // {
+    //     // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
+    //     // board = create_random_board(1);
 
-        // get the pattern
-        // Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
-        // board.show_last_move();
-        // get_heuristic_single(board, board.get_last_move());
-        get_heuristic_total(board);
-        // if (board.heuristic.patterns[0] < 4)
-        // {  
-        //     // board.show_last_move();
-        //     // PRINT(PatternNames[result]);
-        // }
-    }
+    //     // get the pattern
+    //     // Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
+    //     // board.show_last_move();
+    //     // get_heuristic_single(board, board.get_last_move());
+    //     get_heuristic_total(board);
+    //     // if (board.heuristic.patterns[0] < 4)
+    //     // {  
+    //     //     // board.show_last_move();
+    //     //     // PRINT(PatternNames[result]);
+    //     // }
+    // }
 
     // see if some sub-pattern is inside the cutout pattern
     // t_pattern sub;

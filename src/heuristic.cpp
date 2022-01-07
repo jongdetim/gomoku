@@ -172,11 +172,12 @@ int				Heuristic::eight_directions_heuristic(Board *board, int index, std::bitse
 	int points = 0;
 
 
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), RIGHT, checked_indices)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNR, checked_indices)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DOWN, checked_indices)];
-	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNL, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, RIGHT, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, DIAGDWNR, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, DOWN, checked_indices)];
+	points += POINTS[count_both_dir(board, index, player, DIAGDWNL, checked_indices)];
 
+	// std::cout << (player * points) << std::endl;
 	return player * points;
 }
 
@@ -210,7 +211,7 @@ int				Heuristic::calc_heuristic(Board *board)
 		total_score += eight_directions_heuristic(board, index, checked_indices, player);
 		checked_indices[index] = 1;
 	}
-	if (board->filled_pos.size() != checked_indices.count())
+	if (board->filled_pos.count() != checked_indices.count())
 	{
 		board->print();
 		for (int i = 0; i < board->filled_pos.size(); i++)

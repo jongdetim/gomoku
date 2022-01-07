@@ -73,10 +73,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = -color * node.calc_heuristic();
+		value = color * node.calc_heuristic();
 
 		// node.print();
-		// std::cout << "value: " << value * color << std::endl;
+		// std::cout << "value: " << value << std::endl;
 
 		tt_entry.value = value;
 		tt_entry.flag = EXACT;
@@ -109,18 +109,18 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			if (h_table.lookup(child, ht_entry))
-			{
-				// std::cout << "al gezien" << std::endl;
-				child.h = ht_entry.value;
-			}
-			else
+			// if (h_table.lookup(child, ht_entry))
+			// {
+			// 	// std::cout << "al gezien" << std::endl;
+			// 	child.h = ht_entry.value;
+			// }
+			// else
 			{
 				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
 
-				// multiplied by color because calc_heuristic is negative if it's better for p1 and positive if better for p2
-			    child.h = color * node.calc_heuristic(child);
+				// multiplied by -color because calc_heuristic is positive if it's better for p1 and negative if better for p2
+			    child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
 				// h_table.insert(child, ht_entry);
@@ -165,8 +165,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		std::cout << "depth: " << depth << std::endl;
 		std::cout << "best move is: " << best_move << std::endl;
 		std::cout << "heuristic value is: " << value << std::endl;
-		node.place(best_move, PLAYER2);
-		node.print();
+		node.place(best_move, color);
+		node.show_last_move();
+		// std::cout << node.calc_heuristic() << std::endl;
 	}
 	return value;
 }

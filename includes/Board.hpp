@@ -19,7 +19,7 @@ public:
 	t_player				players[2];
 	int						h;
 	std::bitset<BOARDSIZE>	filled_pos;
-	// this Heuristic class is only to easily access class functions
+	// this Heuristic class is only to easily access class functions. made them static instead
 	// Heuristic				heuristic;
 	// std::bitset<BOARDSIZE>	checked_indices[4] = {0, 0, 0, 0};
 	
