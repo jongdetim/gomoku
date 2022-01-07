@@ -5,12 +5,9 @@
 
 #define PRINT(x) std::cout << x << std::endl
 
-#include <iostream>
-#include <SDL2/SDL.h>
-
 int main()
 {
-    GUI gui(medium);
+    GUI gui;
     Board board;
 
     if (!gui.initiate_GUI("Gomoku"))

@@ -49,16 +49,21 @@ GUI::~GUI()
 		SDL_DestroyRenderer(this->renderer);
 	if (this->window)
     	SDL_DestroyWindow(this->window);
+	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 }
 
 bool		GUI::initiate_GUI(std::string title)
 {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
-	{
+
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
         return false;
 	}
+	
+	IMG_Init(IMG_INIT_PNG);
+	TTF_Init();
 
 	SDL_CreateWindowAndRenderer(this->screen_width, this->screen_height, SDL_WINDOW_SHOWN, &this->window, &this->renderer);
 
@@ -213,7 +218,7 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 	SDL_Surface	*image;
 	SDL_Texture	*texture;
 
-	image = SDL_LoadBMP(img_path.c_str());
+	image = IMG_Load(img_path.c_str());
 	texture = SDL_CreateTextureFromSurface(this->renderer, image);
 	
 	if (image)

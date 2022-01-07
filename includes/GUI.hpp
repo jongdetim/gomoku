@@ -2,7 +2,9 @@
 # define GUI_HPP
 
 # include <iostream>
-# include <SDL2/SDL.h>
+# include <SDL.h>
+# include <SDL_image.h>
+# include <SDL_ttf.h>
 # include "Board.hpp"
 
 # define OFFSET 31
@@ -10,9 +12,9 @@
 # define INTERFACE_SIZE 420
 # define SCREEN_HEIGHT 960
 # define SCREEN_WIDTH (SCREEN_HEIGHT + INTERFACE_SIZE)
-# define BOARD_PATH "../textures/board.bmp"
-# define P1_PATH "../textures/circle_white.bmp"
-# define P2_PATH "../textures/circle_black.bmp"
+# define BOARD_PATH "../textures/board.png"
+# define P1_PATH "../textures/circle_white.png"
+# define P2_PATH "../textures/circle_black.png"
 # define BG_COLOUR {220, 179, 92, 255}
 # define BUTTON_BIG(x,y) {x, y, this->interface_size - ((int)this->offset << 1), this->size << 1}
 # define BUTTON_LEFT(x,y) {x, y, (int)(((this->interface_size - ((int)this->offset << 1)) >> 1) + .5) - (this->size >> 1), this->size << 1}
