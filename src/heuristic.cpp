@@ -177,7 +177,7 @@ int				Heuristic::eight_directions_heuristic(Board *board, int index, std::bitse
 	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DOWN, checked_indices)];
 	points += POINTS[count_both_dir(board, board->get_last_move(), board->get_last_player(), DIAGDWNL, checked_indices)];
 
-	return points;
+	return player * points;
 }
 
 int				Heuristic::get_heuristic_last_move(Board *board)

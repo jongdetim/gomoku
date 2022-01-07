@@ -73,7 +73,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = color * node.calc_heuristic();
+		value = -color * node.calc_heuristic();
 
 		// node.print();
 		// std::cout << "value: " << value * color << std::endl;
@@ -103,8 +103,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
-	// if we've already seen the child in a shallower depth (previous search) we read the heuristic && multiply by
-	// -color to accommodate the fact that leaf nodes are stored 1 recursion deeper than the children are generated in
+	// if we've already seen the child in a shallower depth (previous search) we read the heuristic
 	if (depth > 1)
 	{
 		for (Board &child : child_nodes)
@@ -119,7 +118,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			{
 				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = -color * node.calc_heuristic(child);
+
+				// multiplied by color because calc_heuristic is negative if it's better for p1 and positive if better for p2
+			    child.h = color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
 				// h_table.insert(child, ht_entry);

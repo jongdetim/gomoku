@@ -190,7 +190,7 @@ void    get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *che
 {
     int player = board.get_player(move);
     int index = player < 0 ? 0 : 1;
-    PRINT("move: " << move);
+    // PRINT("move: " << move);
 
     for (int dir = 0; dir < 4; dir++) // four directions
     {
@@ -199,8 +199,8 @@ void    get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *che
         Pattern pattern = get_heuristic_data(board, move, dir, player, checked_indices);
         board.players[index].heuristic.patterns[pattern] += 1;
 
-        if (pattern != none)
-            PRINT(PatternNames[pattern]);
+        // if (pattern != none) // print
+        //     PRINT(PatternNames[pattern]);
     }
     // score_heuristic_data_index(board, move);
 }
@@ -216,7 +216,7 @@ void    get_heuristic_total(Board &board)
         if (board.filled_pos[pos])
             get_heuristic_single(board, pos, checked_indices);
     }
-    score_heuristic_data(board);
+    // score_heuristic_data(board);
 }
 
 void    test()
@@ -233,22 +233,22 @@ void    test()
     // board.place(star_index, PLAYER2);
     // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
 
-    // board.place(index - 1, PLAYER1);
-    // board.place(index - 3, PLAYER1);
-    // board.place(index, PLAYER1);
-    // board.place(index + 8, PLAYER2);
-    // board.place(index + 6, PLAYER1);
+    board.place(index - 1, PLAYER1);
+    board.place(index - 3, PLAYER1);
+    board.place(index, PLAYER1);
+    board.place(index + 8, PLAYER2);
+    board.place(index + 6, PLAYER1);
     // board.place(360, PLAYER1);
     // Pattern result;
-    for (int i = 349; i < 350; i++)
+    // board = create_random_board(1);
+    for (int i = 0; i < 230000; i++)
     {
-        // seed 316 is a problem! current implementation cuts out the last 8 bits in the diagonal
         // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
-        board = create_random_board(i);
+        // board = create_random_board(1);
 
         // get the pattern
         // Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
-        board.show_last_move();
+        // board.show_last_move();
         // get_heuristic_single(board, board.get_last_move());
         get_heuristic_total(board);
         // if (board.heuristic.patterns[0] < 4)
