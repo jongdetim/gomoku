@@ -26,6 +26,7 @@ GUI::GUI(gui_size size) : update(true)
 	this->screen_width = height + this->interface_size;
 	this->size = (height * SIZE / (double)SCREEN_HEIGHT) + .5;
 	this->offset = height * OFFSET / (double)SCREEN_HEIGHT;
+	this->btn_size = height * BTN_SIZE / (double)SCREEN_HEIGHT;
 }
 
 GUI::GUI(void) : update(true)
@@ -35,10 +36,13 @@ GUI::GUI(void) : update(true)
 	this->size = SIZE;
 	this->offset = OFFSET;
 	this->interface_size = INTERFACE_SIZE;
+	this->btn_size = BTN_SIZE;
 }
 
 GUI::~GUI()
 {
+	this->free_buttons();
+
 	if (this->board_texture)
     	SDL_DestroyTexture(this->board_texture);
 	if (this->p1_texture)
@@ -72,11 +76,8 @@ bool		GUI::initiate_GUI(std::string title)
         return false;
     }
 
-    this->board_texture = this->load_texture(BOARD_PATH);
-    this->p1_texture = this->load_texture(P1_PATH);
-    this->p2_texture = this->load_texture(P2_PATH);
-
-	// this->initiate_buttons();
+	this->load_textures();
+	this->set_buttons();
 
 	return true;
 }
@@ -98,7 +99,7 @@ void		GUI::game(Board &board)
 		// SDL_PollEvent(&this->event) --> Use when always want updating, like active animations when no user input
         SDL_WaitEvent(&this->event);
 
-		if (board.current_player->has_function())
+		if (board.current_player->has_function()) // Check if is AI
 			index = board.current_player->fn(board);
 
 		quit = this->handle_events(board, index);
@@ -108,49 +109,42 @@ void		GUI::game(Board &board)
 			board.next_player();
 			this->update = true;
 		}
-
-		// if (board.is_game_finished(*board.current_player))
-		// {
-		// 	std::string input;
-
-		// 	std::getline(std::cin, input);
-		// 	break;
-		// }
     }
 }
 
 /* Private Methods */
 
 bool		GUI::handle_events(Board &board, int &index)
-{         
+{      
+	int row, col;
+	SDL_GetMouseState(&col, &row);   
+	
 	switch (this->event.type)
 	{
 		case SDL_QUIT:
 			return true;
+		case SDL_MOUSEMOTION:
+		{
+			for (auto &btn : this->buttons)
+			{
+				if (btn.is_active(col, row))
+				{
+					this->update = true;
+					break;
+				}
+			}
+			break;
+		}
 		case SDL_MOUSEBUTTONUP:
 		{
-			int row, col;
-			SDL_GetMouseState(&col, &row);
-			
-			if (!board.current_player->has_function() && this->mouse_on_board(row, col))
+			if (!board.current_player->has_function() && this->mouse_on_board(row, col) && index == -1)
 				index = this->calc_board_placement(row, col);
 			else if (!this->mouse_on_board(row, col))
-			{
 				;
-			}
-
 			break;
 		}
 	}
 	return false;
-}
-
-void		GUI::draw_interface(Board &board)
-{
-	// auto col = this->subtract_colour(SDL_Colour BG_COLOUR, 20);
-
-	// for (auto btn : this->buttons)
-	// 	this->place_button(btn.col, /*SDL_Colour BG_COLOUR,*/ btn.rec);
 }
 
 void		GUI::reset(Board &board)
@@ -191,7 +185,8 @@ void		GUI::update_renderer(Board &board)
 	this->clear_render();
 	this->set_texture(this->board_texture, SDL_Rect{0, 0, this->screen_height, this->screen_height});
 	this->draw_stones(board);
-	this->draw_interface(board);
+
+	this->render_buttons();
 
 	SDL_RenderPresent(this->renderer);
 	this->update = false;
@@ -199,7 +194,7 @@ void		GUI::update_renderer(Board &board)
 
 void		GUI::clear_render(void)
 {
-	SDL_Colour colour BG_COLOUR;
+	SDL_Colour colour = BG_COLOUR;
 
 	SDL_SetRenderDrawColor(renderer, colour.r, colour.g, colour.b, colour.a);
 	SDL_RenderClear(renderer);
@@ -227,47 +222,34 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 	return texture;
 }
 
-SDL_Colour	GUI::subtract_colour(SDL_Colour col, int amount) const
+void		GUI::load_textures(void)
 {
-	SDL_Colour colour;
-
-	colour.r = col.r - amount;
-	colour.g = col.g - amount;
-	colour.b = col.b - amount;
-	colour.a = 255;
-
-	return colour;
+    this->board_texture = this->load_texture(BOARD_PATH);
+    this->p1_texture = this->load_texture(P1_PATH);
+    this->p2_texture = this->load_texture(P2_PATH);
 }
 
-inline bool	GUI::in_square(int x, int y, SDL_Rect rec)
+void		GUI::set_buttons(void)
 {
-	return (x > rec.x && x <= (rec.x + rec.w)) && (y > rec.y && y <= (rec.y + rec.h));
+	this->buttons.push_back(Button(this->renderer, this->screen_height, this->offset, "RESET", this->btn_size, SCPRO_FONT, BG_COLOUR));
 }
 
-// void		GUI::place_button(SDL_Colour col, SDL_Rect rect)
-// {
-// 	SDL_SetRenderDrawColor(renderer, col.r, col.g, col.b, col.a);
-	// SDL_RenderFillRect(this->renderer, &rect); 
-	// SDL_RenderDrawRect(); 
-// }
+void		GUI::render_buttons(void)
+{
+	for (auto &btn : this->buttons)
+		btn.render();
+}
 
-// void		GUI::initiate_buttons(void)
-// {
-// 	t_button button {
-// 		SDL_Rect { this->screen_height + (int)this->offset, (int)this->offset, this->interface_size - ((int)this->offset << 1), this->size << 1 },
-// 		this->subtract_colour(SDL_Colour BG_COLOUR, 20)
-// 	};
-// 	this->buttons.push_back(button);
+void		GUI::free_buttons(void)
+{
+	for (auto &btn : this->buttons)
+		this->free_button(btn);
+}
 
-
-// SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-// SDL_Rect rec BUTTON_LEFT (this->screen_height + (int)this->offset, (int)this->offset);
-// SDL_RenderDrawRect(this->renderer, &rec);
-
-// SDL_Rect rec2 BUTTON_RIGHT(this->screen_height + (int)this->offset, (int)this->offset);
-// SDL_RenderDrawRect(this->renderer, &rec2);
-
-// SDL_Rect rec3 BUTTON_BIG(this->screen_height + (int)this->offset, (int)this->offset + (this->size * 3));
-// SDL_RenderDrawRect(this->renderer, &rec3);
-
-// }
+void		GUI::free_button(Button &btn)
+{
+	if (btn.font)
+		TTF_CloseFont(btn.font);
+	if (btn.texture)
+		SDL_DestroyTexture(btn.texture);
+}

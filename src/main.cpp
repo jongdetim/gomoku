@@ -7,7 +7,7 @@
 
 int main()
 {
-    GUI gui;
+    GUI gui(big);
     Board board;
 
     if (!gui.initiate_GUI("Gomoku"))

@@ -5,7 +5,9 @@
 # include <SDL.h>
 # include <SDL_image.h>
 # include <SDL_ttf.h>
+# include <Eigen/Dense>
 # include "Board.hpp"
+# include "Button.hpp"
 
 # define OFFSET 31
 # define SIZE 50
@@ -15,10 +17,13 @@
 # define BOARD_PATH "../textures/board.png"
 # define P1_PATH "../textures/circle_white.png"
 # define P2_PATH "../textures/circle_black.png"
-# define BG_COLOUR {220, 179, 92, 255}
-# define BUTTON_BIG(x,y) {x, y, this->interface_size - ((int)this->offset << 1), this->size << 1}
-# define BUTTON_LEFT(x,y) {x, y, (int)(((this->interface_size - ((int)this->offset << 1)) >> 1) + .5) - (this->size >> 1), this->size << 1}
-# define BUTTON_RIGHT(x,y) {x + (int)(((this->interface_size - ((int)this->offset << 1)) >> 1) + .5) + (this->size >> 1), y, (int)(((this->interface_size - ((int)this->offset << 1)) >> 1) + .5) - (this->size >> 1), this->size << 1}
+# define AMATIC_FONT "../fonts/Amatic-Bold.ttf"
+# define SANS_FONT "../fonts/OpenSans-SemiBold.ttf"
+# define ROBOTO_FONT "../fonts/Roboto-Bold.ttf"
+# define MONTSER_FONT "../fonts/Montserrat-Medium.ttf"
+# define SCPRO_FONT "../fonts/SourceCodePro-Regular.ttf"
+# define BG_COLOUR SDL_Color{220, 179, 92, 255}
+# define BTN_SIZE 25
 
 enum gui_size
 {
@@ -26,12 +31,6 @@ enum gui_size
 	medium,
 	small
 };
-
-typedef struct s_button
-{
-	SDL_Rect	rec;
-	SDL_Colour	col;
-}				t_button;
 
 class GUI
 {
@@ -49,13 +48,16 @@ private:
 	SDL_Texture				*p1_texture;
 	SDL_Texture				*p2_texture;
 	SDL_Event				event;
+
+	std::vector<Button>		buttons;
+		
 	bool					update;
 	int						screen_height;
 	int						screen_width;
 	int						size;
 	int						interface_size;
 	double					offset;
-	std::vector<t_button>	buttons;
+	int						btn_size;
 
 	void					reset(Board &board);
 	bool					mouse_on_board(int row, int col);
@@ -63,14 +65,14 @@ private:
 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void					draw_stones(Board &board);
 	void					update_renderer(Board &board);
-	void					draw_interface(Board &board);
 	bool					handle_events(Board &board, int &index);
 	int						calc_board_placement(int row, int col);
 	SDL_Texture				*load_texture(std::string img_path);
-	SDL_Colour				subtract_colour(SDL_Colour col, int amount) const;
-	// void					place_button(SDL_Colour col, SDL_Rect rect);
-	// void					initiate_buttons(void);
-	bool					in_square(int x, int y, SDL_Rect rec);
+	void					load_textures(void);
+	void					set_buttons(void);
+	void					free_button(Button &btn);
+	void					free_buttons(void);
+	void					render_buttons(void);
 };
 
 #endif
