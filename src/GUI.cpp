@@ -1,7 +1,7 @@
 #include "GUI.hpp"
 #include "misc.hpp"
 
-GUI::GUI(gui_size size) : update(true)
+GUI::GUI(gui_size size) : update(true), action(0)
 {
 	int height;
 
@@ -26,23 +26,23 @@ GUI::GUI(gui_size size) : update(true)
 	this->screen_width = height + this->interface_size;
 	this->size = (height * SIZE / (double)SCREEN_HEIGHT) + .5;
 	this->offset = height * OFFSET / (double)SCREEN_HEIGHT;
-	this->btn_size = height * BTN_SIZE / (double)SCREEN_HEIGHT;
+	this->font_size = height * FONT_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(void) : update(true)
+GUI::GUI(void) : update(true), action(0)
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
 	this->size = SIZE;
 	this->offset = OFFSET;
 	this->interface_size = INTERFACE_SIZE;
-	this->btn_size = BTN_SIZE;
+	this->font_size = FONT_SIZE;
 }
 
 GUI::~GUI()
 {
-	this->free_buttons();
-
+	if (this->font)
+		TTF_CloseFont(this->font);
 	if (this->board_texture)
     	SDL_DestroyTexture(this->board_texture);
 	if (this->p1_texture)
@@ -75,6 +75,11 @@ bool		GUI::initiate_GUI(std::string title)
         SDL_Log("Unable to create window: %s", SDL_GetError());
         return false;
     }
+
+	if (!(this->font = TTF_OpenFont(SCPRO_FONT, this->font_size))) {
+		SDL_Log("Font can't be loaded.");
+		return false;
+	}
 
 	this->load_textures();
 	this->set_buttons();
@@ -109,10 +114,23 @@ void		GUI::game(Board &board)
 			board.next_player();
 			this->update = true;
 		}
+
+		this->check_action(board);
     }
 }
 
 /* Private Methods */
+void		GUI::check_action(Board &board)
+{
+	switch (this->action)
+	{
+	case RESET:
+		this->reset(board);
+	default:
+		this->action = 0;
+		break;
+	}
+}
 
 bool		GUI::handle_events(Board &board, int &index)
 {      
@@ -127,11 +145,8 @@ bool		GUI::handle_events(Board &board, int &index)
 		{
 			for (auto &btn : this->buttons)
 			{
-				if (btn.is_active(col, row))
-				{
+				if (btn.on_button(col, row))
 					this->update = true;
-					break;
-				}
 			}
 			break;
 		}
@@ -140,7 +155,13 @@ bool		GUI::handle_events(Board &board, int &index)
 			if (!board.current_player->has_function() && this->mouse_on_board(row, col) && index == -1)
 				index = this->calc_board_placement(row, col);
 			else if (!this->mouse_on_board(row, col))
-				;
+			{
+				for (auto &btn : this->buttons)
+				{
+					if (btn.is_active())
+						this->action = btn.get_action();
+				}
+			}
 			break;
 		}
 	}
@@ -231,7 +252,10 @@ void		GUI::load_textures(void)
 
 void		GUI::set_buttons(void)
 {
-	this->buttons.push_back(Button(this->renderer, this->screen_height, this->offset, "RESET", this->btn_size, SCPRO_FONT, BG_COLOUR));
+	this->buttons.push_back(Button(this->renderer, this->screen_height, this->offset, "RESET", this->font, BG_COLOUR, RESET));
+
+	for (auto &btn : this->buttons)
+		btn.init_button();
 }
 
 void		GUI::render_buttons(void)
@@ -240,16 +264,8 @@ void		GUI::render_buttons(void)
 		btn.render();
 }
 
-void		GUI::free_buttons(void)
+void		GUI::show_stats(Board &board)
 {
-	for (auto &btn : this->buttons)
-		this->free_button(btn);
-}
-
-void		GUI::free_button(Button &btn)
-{
-	if (btn.font)
-		TTF_CloseFont(btn.font);
-	if (btn.texture)
-		SDL_DestroyTexture(btn.texture);
+	// std::stringstream strm;
+	// strm << score;
 }

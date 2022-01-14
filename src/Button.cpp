@@ -1,21 +1,13 @@
 #include "Button.hpp"
 
-Button::Button(void) : font(NULL), texture(NULL) { }
+Button::Button(SDL_Renderer *renderer, int x, int y, std::string text, TTF_Font *font, SDL_Color colour, short action) :
+pos(Eigen::Array2i {x, y}), text(text), colour(colour), texture(NULL), active(false), renderer(renderer), action(action), font(font)
+{ }
 
-Button::Button(SDL_Renderer *renderer, Eigen::Array2i pos, std::string text, int size, std::string font, SDL_Color colour) : pos(pos), text(text), colour(colour), texture(NULL), active(false), renderer(renderer)
+Button::~Button()
 {
-	this->font = TTF_OpenFont(font.c_str(), size);
-	if (!this->font)
-		throw "Font can't be loaded.";
-	this->init_button();
-}
-
-Button::Button(SDL_Renderer *renderer, int x, int y, std::string text, int size, std::string font, SDL_Color colour) : pos(Eigen::Array2i {x, y}), text(text), colour(colour), texture(NULL), active(false), renderer(renderer)
-{
-	this->font = TTF_OpenFont(font.c_str(), size);
-	if (!this->font)
-		throw "Font can't be loaded.";
-	this->init_button();
+	if (this->texture)
+		SDL_DestroyTexture(this->texture);
 }
 
 void		Button::init_button(void)
@@ -54,9 +46,13 @@ SDL_Colour	Button::subtract_colour(SDL_Colour col, int amount) const
 	return colour;
 }
 
-bool		Button::is_active(int x, int y)
+bool		Button::is_active(void) { return this->active; }
+
+bool		Button::on_button(int x, int y)
 {
 	bool prev = this->active;
 	this->active = (x > this->rect.x && x <= (this->rect.x + this->rect.w)) && (y > this->rect.y && y <= (this->rect.y + this->rect.h));
 	return prev != this->active;
 }
+
+short		Button::get_action(void) { return this->action; }

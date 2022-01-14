@@ -7,17 +7,21 @@
 # include <SDL_ttf.h>
 # include <Eigen/Dense>
 
+# define RESET		1
+# define NEWGAME	2
+
 class Button
 {
 public:
-	Button(void);
-	Button(SDL_Renderer *renderer, Eigen::Array2i pos, std::string text, int size, std::string font, SDL_Color colour);
-	Button(SDL_Renderer *renderer, int x, int y, std::string text, int size, std::string font, SDL_Color colour);
+	Button(SDL_Renderer *renderer, int x, int y, std::string text, TTF_Font *font, SDL_Color colour, short action);
+	~Button();
 
-	void	render(void);
-	bool	is_active(int x, int y);
+	void					render(void);
+	bool					on_button(int x, int y);
+	bool					is_active(void);
+	short					get_action(void);
+	void					init_button(void);
 
-	TTF_Font				*font;
 	SDL_Texture				*texture;
 private:
 	Eigen::Array2i			pos;
@@ -26,9 +30,10 @@ private:
 	bool					active;
 	SDL_Rect				rect;
 	SDL_Renderer			*renderer;
+	short					action;
+	TTF_Font				*font;
 
 	SDL_Colour				subtract_colour(SDL_Colour col, int amount) const;
-	void					init_button(void);
 };
 
 #endif

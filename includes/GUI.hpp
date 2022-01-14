@@ -23,7 +23,7 @@
 # define MONTSER_FONT "../fonts/Montserrat-Medium.ttf"
 # define SCPRO_FONT "../fonts/SourceCodePro-Regular.ttf"
 # define BG_COLOUR SDL_Color{220, 179, 92, 255}
-# define BTN_SIZE 25
+# define FONT_SIZE 25
 
 enum gui_size
 {
@@ -48,6 +48,7 @@ private:
 	SDL_Texture				*p1_texture;
 	SDL_Texture				*p2_texture;
 	SDL_Event				event;
+	TTF_Font				*font;
 
 	std::vector<Button>		buttons;
 		
@@ -57,7 +58,8 @@ private:
 	int						size;
 	int						interface_size;
 	double					offset;
-	int						btn_size;
+	int						font_size;
+	short					action;
 
 	void					reset(Board &board);
 	bool					mouse_on_board(int row, int col);
@@ -70,9 +72,9 @@ private:
 	SDL_Texture				*load_texture(std::string img_path);
 	void					load_textures(void);
 	void					set_buttons(void);
-	void					free_button(Button &btn);
-	void					free_buttons(void);
 	void					render_buttons(void);
+	void					check_action(Board &board);
+	void					show_stats(Board &board);
 };
 
 #endif
