@@ -233,20 +233,26 @@ void    test()
     // board.place(star_index, PLAYER2);
     // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
 
-    board.place(index - 1, PLAYER1);
-    board.place(index - 3, PLAYER1);
+    // board.place(index - 1, PLAYER1);
+    // board.place(index - 3, PLAYER1);
     board.place(index, PLAYER1);
     board.place(index + 1, PLAYER2);
-    // board.place(index - 21, PLAYER2);
-    board.place(index + 2, PLAYER1);
+    // // board.place(index - 21, PLAYER2);
+    // board.place(index + 2, PLAYER1);
     // #include "heuristic.hpp" 
     // PRINT(board.calc_heuristic());
-    TranspositionTable h_table;
+    // board = create_random_board(8);
     TranspositionTable t_table;
-    for (int depth = 1; depth < 7; depth++)
+    // TranspositionTable h_table;
+    for (int depth = 1; depth <= 5; depth++)
+    {
+        TranspositionTable h_table;
+        // TranspositionTable t_table;
         negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
+    }    
     PRINT(TOTAL_NODES);
     PRINT(TOTAL_LEAVES);
+    PRINT(FOUND_IN_TABLE);
     // board.place(360, PLAYER1);
     // Pattern result;
     // board = create_random_board(1);

@@ -64,6 +64,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			return tt_entry.value;
 	}
 
+	// this should happen during children node ordering, and should affect evaluation h to be + infinite
+	// should also check if a player has won! currently only checks if board is completely full
 	is_finished = node.is_game_finished();
 
 	if (depth == 0 || is_finished)
@@ -109,24 +111,26 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			// if (h_table.lookup(child, ht_entry))
-			// {
-			// 	// std::cout << "al gezien" << std::endl;
-			// 	child.h = ht_entry.value;
-			// }
-			// else
+			if (h_table.lookup(child, ht_entry))
 			{
-				// child.h = 100000000;
+				// std::cout << "al gezien" << std::endl;
+				// child.h = ht_entry.value * pow(color, depth - ht_entry.depth);
+				child.h = ht_entry.value;
+			}
+			else
+			{
 			    // std::cout << "calculating child h" << std::endl;
 
-				// multiplied by -color because calc_heuristic is positive if it's better for p1 and negative if better for p2
 			    child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
-				// h_table.insert(child, ht_entry);
+				h_table.insert(child, ht_entry);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
+
+		// std::cout << child_nodes[0].h << std::endl;
+		// std::cout << (child_nodes.end() -1)->h << std::endl;
 		// for (auto &it : child_nodes)
 		// 	std::cout << it.get_last_move() << std::endl;
 		// exit(1);
@@ -154,12 +158,23 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	}
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished);
-	t_table.insert(node, tt_entry);
+	if (t_table.lookup(node, tt_entry))
+		t_table.update(node, value);
+	else
+		t_table.insert(node, tt_entry);
 
 	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
-    // TableEntry h_entry;
+	// 10-01-2022 why does this increase the amount of visited nodes now??
+    TableEntry h_entry;
     // if (h_table.lookup(node, h_entry))
+	// {
+	// 	// std::cout << value << std::endl;
+	// 	// node.print();
+	// 	// std::cout << h_entry.value << std::endl;
 	//     h_table.update(node, value);
+	// 	// h_table.lookup(node, h_entry);
+	// 	// std::cout << "new value: " << h_entry.value << std::endl;
+	// }
 	if (initial_call)
 	{
 		std::cout << "depth: " << depth << std::endl;

@@ -86,7 +86,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	{
 		prev_index = index;
 		index += dir;
-		if (is_offside(index, prev_index) || board->get_player(index) != player)
+		if (is_offside(prev_index, index) || board->get_player(index) != player)
 			break ;
 		checked_indices[index] = 1;
 		length++;
@@ -128,6 +128,7 @@ int				Heuristic::count_both_dir(const Board *board, int index, int player, int 
 	return total;
 }
 
+// shouldn't this be entirely replaced by the heuristic pattern function that tells us when a five-in-a-row is there?
 bool			Heuristic::check_wincodition_all_dir(const Board *board, int index, int player)
 {
 	int directions[4] = {DOWN, RIGHT, DIAGDWNL, DIAGDWNR};
