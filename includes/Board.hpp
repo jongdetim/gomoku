@@ -2,7 +2,7 @@
 # define BOARD_HPP
 
 # include "gomoku.hpp"
-# include "Heuristic.hpp"
+# include "heuristic.hpp"
 
 typedef struct	s_player
 {

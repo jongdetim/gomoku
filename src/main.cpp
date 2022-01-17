@@ -1,5 +1,5 @@
 # include "gomoku.hpp"
-# include "Heuristic.hpp"
+# include "heuristic.hpp"
 # include "Board.hpp"
 # include "TranspositionTable.hpp"
 # include "misc.hpp"
@@ -96,24 +96,30 @@ void    print_and_quit(const char *msg)
 }
 
 // unfinished, needs to assign a score to combinations and patterns
-void score_heuristic_data(Board &board)
+int evaluate_patterns(Board &board, int player)
 {
-    for (uint8_t j = 0; j < 2; j++)
-    {
-        PRINT("PLAYER: " << (j + 0));
-        for (uint8_t i = 0; i < 8; i++) // skip first index which is none
-        {
-            if (i > 0 && board.players[j].heuristic.patterns[i] > 0)
-            {
-                PRINT(PatternNames[i]);
-                PRINT((int)board.players[j].heuristic.patterns[i]);
-            }
-        }
-    }
+    // for (uint8_t j = 0; j < 2; j++)
+    // {
+    //     PRINT("PLAYER: " << (j + 0));
+    //     for (uint8_t i = 0; i < 8; i++) // skip first index which is none
+    //     {
+    //         if (i > 0 && board.players[j].heuristic.patterns[i] > 0)
+    //         {
+    //             PRINT(PatternNames[i]);
+    //             PRINT((int)board.players[j].heuristic.patterns[i]);
+    //         }
+    //     }
+    // }
+    int nplayer = player > 1 ? 0 : 1;
+    if (board.is_game_won()) //has to check if we have 5 pairs captured OR: 5+ in a row, enemy can't break it and can't capture 5 pairs next turn
+        return std::numeric_limits<int>::max();
+    // we need a good way to check opponent capture options eg. can they break our 5 in a row?
+    // one approach is to keep track of half-open two's (XOO.), but this won't tell us if our FIVE can be broken, of if multiple captures with 1 move are possible
+    
 }
 
 // unfinished, needs to assign a score to combinations and patterns
-void score_heuristic_data_index(Board &board, int move)
+void evaluate_patterns_index(Board &board, int move)
 {
     int player = board.get_player(move);
     int index = player < 0 ? 0 : 1;
@@ -202,10 +208,10 @@ void    get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *che
         // if (pattern != none) // print
         //     PRINT(PatternNames[pattern]);
     }
-    // score_heuristic_data_index(board, move);
+    // evaluate_patterns_index(board, move);
 }
 
-void    get_heuristic_total(Board &board)
+void    get_patterns_total(Board &board)
 {
     std::bitset<BOARDSIZE> checked_indices[4] = {0, 0, 0, 0};
 
@@ -216,7 +222,7 @@ void    get_heuristic_total(Board &board)
         if (board.filled_pos[pos])
             get_heuristic_single(board, pos, checked_indices);
     }
-    // score_heuristic_data(board);
+    // evaluate_patterns(board);
 }
 
 void    test()

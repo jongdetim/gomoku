@@ -1,4 +1,4 @@
-#include "Board.hpp"
+#include "board.hpp"
 #include "misc.hpp"
 
 Board::Board(void) : h(0), state(0), stones_in_play(0), last_move(-1), filled_pos(0)

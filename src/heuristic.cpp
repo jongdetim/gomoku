@@ -1,5 +1,5 @@
-# include "Heuristic.hpp"
-# include "Board.hpp"
+# include "heuristic.hpp"
+# include "board.hpp"
 # include "misc.hpp"
 
 Heuristic::Heuristic(void) { }

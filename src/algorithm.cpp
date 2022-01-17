@@ -1,7 +1,7 @@
 #include "algorithm.hpp"
-#include "Board.hpp"
-#include "Heuristic.hpp"
-#include "TranspositionTable.hpp"
+#include "board.hpp"
+#include "heuristic.hpp"
+#include "transpositionTable.hpp"
 
 int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;

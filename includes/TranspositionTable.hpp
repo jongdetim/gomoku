@@ -1,7 +1,7 @@
 #ifndef TRANSPOSITION_TABLE_HPP
 #define TRANSPOSITION_TABLE_HPP
 
-#include "Board.hpp"
+#include "board.hpp"
 #include "gomoku.hpp"
 
 // template <class Key>

@@ -1,5 +1,5 @@
 #include "misc.hpp"
-#include "Board.hpp"
+#include "board.hpp"
 
 int					get_col(int index) { return (index % BOARD_LENGTH); }
 
