@@ -8,6 +8,7 @@
 # include <Eigen/Dense>
 # include "Board.hpp"
 # include "Button.hpp"
+# include "Stats.hpp"
 
 # define OFFSET 31
 # define SIZE 50
@@ -51,6 +52,8 @@ private:
 	TTF_Font				*font;
 
 	std::vector<Button>		buttons;
+	Stats					statsP1;
+	Stats					statsP2;
 		
 	bool					update;
 	int						screen_height;
@@ -60,6 +63,7 @@ private:
 	double					offset;
 	int						font_size;
 	short					action;
+
 
 	void					reset(Board &board);
 	bool					mouse_on_board(int row, int col);
@@ -74,7 +78,8 @@ private:
 	void					set_buttons(void);
 	void					render_buttons(void);
 	void					check_action(Board &board);
-	void					show_stats(Board &board);
+	void					init_stats(Board &board);
+	void					show_stats(void);
 };
 
 #endif

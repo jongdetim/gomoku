@@ -22,8 +22,8 @@ public:
 	short					get_action(void);
 	void					init_button(void);
 
-	SDL_Texture				*texture;
 private:
+	SDL_Texture				*texture;
 	Eigen::Array2i			pos;
 	std::string				text;
 	SDL_Color				colour;

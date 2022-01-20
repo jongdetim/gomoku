@@ -93,6 +93,7 @@ void		GUI::game(Board &board)
 	int index;
     
 	this->reset(board);
+	this->init_stats(board);
 
     while (!quit)
     {
@@ -104,8 +105,8 @@ void		GUI::game(Board &board)
 		// SDL_PollEvent(&this->event) --> Use when always want updating, like active animations when no user input
         SDL_WaitEvent(&this->event);
 
-		if (board.current_player->has_function()) // Check if is AI
-			index = board.current_player->fn(board);
+		// if (board.current_player->has_function()) // Check if is AI
+		// 	index = board.current_player->fn(board);
 
 		quit = this->handle_events(board, index);
 
@@ -208,6 +209,7 @@ void		GUI::update_renderer(Board &board)
 	this->draw_stones(board);
 
 	this->render_buttons();
+	this->show_stats();
 
 	SDL_RenderPresent(this->renderer);
 	this->update = false;
@@ -252,7 +254,7 @@ void		GUI::load_textures(void)
 
 void		GUI::set_buttons(void)
 {
-	this->buttons.push_back(Button(this->renderer, this->screen_height, this->offset, "RESET", this->font, BG_COLOUR, RESET));
+	// this->buttons.push_back(Button(this->renderer, this->screen_height, this->offset, "RESET", this->font, BG_COLOUR, RESET));
 
 	for (auto &btn : this->buttons)
 		btn.init_button();
@@ -264,8 +266,20 @@ void		GUI::render_buttons(void)
 		btn.render();
 }
 
-void		GUI::show_stats(Board &board)
+void		GUI::init_stats(Board &board)
 {
-	// std::stringstream strm;
-	// strm << score;
+	this->statsP1 = Stats(this->renderer, &board.player1, this->screen_height, this->offset, this->font);
+	this->statsP2 = Stats(this->renderer, &board.player2, this->screen_height + 50, this->offset, this->font);
+
+	this->statsP1.init();
+	this->statsP2.init();
+	
+	this->statsP1.update();
+	this->statsP2.update();
+}
+
+void		GUI::show_stats(void)
+{
+	this->statsP1.render();
+	this->statsP2.render();
 }
