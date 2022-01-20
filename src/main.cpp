@@ -7,6 +7,7 @@
 
 #define PRINT(x) std::cout << x << std::endl
 
+// this can fail in cases where length > 8, such as . o o o o . o o . where the leftmost empty space is cut off and it's seen as closed4 instead of open4. Can be solved with 16-bit cutouts.
 void               cutout_pattern(const Board &board, int move, int direction, int player, t_pattern &pat)
 {
     int shift = DIRECTIONS[direction + 4];
@@ -95,7 +96,20 @@ void    print_and_quit(const char *msg)
     exit(1);
 }
 
-// unfinished, needs to assign a score to combinations and patterns
+int score_remaining_patterns(Board &board, int player)
+{
+    int score = 0;
+
+    for (int i = 1; i < 5; i++) //closed2, open2, closed3, open3, closed4
+    {
+        // Pattern pat = static_cast<Pattern>(i);
+        score += board.players[player].heuristic.patterns[i] * SCORES[i];
+    }
+    if (board.players[player].captures)
+        score += pow(10, board.players[player].captures);
+    return score;
+}
+
 int evaluate_patterns(Board &board, int player)
 {
     // for (uint8_t j = 0; j < 2; j++)
@@ -110,9 +124,33 @@ int evaluate_patterns(Board &board, int player)
     //         }
     //     }
     // }
-    int nplayer = player > 1 ? 0 : 1;
-    if (board.is_game_won()) //has to check if we have 5 pairs captured OR: 5+ in a row, enemy can't break it and can't capture 5 pairs next turn
+    player = player > 0 ? 0 : 1;
+    int enemyplayer = 1 - player;
+    int score = 0;
+    // if (board.is_game_won()) //has to check if we have 5 pairs captured OR: 5+ in a row, enemy can't break it and can't capture 5 pairs next turn
+    if (board.players[player].captures >= 5 ||
+    board.players[player].heuristic.patterns[five] >= 1)    
         return std::numeric_limits<int>::max();
+    else if (board.players[enemyplayer].heuristic.patterns[closed4] >= 1 ||
+    board.players[enemyplayer].heuristic.patterns[open4] >= 1)
+        return -std::numeric_limits<int>::max();
+    else if (board.players[player].heuristic.patterns[open4] >= 1 ||
+    board.players[player].heuristic.patterns[closed4] >= 2)
+        return 1000000000;
+    else if ((board.players[enemyplayer].heuristic.patterns[open3] >= 1 &&
+    board.players[player].heuristic.patterns[closed4] == 0) ||
+    board.players[enemyplayer].heuristic.patterns[open3] >= 2)
+        return -1000000000;
+    else if (board.players[player].heuristic.patterns[open3] >= 2 ||
+    (board.players[player].heuristic.patterns[closed4] >= 1 &&
+    board.players[player].heuristic.patterns[open3] >= 1))
+        return 1000000;
+    else
+    {
+        score += score_remaining_patterns(board, player);
+        score -= 1.5 * score_remaining_patterns(board, enemyplayer);
+        return score;
+    }
     // we need a good way to check opponent capture options eg. can they break our 5 in a row?
     // one approach is to keep track of half-open two's (XOO.), but this won't tell us if our FIVE can be broken, of if multiple captures with 1 move are possible
     
@@ -122,7 +160,7 @@ int evaluate_patterns(Board &board, int player)
 void evaluate_patterns_index(Board &board, int move)
 {
     int player = board.get_player(move);
-    int index = player < 0 ? 0 : 1;
+    int index = player > 0 ? 0 : 1;
     for (uint8_t i = 0; i < 8; i++) // skip first index which is none
     {
         if (i > 0 && board.players[index].heuristic.patterns[i] > 0)
@@ -195,7 +233,7 @@ Pattern get_heuristic_data(Board &board, const int &move, const int &direction, 
 void    get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *checked_indices)
 {
     int player = board.get_player(move);
-    int index = player < 0 ? 0 : 1;
+    int index = player > 0 ? 0 : 1;
     // PRINT("move: " << move);
 
     for (int dir = 0; dir < 4; dir++) // four directions
@@ -211,18 +249,20 @@ void    get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *che
     // evaluate_patterns_index(board, move);
 }
 
-void    get_patterns_total(Board &board)
+int   get_heuristic_total(Board &board)
 {
     std::bitset<BOARDSIZE> checked_indices[4] = {0, 0, 0, 0};
 
     // first check the patterns at last_move just to be sure it is correctly registered
     get_heuristic_single(board, board.get_last_move(), checked_indices);
+    // int player = board.get_last_player() > 0 ? 0 : 1;
+    // if (board.players[player].)
     for (int pos = 0; pos < BOARDSIZE; pos++)
     {
         if (board.filled_pos[pos])
             get_heuristic_single(board, pos, checked_indices);
     }
-    // evaluate_patterns(board);
+    return evaluate_patterns(board, board.get_last_player());
 }
 
 void    test()
@@ -239,26 +279,29 @@ void    test()
     // board.place(star_index, PLAYER2);
     // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
 
-    // board.place(index - 1, PLAYER1);
-    // board.place(index - 3, PLAYER1);
     board.place(index, PLAYER1);
-    board.place(index + 1, PLAYER2);
-    // // board.place(index - 21, PLAYER2);
-    // board.place(index + 2, PLAYER1);
-    // #include "heuristic.hpp" 
-    // PRINT(board.calc_heuristic());
-    // board = create_random_board(8);
-    TranspositionTable t_table;
-    // TranspositionTable h_table;
-    for (int depth = 1; depth <= 5; depth++)
-    {
-        TranspositionTable h_table;
-        // TranspositionTable t_table;
-        negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
-    }    
-    PRINT(TOTAL_NODES);
-    PRINT(TOTAL_LEAVES);
-    PRINT(FOUND_IN_TABLE);
+    board.place(index +1, PLAYER2);
+    board.place(index +2, PLAYER1);
+    board.place(index +3, PLAYER1);
+    board.place(index +4, PLAYER2);
+    board.place(index +6, PLAYER1);
+    board.place(index - 3, PLAYER1);
+    // // // board.place(index - 21, PLAYER2);
+    // // board.place(index + 2, PLAYER1);
+    // // #include "heuristic.hpp" 
+    // // PRINT(board.calc_heuristic());
+    // // board = create_random_board(8);
+    // TranspositionTable t_table;
+    // // TranspositionTable h_table;
+    // for (int depth = 1; depth <= 5; depth++)
+    // {
+    //     TranspositionTable h_table;
+    //     // TranspositionTable t_table;
+    //     negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
+    // }    
+    // PRINT(TOTAL_NODES);
+    // PRINT(TOTAL_LEAVES);
+    // PRINT(FOUND_IN_TABLE);
     // board.place(360, PLAYER1);
     // Pattern result;
     // board = create_random_board(1);
@@ -271,7 +314,13 @@ void    test()
     //     // Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
     //     // board.show_last_move();
     //     // get_heuristic_single(board, board.get_last_move());
-    //     get_heuristic_total(board);
+        
+        // int move = board.get_last_move();
+        // board.remove(move);
+        // board.place(move + 20, 1);
+        board.show_last_move();
+        PRINT(board.get_last_player());
+        PRINT(get_heuristic_total(board));
     //     // if (board.heuristic.patterns[0] < 4)
     //     // {  
     //     //     // board.show_last_move();
