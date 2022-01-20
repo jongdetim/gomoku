@@ -1,8 +1,7 @@
 #include "Button.hpp"
 
 Button::Button(SDL_Renderer *renderer, int x, int y, std::string text, TTF_Font *font, SDL_Color colour, short action) :
-pos(Eigen::Array2i {x, y}), text(text), colour(colour), texture(NULL), active(false), renderer(renderer), action(action), font(font)
-{ }
+pos(t_point {x, y}), text(text), colour(colour), texture(NULL), active(false), renderer(renderer), action(action), font(font) { }
 
 Button::~Button()
 {
@@ -10,7 +9,7 @@ Button::~Button()
 		SDL_DestroyTexture(this->texture);
 }
 
-void		Button::init_button(void)
+void		Button::init(void)
 {
 	int texW, texH;
 
@@ -19,12 +18,12 @@ void		Button::init_button(void)
 	SDL_FreeSurface(surface);
 
 	SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-	this->rect = SDL_Rect { this->pos[0], this->pos[1], texW, texH };
+	this->rect = SDL_Rect { this->pos.x, this->pos.y, texW, texH };
 }
 
 void		Button::render(void)
 {
-	SDL_Color c = this->active ? this->subtract_colour(this->colour, 20) : this->colour;
+	SDL_Color c = this->active ? this->subtract_colour(this->colour, SUBTRACT) : this->colour;
 
 	SDL_SetRenderDrawColor(this->renderer, c.r, c.g, c.b, 255);
 	SDL_RenderFillRect(this->renderer, &rect);
@@ -38,9 +37,9 @@ SDL_Colour	Button::subtract_colour(SDL_Colour col, int amount) const
 {
 	SDL_Colour colour;
 
-	colour.r = col.r - amount;
-	colour.g = col.g - amount;
-	colour.b = col.b - amount;
+	colour.r = (col.r - amount) < 0 ? 0 : (col.r - amount);
+	colour.g = (col.g - amount) < 0 ? 0 : (col.g - amount);
+	colour.b = (col.b - amount) < 0 ? 0 : (col.b - amount);
 	colour.a = 255;
 
 	return colour;
@@ -56,3 +55,8 @@ bool		Button::on_button(int x, int y)
 }
 
 short		Button::get_action(void) { return this->action; }
+
+t_point		Button::get_button_size(void)
+{
+	return t_point {this->rect.w, this->rect.h};
+}

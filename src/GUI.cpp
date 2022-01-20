@@ -26,7 +26,8 @@ GUI::GUI(gui_size size) : update(true), action(0)
 	this->screen_width = height + this->interface_size;
 	this->size = (height * SIZE / (double)SCREEN_HEIGHT) + .5;
 	this->offset = height * OFFSET / (double)SCREEN_HEIGHT;
-	this->font_size = height * FONT_SIZE / (double)SCREEN_HEIGHT;
+	this->btn_size = height * BUTTON_SIZE / (double)SCREEN_HEIGHT;
+	this->stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
 }
 
 GUI::GUI(void) : update(true), action(0)
@@ -36,13 +37,16 @@ GUI::GUI(void) : update(true), action(0)
 	this->size = SIZE;
 	this->offset = OFFSET;
 	this->interface_size = INTERFACE_SIZE;
-	this->font_size = FONT_SIZE;
+	this->btn_size = BUTTON_SIZE;
+	this->stats_size = STATS_SIZE;
 }
 
 GUI::~GUI()
 {
-	if (this->font)
-		TTF_CloseFont(this->font);
+	if (this->btn_font)
+		TTF_CloseFont(this->btn_font);
+	if (this->stats_font)
+		TTF_CloseFont(this->stats_font);
 	if (this->board_texture)
     	SDL_DestroyTexture(this->board_texture);
 	if (this->p1_texture)
@@ -76,13 +80,19 @@ bool		GUI::initiate_GUI(std::string title)
         return false;
     }
 
-	if (!(this->font = TTF_OpenFont(SCPRO_FONT, this->font_size))) {
+	if (!(this->btn_font = TTF_OpenFont(SCPRO_FONT, this->btn_size))) {
+		SDL_Log("Font can't be loaded.");
+		return false;
+	}
+
+	if (!(this->stats_font = TTF_OpenFont(SCPRO_FONT, this->stats_size))) {
 		SDL_Log("Font can't be loaded.");
 		return false;
 	}
 
 	this->load_textures();
 	this->set_buttons();
+	this->status = Text(this->renderer, t_point {this->screen_height, (int)this->offset}, this->stats_font);
 
 	return true;
 }
@@ -125,8 +135,9 @@ void		GUI::check_action(Board &board)
 {
 	switch (this->action)
 	{
-	case RESET:
+	case restart:
 		this->reset(board);
+		break;
 	default:
 		this->action = 0;
 		break;
@@ -174,6 +185,7 @@ void		GUI::reset(Board &board)
 	board.reset();
 	board.random_player();
 	this->update = true;
+	this->action = 0;
 }
 
 void		GUI::draw_stones(Board &board)
@@ -209,6 +221,9 @@ void		GUI::update_renderer(Board &board)
 	this->draw_stones(board);
 
 	this->render_buttons();
+
+	this->update_status(board);
+
 	this->show_stats();
 
 	SDL_RenderPresent(this->renderer);
@@ -254,10 +269,17 @@ void		GUI::load_textures(void)
 
 void		GUI::set_buttons(void)
 {
-	// this->buttons.push_back(Button(this->renderer, this->screen_height, this->offset, "RESET", this->font, BG_COLOUR, RESET));
+	this->buttons.push_back(Button(this->renderer, this->screen_height, (int)this->offset << 3, " RESET ", this->btn_font, BG_COLOUR, restart));
+	this->buttons.push_back(Button(this->renderer, this->screen_height + (this->interface_size >> 1), (int)this->offset << 3, " PAUSE ", this->btn_font, BG_COLOUR, pause));
 
+	// this->buttons[0].init();
+	// t_point size = this->buttons[0].get_button_size();
+	// this->buttons.push_back(Button(this->renderer, this->screen_height + size.x, (int)this->offset << 3, " NEW GAME ", this->btn_font, BTN_COLOUR, NEWGAME));
+	// this->buttons[1].init();
+	
 	for (auto &btn : this->buttons)
-		btn.init_button();
+		btn.init();
+		
 }
 
 void		GUI::render_buttons(void)
@@ -268,18 +290,26 @@ void		GUI::render_buttons(void)
 
 void		GUI::init_stats(Board &board)
 {
-	this->statsP1 = Stats(this->renderer, &board.player1, this->screen_height, this->offset, this->font);
-	this->statsP2 = Stats(this->renderer, &board.player2, this->screen_height + 50, this->offset, this->font);
+	this->statsP1 = Stats(this->renderer, &board.player1, t_point {this->screen_height, (int)this->offset << 2}, this->stats_font);
+	this->statsP2 = Stats(this->renderer, &board.player2, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset << 2}, this->stats_font);
 
 	this->statsP1.init();
 	this->statsP2.init();
-	
-	this->statsP1.update();
-	this->statsP2.update();
 }
 
 void		GUI::show_stats(void)
 {
+	this->statsP1.update();
+	this->statsP2.update();
+	
 	this->statsP1.render();
 	this->statsP2.render();
+}
+
+void		GUI::update_status(Board &board)
+{
+	std::stringstream strm;
+	strm << "Current Player: " << board.current_player->name;
+	this->status.update(strm.str());
+	this->status.render();
 }

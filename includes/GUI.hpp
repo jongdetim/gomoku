@@ -5,7 +5,6 @@
 # include <SDL.h>
 # include <SDL_image.h>
 # include <SDL_ttf.h>
-# include <Eigen/Dense>
 # include "Board.hpp"
 # include "Button.hpp"
 # include "Stats.hpp"
@@ -24,13 +23,21 @@
 # define MONTSER_FONT "../fonts/Montserrat-Medium.ttf"
 # define SCPRO_FONT "../fonts/SourceCodePro-Regular.ttf"
 # define BG_COLOUR SDL_Color{220, 179, 92, 255}
-# define FONT_SIZE 25
+# define BTN_COLOUR SDL_Color{180, 60, 60, 255}
+# define BUTTON_SIZE 25
+# define STATS_SIZE 20
 
 enum gui_size
 {
 	big,
 	medium,
 	small
+};
+
+enum action
+{
+	restart = 1,
+	pause = 2
 };
 
 class GUI
@@ -49,19 +56,22 @@ private:
 	SDL_Texture				*p1_texture;
 	SDL_Texture				*p2_texture;
 	SDL_Event				event;
-	TTF_Font				*font;
+	TTF_Font				*btn_font;
+	TTF_Font				*stats_font;
 
 	std::vector<Button>		buttons;
 	Stats					statsP1;
 	Stats					statsP2;
-		
+	Text					status;
+
 	bool					update;
 	int						screen_height;
 	int						screen_width;
 	int						size;
 	int						interface_size;
 	double					offset;
-	int						font_size;
+	int						btn_size;
+	int						stats_size;
 	short					action;
 
 
@@ -80,6 +90,7 @@ private:
 	void					check_action(Board &board);
 	void					init_stats(Board &board);
 	void					show_stats(void);
+	void					update_status(Board &board);
 };
 
 #endif

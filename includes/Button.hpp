@@ -5,10 +5,14 @@
 # include <SDL.h>
 # include <SDL_image.h>
 # include <SDL_ttf.h>
-# include <Eigen/Dense>
 
-# define RESET		1
-# define NEWGAME	2
+# define SUBTRACT	30
+
+typedef struct	s_point
+{
+	int 		x;
+	int 		y;
+}				t_point;
 
 class Button
 {
@@ -20,11 +24,12 @@ public:
 	bool					on_button(int x, int y);
 	bool					is_active(void);
 	short					get_action(void);
-	void					init_button(void);
+	void					init(void);
+	t_point					get_button_size(void);
 
 private:
 	SDL_Texture				*texture;
-	Eigen::Array2i			pos;
+	t_point					pos;
 	std::string				text;
 	SDL_Color				colour;
 	bool					active;
