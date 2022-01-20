@@ -101,10 +101,7 @@ int score_remaining_patterns(Board &board, int player)
     int score = 0;
 
     for (int i = 1; i < 5; i++) //closed2, open2, closed3, open3, closed4
-    {
-        // Pattern pat = static_cast<Pattern>(i);
         score += board.players[player].heuristic.patterns[i] * SCORES[i];
-    }
     if (board.players[player].captures)
         score += pow(10, board.players[player].captures);
     return score;
