@@ -1,7 +1,6 @@
 #include "GUI.hpp"
-#include "misc.hpp"
 
-GUI::GUI(gui_size size) : update(true), action(def)
+GUI::GUI(IAi *ai, gui_size size) : IGameEngine(ai), update(true), action(def)
 {
 	int height;
 
@@ -30,7 +29,7 @@ GUI::GUI(gui_size size) : update(true), action(def)
 	this->stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(void) : update(true), action(def)
+GUI::GUI(IAi *ai) : IGameEngine(ai), update(true), action(def)
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;

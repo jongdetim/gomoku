@@ -6,8 +6,8 @@
 
 int main()
 {
-    // GUI gui;
-    PrimitiveGui gui;
+    GUI gui(NULL);
+    // PrimitiveGui gui(NULL);
     Board board;
     
     board.play(gui);

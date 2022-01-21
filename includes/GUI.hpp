@@ -8,6 +8,8 @@
 # include "Board.hpp"
 # include "Button.hpp"
 # include "Stats.hpp"
+# include "misc.hpp"
+# include "IAi.hpp"
 
 # define OFFSET 31
 # define SIZE 50
@@ -44,8 +46,8 @@ enum action
 class GUI: public IGameEngine
 {
 public:
-	GUI(void);
-	GUI(gui_size size);
+	GUI(IAi *ai);
+	GUI(IAi *ai, gui_size size);
 	~GUI();
 
 	bool					init(std::string title);

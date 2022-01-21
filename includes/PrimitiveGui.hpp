@@ -3,10 +3,13 @@
 
 # include "Board.hpp"
 # include "misc.hpp"
+# include "IAi.hpp"
 
 class PrimitiveGui : public IGameEngine
 {
 public:
+	PrimitiveGui(IAi *ai);
+	
 	void	play(Board *board);
 
 private:

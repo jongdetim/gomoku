@@ -1,5 +1,7 @@
 #include "PrimitiveGui.hpp"
 
+PrimitiveGui::PrimitiveGui(IAi *ai) : IGameEngine(ai) {}
+
 void						PrimitiveGui::play(Board *board)
 {
 	this->reset(*board);
@@ -100,8 +102,8 @@ int							PrimitiveGui::get_index(Board &board)
 {
 	if (board.current_player->id == PLAYER1_ID)
 		return this->get_player_input();
-	/* else if (this->ai)
-		return this->ai.(); */
+	else if (this->ai)
+		return this->ai->calculate(board);
 	else
 		return this->get_player_input();
 }
