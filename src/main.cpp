@@ -1,19 +1,16 @@
 #include "Board.hpp"
-#include "algorithm.hpp"
-#include "misc.hpp"
 #include "GUI.hpp"
+#include "PrimitiveGui.hpp"
 
 #define PRINT(x) std::cout << x << std::endl
 
 int main()
 {
-    GUI gui;
+    // GUI gui;
+    PrimitiveGui gui;
     Board board;
-
-    if (!gui.initiate_GUI("Gomoku"))
-        return 1;
     
-    gui.game(board);
+    board.play(gui);
     
     return 0;
 }

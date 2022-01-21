@@ -1,7 +1,7 @@
 #include "GUI.hpp"
 #include "misc.hpp"
 
-GUI::GUI(gui_size size) : update(true), action(0)
+GUI::GUI(gui_size size) : update(true), action(def)
 {
 	int height;
 
@@ -30,7 +30,7 @@ GUI::GUI(gui_size size) : update(true), action(0)
 	this->stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(void) : update(true), action(0)
+GUI::GUI(void) : update(true), action(def)
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
@@ -62,7 +62,17 @@ GUI::~GUI()
 	SDL_Quit();
 }
 
-bool		GUI::initiate_GUI(std::string title)
+void		GUI::play(Board *board)
+{
+	if (!this->init("Gomoku"))
+        return;
+	this->reset(*board);
+	this->init_stats(*board);
+	this->gameloop(*board);
+}
+
+/* Private Methods */
+bool		GUI::init(std::string title)
 {
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -97,13 +107,10 @@ bool		GUI::initiate_GUI(std::string title)
 	return true;
 }
 
-void		GUI::game(Board &board)
+void		GUI::gameloop(Board &board)
 {
 	bool quit = false;
 	int index;
-    
-	this->reset(board);
-	this->init_stats(board);
 
     while (!quit)
     {
@@ -130,7 +137,6 @@ void		GUI::game(Board &board)
     }
 }
 
-/* Private Methods */
 void		GUI::check_action(Board &board)
 {
 	switch (this->action)
@@ -185,7 +191,7 @@ void		GUI::reset(Board &board)
 	board.reset();
 	board.random_player();
 	this->update = true;
-	this->action = 0;
+	this->action = def;
 }
 
 void		GUI::draw_stones(Board &board)
@@ -212,7 +218,7 @@ void		GUI::set_texture(SDL_Texture *texture, SDL_Rect rect)
 	SDL_RenderCopy(this->renderer, texture, NULL, &rect);
 }
 
-inline bool GUI::mouse_on_board(int row, int col) { return (row < this->screen_height && col < this->screen_height); }
+inline bool GUI::mouse_on_board(int row, int col) const { return (row < this->screen_height && col < this->screen_height); }
 
 void		GUI::update_renderer(Board &board)
 {
@@ -238,7 +244,7 @@ void		GUI::clear_render(void)
 	SDL_RenderClear(renderer);
 }
 
-int			GUI::calc_board_placement(int row, int col)
+int			GUI::calc_board_placement(int row, int col) const
 {
 	row = (row - this->offset) / this->size + .5;
 	col = (col - this->offset) / this->size + .5;
@@ -271,11 +277,6 @@ void		GUI::set_buttons(void)
 {
 	this->buttons.push_back(Button(this->renderer, this->screen_height, (int)this->offset << 3, " RESET ", this->btn_font, BG_COLOUR, restart));
 	this->buttons.push_back(Button(this->renderer, this->screen_height + (this->interface_size >> 1), (int)this->offset << 3, " PAUSE ", this->btn_font, BG_COLOUR, pause));
-
-	// this->buttons[0].init();
-	// t_point size = this->buttons[0].get_button_size();
-	// this->buttons.push_back(Button(this->renderer, this->screen_height + size.x, (int)this->offset << 3, " NEW GAME ", this->btn_font, BTN_COLOUR, NEWGAME));
-	// this->buttons[1].init();
 	
 	for (auto &btn : this->buttons)
 		btn.init();

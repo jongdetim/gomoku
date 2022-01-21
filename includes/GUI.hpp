@@ -36,18 +36,20 @@ enum gui_size
 
 enum action
 {
-	restart = 1,
-	pause = 2
+	def,
+	restart,
+	pause
 };
 
-class GUI
+class GUI: public IGameEngine
 {
 public:
 	GUI(void);
 	GUI(gui_size size);
 	~GUI();
-	bool					initiate_GUI(std::string title);
-	void					game(Board &board);
+
+	bool					init(std::string title);
+	void					play(Board *board);
 
 private:
 	SDL_Window				*window;
@@ -74,15 +76,15 @@ private:
 	int						stats_size;
 	short					action;
 
-
+	void					gameloop(Board &board);
 	void					reset(Board &board);
-	bool					mouse_on_board(int row, int col);
+	bool					mouse_on_board(int row, int col) const;
 	void					clear_render(void);
 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void					draw_stones(Board &board);
 	void					update_renderer(Board &board);
 	bool					handle_events(Board &board, int &index);
-	int						calc_board_placement(int row, int col);
+	int						calc_board_placement(int row, int col) const;
 	SDL_Texture				*load_texture(std::string img_path);
 	void					load_textures(void);
 	void					set_buttons(void);

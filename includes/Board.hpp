@@ -4,6 +4,7 @@
 # include "gomoku.hpp"
 # include "Player.hpp"
 # include "Heuristic.hpp"
+# include "IGameEngine.hpp"
 
 # define BLACK "\033[0;30m"
 # define RED "\033[0;31m"
@@ -18,6 +19,8 @@
 # define PLAYER this->current_player
 # define PLAYER1 this->player1
 # define PLAYER2 this->player2
+# define P1_SYMBOL 'o'
+# define P2_SYMBOL 'x'
 
 class	Board
 {
@@ -34,7 +37,7 @@ public:
 	Player					*current_player;
 	int						winner;
 	
-	void					play(void);
+	void					play(IGameEngine &engine);
 	void					print(void) const;
 	void					show_move(void) const;
 	void					show_move(int show_index) const;
@@ -54,7 +57,6 @@ public:
 	void					switch_to_player(int id);
 	int						total_stones_in_play(void) const;
 	void					random_player(void);
-	void					print_stats(void) const;
 
 	int						get_player_id(int index) const;
 	BITBOARD				get_state(void) const;
@@ -81,7 +83,6 @@ private:
 	Heuristic				heuristic;
 
 	bool					still_winning(Player &player) const;
-	void					print_winner(void) const;
 	bool					can_capture(Player &player, int index, int dir) const;
 	void					capture(int dir, int index);
 	std::bitset<BOARDSIZE>	get_moves(void) const;

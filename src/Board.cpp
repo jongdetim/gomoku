@@ -51,9 +51,9 @@ void					Board::print(void) const
 			if (this->is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
-				std::cout << 'o' << ' ';
+				std::cout << P1_SYMBOL << ' ';
 			else
-				std::cout << 'x' << ' ';
+				std::cout << P2_SYMBOL << ' ';
 		}
 		std::cout << std::endl;
 	}
@@ -75,16 +75,16 @@ void					Board::show_move(int show_index) const
 			else if (this->state[index<<1])
 			{
 				if (show_index == index)
-					printf("%sO %s", CYAN, DEFAULT);
+					printf("%s%c %s", CYAN, P1_SYMBOL-32, DEFAULT);
 				else
-					std::cout << 'o' << ' ';
+					std::cout << P1_SYMBOL << ' ';
 			}
 			else
 			{
 				if (show_index == index)
-					printf("%sX %s", RED, DEFAULT);
+					printf("%s%c %s", RED, P2_SYMBOL-32, DEFAULT);
 				else
-					std::cout << 'x' << ' ';
+					std::cout << P2_SYMBOL << ' ';
 			}
 		}
 		std::cout << std::endl;
@@ -227,33 +227,7 @@ void					Board::switch_to_player(int id)
 		PLAYER = &PLAYER2;
 }
 
-void					Board::play(void)
-{
-	int index;
-
-	this->random_player();
-
-	while (true)
-	{
-		this->print_stats();
-		this->print();
-
-		index = PLAYER->fn(*this);
-
-		if (index == -1 || !this->place(index, *PLAYER))
-			continue;
-	
-		this->print_stats();
-		this->show_move();
-		
-		if (this->is_game_finished(*PLAYER->next))
-			break;
-
-		PLAYER = PLAYER->next;
-	}
-	this->switch_to_player(this->winner);
-	this->print_winner();
-}
+void					Board::play(IGameEngine &engine) { engine.play(this); }
 
 bool					Board::is_game_finished(Player &player)
 {
@@ -287,29 +261,6 @@ Board					Board::get_copy(void) const
 void					Board::random_player(void) { PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next; }
 
 /* PRIVATE METHODS */
-
-void					Board::print_winner(void) const
-{
-	this->print_stats();
-	this->show_move(PLAYER->last_move);
-	if (!this->is_full())
-		std::cout << "*** " << PLAYER->name << " WINS!!! ***" << std::endl;
-}
-
-void					Board::print_stats(void) const
-{
-	system("clear");
-	std::cout << std::endl;
-
-	printf("Name.%-*s Name.%s\n", 18, PLAYER1.name.c_str(), PLAYER2.name.c_str());
-	printf("Captures.%-*d Captures.%d\n", 14, PLAYER1.captures, PLAYER2.captures);
-	printf("LastMove.%-*d LastMove.%d\n", 14, PLAYER1.last_move, PLAYER2.last_move);
-	printf("StonesInPlay.%-*d StonesInPlay.%d\n", 10, PLAYER1.stones_in_play, PLAYER2.stones_in_play);
-	printf("WinningIndex.%-*d WinningIndex.%d\n", 10, PLAYER1.winning_index, PLAYER2.winning_index);
-	std::cout << std::endl;
-	std::cout << "Current Player: " << PLAYER->name << std::endl;
-	std::cout << std::endl;
-}
 
 // creates a set of positions surrounding the currently occupied spaces
 std::bitset<BOARDSIZE>	Board::get_moves(void) const
