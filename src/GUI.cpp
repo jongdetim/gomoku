@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 
-GUI::GUI(IAi *ai, gui_size size) : IGameEngine(ai), update(true), action(def)
+GUI::GUI(IAi *ai, gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false})
 {
 	int height;
 
@@ -29,7 +29,7 @@ GUI::GUI(IAi *ai, gui_size size) : IGameEngine(ai), update(true), action(def)
 	this->stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), update(true), action(def)
+GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false})
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
@@ -108,89 +108,98 @@ bool		GUI::init(std::string title)
 
 void		GUI::gameloop(Board &board)
 {
-	bool quit = false;
-	int index;
-
-    while (!quit)
+    while (!this->check_action(quit))
     {
-		index = -1;
-
 		if (this->update)
 			this->update_renderer(board);
 	
-		// SDL_PollEvent(&this->event) --> Use when always want updating, like active animations when no user input
-        SDL_WaitEvent(&this->event);
+		this->handle_events(board);
 
-		// if (board.current_player->has_function()) // Check if is AI
-		// 	index = board.current_player->fn(board);
-
-		quit = this->handle_events(board, index);
-
-		if (board.place(index))
+		if (!this->check_action(pause) && board.place(this->get_index(board)))
 		{
-			board.next_player();
+			this->status.update(this->get_status_update(board));
 			this->update = true;
 		}
 
-		this->check_action(board);
+		if (this->check_action(restart))
+			this->reset(board);
     }
 }
 
-void		GUI::check_action(Board &board)
+void		GUI::handle_events(Board &board)
 {
-	switch (this->action)
-	{
-	case restart:
-		this->reset(board);
-		break;
-	default:
-		this->action = 0;
-		break;
-	}
-}
+	// SDL_PollEvent(&this->event) --> Use when always want updating, like active animations when no user input
+	SDL_WaitEvent(&this->event);
+	SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);   
+	this->mouse.click = false;
 
-bool		GUI::handle_events(Board &board, int &index)
-{      
-	int row, col;
-	SDL_GetMouseState(&col, &row);   
-	
 	switch (this->event.type)
 	{
 		case SDL_QUIT:
-			return true;
+			this->set_action(quit);
+			break;
 		case SDL_MOUSEMOTION:
 		{
 			for (auto &btn : this->buttons)
 			{
-				if (btn.on_button(col, row))
+				if (btn.on_button(this->mouse.pos.x, this->mouse.pos.y))
 					this->update = true;
 			}
 			break;
 		}
 		case SDL_MOUSEBUTTONUP:
 		{
-			if (!board.current_player->has_function() && this->mouse_on_board(row, col) && index == -1)
-				index = this->calc_board_placement(row, col);
-			else if (!this->mouse_on_board(row, col))
+			this->mouse.click = true;
+			for (auto &btn : this->buttons)
 			{
-				for (auto &btn : this->buttons)
-				{
-					if (btn.is_active())
-						this->action = btn.get_action();
-				}
+				if (btn.is_active())
+					this->set_action(btn.get_action());
 			}
 			break;
 		}
 	}
-	return false;
+}
+
+int			GUI::get_player_input(void)
+{
+	if (this->mouse.click && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
+		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
+	return -1;
+}
+
+std::string	GUI::get_status_update(Board &board)
+{
+	std::stringstream strm;
+	
+	strm.str(std::string());
+	if (board.is_game_finished(*board.current_player))
+	{
+		this->set_action(pause);
+		board.switch_to_player(board.winner);
+	
+		if (board.is_full())
+			return "DRAW";
+	
+		strm << board.current_player->name << " WON";
+	}
+	else
+	{
+		board.next_player();
+		strm << "Current Player: " << board.current_player->name;
+	}
+	return strm.str();
 }
 
 void		GUI::reset(Board &board)
 {
+	std::stringstream strm;
+
 	board.reset();
 	board.random_player();
 	this->update = true;
 	this->action = def;
+	strm << "Current Player: " << board.current_player->name;
+	this->status.update(strm.str());
 }
 
 void		GUI::draw_stones(Board &board)
@@ -217,18 +226,17 @@ void		GUI::set_texture(SDL_Texture *texture, SDL_Rect rect)
 	SDL_RenderCopy(this->renderer, texture, NULL, &rect);
 }
 
-inline bool GUI::mouse_on_board(int row, int col) const { return (row < this->screen_height && col < this->screen_height); }
+inline bool GUI::mouse_on_board(int x, int y) const { return (y < this->screen_height && x < this->screen_height); }
 
 void		GUI::update_renderer(Board &board)
 {
 	this->clear_render();
 	this->set_texture(this->board_texture, SDL_Rect{0, 0, this->screen_height, this->screen_height});
+	
 	this->draw_stones(board);
-
 	this->render_buttons();
 
-	this->update_status(board);
-
+	this->status.render();
 	this->show_stats();
 
 	SDL_RenderPresent(this->renderer);
@@ -243,10 +251,10 @@ void		GUI::clear_render(void)
 	SDL_RenderClear(renderer);
 }
 
-int			GUI::calc_board_placement(int row, int col) const
+int			GUI::calc_board_placement(int x, int y) const
 {
-	row = (row - this->offset) / this->size + .5;
-	col = (col - this->offset) / this->size + .5;
+	int row = (y - this->offset) / this->size + .5;
+	int col = (x - this->offset) / this->size + .5;
 
 	return calc_index(row, col);
 }
@@ -274,12 +282,13 @@ void		GUI::load_textures(void)
 
 void		GUI::set_buttons(void)
 {
-	this->buttons.push_back(Button(this->renderer, this->screen_height, (int)this->offset << 3, " RESET ", this->btn_font, BG_COLOUR, restart));
-	this->buttons.push_back(Button(this->renderer, this->screen_height + (this->interface_size >> 1), (int)this->offset << 3, " PAUSE ", this->btn_font, BG_COLOUR, pause));
+	this->buttons.push_back(
+		Button(this->renderer, this->screen_height, (18 * this->size), " RESET ", this->btn_font, BG_COLOUR, restart));
+	this->buttons.push_back(
+		Button(this->renderer, this->screen_height + (this->interface_size >> 1), (18 * this->size), " QUIT ", this->btn_font, BG_COLOUR, quit));
 	
 	for (auto &btn : this->buttons)
 		btn.init();
-		
 }
 
 void		GUI::render_buttons(void)
@@ -306,10 +315,27 @@ void		GUI::show_stats(void)
 	this->statsP2.render();
 }
 
-void		GUI::update_status(Board &board)
+int			GUI::get_index(Board &board)
 {
-	std::stringstream strm;
-	strm << "Current Player: " << board.current_player->name;
-	this->status.update(strm.str());
-	this->status.render();
+	if (board.current_player->id == PLAYER1_ID)
+		return this->get_player_input();
+	else if (this->ai)
+		return this->ai->calculate(board);
+	else
+		return this->get_player_input();
+}
+
+bool		GUI::check_action(int action)
+{
+	return ((this->action & action) == action);
+}
+
+void		GUI::set_action(int action)
+{
+	this->action = this->action | action;
+}
+
+void		GUI::unset_action(int action)
+{
+	this->action = this->action ^ action;
 }

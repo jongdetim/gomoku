@@ -36,12 +36,11 @@ enum gui_size
 	small
 };
 
-enum action
+typedef struct	s_mouse
 {
-	def,
-	restart,
-	pause
-};
+	t_point		pos;
+	bool 		click;
+}				t_mouse;
 
 class GUI: public IGameEngine
 {
@@ -50,7 +49,6 @@ public:
 	GUI(IAi *ai, gui_size size);
 	~GUI();
 
-	bool					init(std::string title);
 	void					play(Board *board);
 
 private:
@@ -67,6 +65,7 @@ private:
 	Stats					statsP1;
 	Stats					statsP2;
 	Text					status;
+	// Board					prev;
 
 	bool					update;
 	int						screen_height;
@@ -76,8 +75,10 @@ private:
 	double					offset;
 	int						btn_size;
 	int						stats_size;
-	short					action;
+	int						action;
+	t_mouse					mouse;
 
+	bool					init(std::string title);
 	void					gameloop(Board &board);
 	void					reset(Board &board);
 	bool					mouse_on_board(int row, int col) const;
@@ -85,16 +86,20 @@ private:
 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void					draw_stones(Board &board);
 	void					update_renderer(Board &board);
-	bool					handle_events(Board &board, int &index);
-	int						calc_board_placement(int row, int col) const;
+	void					handle_events(Board &board);
+	int						calc_board_placement(int x, int y) const;
 	SDL_Texture				*load_texture(std::string img_path);
 	void					load_textures(void);
 	void					set_buttons(void);
 	void					render_buttons(void);
-	void					check_action(Board &board);
 	void					init_stats(Board &board);
 	void					show_stats(void);
-	void					update_status(Board &board);
+	int						get_index(Board &board);
+	int						get_player_input(void);
+	bool					check_action(int action);
+	void					set_action(int action);
+	void					unset_action(int action);
+	std::string				get_status_update(Board &board);
 };
 
 #endif

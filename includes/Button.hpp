@@ -28,11 +28,11 @@ public:
 	t_point					get_button_size(void);
 
 private:
+	bool					active;
 	SDL_Texture				*texture;
 	t_point					pos;
 	std::string				text;
 	SDL_Color				colour;
-	bool					active;
 	SDL_Rect				rect;
 	SDL_Renderer			*renderer;
 	short					action;

@@ -12,29 +12,33 @@ void						PrimitiveGui::gameloop(Board &board)
 {
 	int		index;
 
-	while (true)
+	while (this->action != quit)
 	{
 		this->print_stats(board);
 		board.show_move();
 
 		index = this->get_index(board);
 
-		if (index == -1 || !board.place(index))
-			continue;
-		
-		if (board.is_game_finished(*board.current_player))
-			break;
-		
-		board.next_player();
+		if (board.place(index))
+		{
+			if (board.is_game_finished(*board.current_player))
+				break;
+			
+			board.next_player();
+		}
+
+		if (this->action == restart)
+			this->reset(board);
 	}
-	board.switch_to_player(board.winner);
-	this->print_winner(board);
+	if (board.winner)
+		this->print_winner(board);
 }
 
 void						PrimitiveGui::reset(Board &board)
 {
 	board.reset();
 	board.random_player();
+	this->action = def;
 }
 
 void						PrimitiveGui::print_stats(Board &board) const
@@ -90,10 +94,14 @@ bool						PrimitiveGui::try_parse_input(std::string &input, int &out)
 int							PrimitiveGui::get_player_input(void)
 {
 	std::string input;
-	int index;
+	int index = -1;
 
 	std::getline(std::cin, input);
-	if (!try_parse_input(input, index))
+	if (input == "quit" || input == "exit")
+		this->action = quit;
+	else if (input == "restart" || input == "reset")
+		this->action = restart;
+	else if (!try_parse_input(input, index))
 		return -1;
 	return index;
 }
@@ -110,6 +118,7 @@ int							PrimitiveGui::get_index(Board &board)
 
 void						PrimitiveGui::print_winner(Board &board) const
 {
+	board.switch_to_player(board.winner);
 	this->print_stats(board);
 	board.show_move(board.current_player->last_move);
 	if (!board.is_full())

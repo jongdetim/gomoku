@@ -3,6 +3,14 @@
 
 # include "IAi.hpp"
 
+enum action
+{
+	def = 0,
+	restart = 1,
+	quit = 2,
+	pause = 4
+};
+
 class Board;
 
 class IGameEngine

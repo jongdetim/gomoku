@@ -13,6 +13,8 @@ public:
 	void	play(Board *board);
 
 private:
+	short						action;
+
 	void						gameloop(Board &board);
 	void						reset(Board &board);
 	void						print_stats(Board &board) const;

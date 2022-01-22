@@ -10,7 +10,7 @@ player(player), renderer(renderer), pos(pos), font(font)
 
 void		Stats::init(void)
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 3; i++)
 		this->texts.push_back(Text(this->renderer, t_point {this->pos.x, this->pos.y + (i * this->textH)}, this->font));
 }
 
@@ -28,10 +28,6 @@ void		Stats::update(void)
 	strm.str(std::string());
 	strm << "stones: " << this->player->stones_in_play;
 	this->texts[2].update(strm.str());
-	
-	strm.str(std::string());
-	strm << "last move: " << this->player->last_move;
-	this->texts[3].update(strm.str());
 }
 
 void		Stats::render(void)
