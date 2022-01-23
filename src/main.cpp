@@ -90,12 +90,6 @@ t_pattern			get_pattern_data(Board &board, int move, int direction, int player, 
 //     return false;
 // }
 
-void    print_and_quit(const char *msg)
-{
-    PRINT(msg);
-    exit(1);
-}
-
 int score_remaining_patterns(Board &board, int player)
 {
     int score = 0;
@@ -283,19 +277,23 @@ void    test()
     board.place(index +4, PLAYER2);
     board.place(index +6, PLAYER1);
     board.place(index - 3, PLAYER1);
-    // // // board.place(index - 21, PLAYER2);
-    // // board.place(index + 2, PLAYER1);
-    // // #include "heuristic.hpp" 
-    // // PRINT(board.calc_heuristic());
-    // // board = create_random_board(8);
+    // board.place(index - 21, PLAYER2);
+    // board.place(index + 2, PLAYER1);
+    // #include "heuristic.hpp" 
+    // PRINT(board.calc_heuristic());
+    // board = create_random_board(8);
     // TranspositionTable t_table;
-    // // TranspositionTable h_table;
-    // for (int depth = 1; depth <= 5; depth++)
-    // {
-    //     TranspositionTable h_table;
-    //     // TranspositionTable t_table;
-    //     negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
-    // }    
+    // TranspositionTable h_table;
+    for (int depth = 1; depth <= 1; depth++)
+    {
+        TranspositionTable h_table;
+        TranspositionTable t_table;
+        negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
+        PRINT(TOTAL_NODES);
+        PRINT(TOTAL_LEAVES);
+        PRINT(FOUND_IN_TABLE);
+        PRINT(TOTAL_BRANCHES_PRUNED);
+    }    
     // PRINT(TOTAL_NODES);
     // PRINT(TOTAL_LEAVES);
     // PRINT(FOUND_IN_TABLE);
@@ -317,7 +315,7 @@ void    test()
         // board.place(move + 20, 1);
         board.show_last_move();
         PRINT(board.get_last_player());
-        PRINT(get_heuristic_total(board));
+        // PRINT(get_heuristic_total(board));
     //     // if (board.heuristic.patterns[0] < 4)
     //     // {  
     //     //     // board.show_last_move();

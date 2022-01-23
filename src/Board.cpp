@@ -115,6 +115,7 @@ std::vector<Board>		Board::generate_children(int player) const
 		nodes.push_back(board_copy);
 		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
 		// nodes.insert(nodes.begin(), board_copy);
+		board_copy.print();
 	}
     return nodes;
 }
@@ -211,16 +212,9 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 		for (int i = 0; i < 8; i++)
 		{
 			int n_index = index + DIRECTIONS[i];
-			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
-			{
-				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
-					continue;
-				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
-					continue;
-				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
-					continue;
+			// std::cout << DIRECTIONS[i] << std::endl;
+			if (is_empty_place(n_index) && !is_offside(index, n_index))
 				moves[n_index] = 1;
-			}
 		}
 	}
 	return moves;

@@ -1,11 +1,19 @@
 #include "misc.hpp"
 #include "board.hpp"
 
+#define PRINT(x) std::cout << x << std::endl
+
 int					get_col(int index) { return (index % BOARD_LENGTH); }
 
 int					get_row(int index) { return (index / BOARD_LENGTH); }
 
 int					calc_index(int row, int col) { return (row * BOARD_LENGTH + col); }
+
+void    print_and_quit(const char *msg)
+{
+    PRINT(msg);
+    exit(1);
+}
 
 bool				is_offside(int prev_index, int index)
 {

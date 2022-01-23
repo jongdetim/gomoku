@@ -1,5 +1,6 @@
 #include "algorithm.hpp"
 #include "board.hpp"
+#include "misc.hpp"
 #include "heuristic.hpp"
 #include "transpositionTable.hpp"
 
@@ -180,6 +181,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		std::cout << "depth: " << depth << std::endl;
 		std::cout << "best move is: " << best_move << std::endl;
 		std::cout << "heuristic value is: " << value << std::endl;
+		if (best_move == -1)
+			print_and_quit("no best move found. something seriously wrong");
 		node.place(best_move, color);
 		node.show_last_move();
 		// std::cout << node.calc_heuristic() << std::endl;
