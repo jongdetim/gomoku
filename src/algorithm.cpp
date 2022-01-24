@@ -8,6 +8,7 @@ int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
 int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
+int PV[3] {0};
 
 // bool order_moves(std::vector<Board> &nodes, TranspositionTable &t_table, int color)
 // {
@@ -20,9 +21,10 @@ inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, Tra
 	return t_table.lookup(node, tt_entry) && tt_entry.depth >= depth;
 }
 
-void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int beta, int depth, bool is_finished)
+void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int beta, int depth, bool is_finished, int best_move)
 {
 	tt_entry.value = value;
+	tt_entry.best_move = best_move;
 	if (value <= alpha_orig)
 		tt_entry.flag = UPPERBOUND;
 	else if (value >= beta)
@@ -146,11 +148,16 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		if (child.check_free_threes(child.get_last_move(), color))
 			continue;
 		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, t_table, h_table, false));
+		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
-		if (initial_call && value > old_value)
+		// 'beta cutoff'?
+		if (alpha > old_alpha)
+			PV[depth-1] = child.get_last_move();
+		if (value > old_value)
 			best_move = child.get_last_move();
 		if (alpha >= beta)
 		{
+			// PV[depth] = child.get_last_move();
 			TOTAL_BRANCHES_PRUNED++;
 			// if (depth == 1)
 			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
@@ -158,9 +165,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		}
 	}
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
-	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished);
+	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
 	if (t_table.lookup(node, tt_entry))
-		t_table.update(node, value);
+		// t_table.update(node, value);
+		;
 	else
 		t_table.insert(node, tt_entry);
 
@@ -176,6 +184,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	// 	// h_table.lookup(node, h_entry);
 	// 	// std::cout << "new value: " << h_entry.value << std::endl;
 	// }
+
 	if (initial_call)
 	{
 		std::cout << "depth: " << depth << std::endl;
@@ -183,9 +192,19 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		std::cout << "heuristic value is: " << value << std::endl;
 		if (best_move == -1)
 			print_and_quit("no best move found. something seriously wrong");
-		node.place(best_move, color);
-		node.show_last_move();
-		// std::cout << node.calc_heuristic() << std::endl;
+		
+		// PRINCIPAL VARIATION RETRIEVAL:
+		for (int i = 0; i < depth; i++)
+        {
+            node.place(best_move, color);
+			node.show_last_move();
+            t_table.lookup(node, tt_entry);
+			std::cout << "depth: " << depth << std::endl;
+			std::cout << "best move is: " << best_move << std::endl;
+			std::cout << "heuristic value is: " << value << std::endl;
+			best_move = tt_entry.best_move;
+			color *= -1;
+        }
 	}
 	return value;
 }

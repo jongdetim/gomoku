@@ -33,6 +33,7 @@ public:
     int depth;
     int flag;
     bool game_finished;
+    int best_move;
 };
 
 class TranspositionTable

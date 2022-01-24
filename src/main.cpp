@@ -284,15 +284,17 @@ void    test()
     // board = create_random_board(8);
     // TranspositionTable t_table;
     // TranspositionTable h_table;
-    for (int depth = 1; depth <= 1; depth++)
+    for (int depth = 1; depth <= 3; depth++)
     {
         TranspositionTable h_table;
         TranspositionTable t_table;
         negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
         PRINT(TOTAL_NODES);
-        PRINT(TOTAL_LEAVES);
+        PRINT(TOTAL_LEAVES << "\n");
         PRINT(FOUND_IN_TABLE);
-        PRINT(TOTAL_BRANCHES_PRUNED);
+        PRINT(TOTAL_BRANCHES_PRUNED << "\n");
+        
+        
     }    
     // PRINT(TOTAL_NODES);
     // PRINT(TOTAL_LEAVES);
@@ -313,8 +315,8 @@ void    test()
         // int move = board.get_last_move();
         // board.remove(move);
         // board.place(move + 20, 1);
-        board.show_last_move();
-        PRINT(board.get_last_player());
+        // board.show_last_move();
+        // PRINT(board.get_last_player());
         // PRINT(get_heuristic_total(board));
     //     // if (board.heuristic.patterns[0] < 4)
     //     // {  

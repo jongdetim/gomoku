@@ -4,6 +4,8 @@
 # include "gomoku.hpp"
 # include "Board.hpp"
 
+#define PRINT(x) std::cout << x << std::endl
+
 Board					create_random_board(void);
 Board					create_random_board(int seed);
 int						get_col(int index);

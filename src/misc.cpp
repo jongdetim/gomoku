@@ -1,8 +1,6 @@
 #include "misc.hpp"
 #include "board.hpp"
 
-#define PRINT(x) std::cout << x << std::endl
-
 int					get_col(int index) { return (index % BOARD_LENGTH); }
 
 int					get_row(int index) { return (index / BOARD_LENGTH); }
