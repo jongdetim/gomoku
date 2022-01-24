@@ -8,7 +8,6 @@ int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
 int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
-int PV[3] {0};
 
 // bool order_moves(std::vector<Board> &nodes, TranspositionTable &t_table, int color)
 // {
@@ -35,14 +34,34 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
+std::chrono::milliseconds START_TIME = get_current_time();
+
+std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(500);
+bool TIMEOUT_REACHED = false;
+
 int     	negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
 {
+	PRINT(START_TIME.count());
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
 	int value = -std::numeric_limits<int>::max();
 	bool is_finished;
 	int best_move = -1;
 	std::hash<std::bitset<722>> hashfn;
+
+	std::chrono::milliseconds timediff = get_current_time() - START_TIME;
+	uint64_t count = timediff.count();
+	// PRINT(START_TIME.__rep_);
+	if (timediff.count() > TIMEOUT.count())
+	{
+		TIMEOUT_REACHED = true;
+		std::chrono::milliseconds time = get_current_time();
+		PRINT( "wtf?" << timediff.count());
+		PRINT(get_current_time().count());
+		return alpha;
+	}
+	PRINT(timediff.count());
+	PRINT(get_current_time().count() << "\n");
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -81,6 +100,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		value = color * node.calc_heuristic();
 
 		// node.print();
+		PRINT("LEAF NODE");
 		// std::cout << "value: " << value << std::endl;
 
 		tt_entry.value = value;
@@ -140,7 +160,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	}
 
 	TOTAL_NODES += 1;
-
+	PRINT(get_current_time().count() << "\n");
 	for (Board child : child_nodes)
 	{
 		int old_value = value;
@@ -151,8 +171,6 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
 		// 'beta cutoff'?
-		if (alpha > old_alpha)
-			PV[depth-1] = child.get_last_move();
 		if (value > old_value)
 			best_move = child.get_last_move();
 		if (alpha >= beta)
@@ -163,6 +181,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
 			break;
 		}
+
+		if (TIMEOUT_REACHED)
+			return alpha;
+
 	}
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
@@ -187,24 +209,12 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 	if (initial_call)
 	{
-		std::cout << "depth: " << depth << std::endl;
-		std::cout << "best move is: " << best_move << std::endl;
-		std::cout << "heuristic value is: " << value << std::endl;
-		if (best_move == -1)
-			print_and_quit("no best move found. something seriously wrong");
-		
-		// PRINCIPAL VARIATION RETRIEVAL:
-		for (int i = 0; i < depth; i++)
-        {
-            node.place(best_move, color);
-			node.show_last_move();
-            t_table.lookup(node, tt_entry);
-			std::cout << "depth: " << depth << std::endl;
-			std::cout << "best move is: " << best_move << std::endl;
-			std::cout << "heuristic value is: " << value << std::endl;
-			best_move = tt_entry.best_move;
-			color *= -1;
-        }
+		// std::cout << "depth: " << depth << std::endl;
+		// std::cout << "best move is: " << best_move << std::endl;
+		// std::cout << "heuristic value is: " << value << std::endl;
+		// if (best_move == -1)
+		// 	print_and_quit("no best move found. something seriously wrong");
+		return best_move;
 	}
 	return value;
 }

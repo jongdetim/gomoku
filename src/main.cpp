@@ -7,6 +7,7 @@
 
 #define PRINT(x) std::cout << x << std::endl
 
+
 // this can fail in cases where length > 8, such as . o o o o . o o . where the leftmost empty space is cut off and it's seen as closed4 instead of open4. Can be solved with 16-bit cutouts.
 void               cutout_pattern(const Board &board, int move, int direction, int player, t_pattern &pat)
 {
@@ -256,8 +257,59 @@ int   get_heuristic_total(Board &board)
     return evaluate_patterns(board, board.get_last_player());
 }
 
+class Timer
+{
+public:
+    void start()
+    {
+        m_StartTime = std::chrono::steady_clock::now();
+        m_bRunning = true;
+    }
+    
+    void stop()
+    {
+        m_EndTime = std::chrono::steady_clock::now();
+        m_bRunning = false;
+    }
+    
+    uint64_t elapsedMilliseconds()
+    {
+        std::chrono::time_point<std::chrono::steady_clock> endTime;
+        
+        if(m_bRunning)
+        {
+            endTime = std::chrono::steady_clock::now();
+        }
+        else
+        {
+            endTime = m_EndTime;
+        }
+        
+        return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
+    }
+    
+    double elapsedSeconds()
+    {
+        return elapsedMilliseconds() / 1000.0;
+    }
+
+private:
+    std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
+    std::chrono::time_point<std::chrono::steady_clock> m_EndTime;
+    bool                                               m_bRunning = false;
+};
+
 void    test()
 {
+    Timer timer;
+    timer.start();
+    std::vector<uint64_t> vec;
+    for (int i = 0; i < 1000000; i++)
+        vec.push_back(timer.elapsedMilliseconds());
+    for (auto item : vec)
+        PRINT(item);
+    exit(1);
+
     Board board;
     int index = calc_index(8, 8);
     // int star_index = calc_index(3, 16); 
@@ -284,11 +336,38 @@ void    test()
     // board = create_random_board(8);
     // TranspositionTable t_table;
     // TranspositionTable h_table;
-    for (int depth = 1; depth <= 3; depth++)
+
+    // TIMEOUT_REACHED = false;
+    int player = PLAYER2;
+    for (int depth = 1; depth <= 6 && !TIMEOUT_REACHED; depth++)
     {
+        int best_move = -1;
         TranspositionTable h_table;
         TranspositionTable t_table;
-        negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), PLAYER2, t_table, h_table, true);
+        int last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true);
+        if (TIMEOUT_REACHED)
+        {
+            PRINT("timeout reached during depth: " << depth << ".\n using previous depth search results");
+            return;
+        }
+        else
+            best_move = last_best_move;
+
+        // PRINCIPAL VARIATION RETRIEVAL:
+        Board node = board;
+        int color = player;
+        TableEntry tt_entry;
+		for (int i = 0; i < depth; i++)
+        {
+            node.place(best_move, color);
+			node.show_last_move();
+            t_table.lookup(node, tt_entry);
+			std::cout << "depth: " << depth << std::endl;
+			std::cout << "best move is: " << best_move << std::endl;
+			std::cout << "heuristic value is: " << tt_entry.value << std::endl;
+			best_move = tt_entry.best_move;
+			color *= -1;
+        }
         PRINT(TOTAL_NODES);
         PRINT(TOTAL_LEAVES << "\n");
         PRINT(FOUND_IN_TABLE);

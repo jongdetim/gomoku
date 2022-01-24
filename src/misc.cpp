@@ -13,6 +13,13 @@ void    print_and_quit(const char *msg)
     exit(1);
 }
 
+std::chrono::milliseconds get_current_time()
+{
+    using namespace std::chrono;
+
+	return duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
+}
+
 bool				is_offside(int prev_index, int index)
 {
 	int row = get_row(index), col = get_col(index);
