@@ -301,14 +301,15 @@ private:
 
 void    test()
 {
-    Timer timer;
-    timer.start();
-    std::vector<uint64_t> vec;
-    for (int i = 0; i < 1000000; i++)
-        vec.push_back(timer.elapsedMilliseconds());
-    for (auto item : vec)
-        PRINT(item);
-    exit(1);
+    // Timer timer;
+    // timer.start();
+    // // std::vector<uint64_t> vec;
+    // for (int i = 0; i < 1000000; i++)
+    // // for (auto item : vec)
+    //     // vec.push_back(timer.elapsedMilliseconds());
+    //     PRINT(timer.elapsedMilliseconds());
+    // //     PRINT(item);
+    // exit(1);
 
     Board board;
     int index = calc_index(8, 8);

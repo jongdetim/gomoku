@@ -41,7 +41,7 @@ bool TIMEOUT_REACHED = false;
 
 int     	negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
 {
-	PRINT(START_TIME.count());
+	// PRINT(START_TIME.count());
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
 	int value = -std::numeric_limits<int>::max();
@@ -52,16 +52,16 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	std::chrono::milliseconds timediff = get_current_time() - START_TIME;
 	uint64_t count = timediff.count();
 	// PRINT(START_TIME.__rep_);
-	if (timediff.count() > TIMEOUT.count())
+	if (timediff.count() >= TIMEOUT.count())
 	{
 		TIMEOUT_REACHED = true;
 		std::chrono::milliseconds time = get_current_time();
 		PRINT( "wtf?" << timediff.count());
-		PRINT(get_current_time().count());
+		// PRINT(get_current_time().count());
 		return alpha;
 	}
 	PRINT(timediff.count());
-	PRINT(get_current_time().count() << "\n");
+	// PRINT(get_current_time().count() << "\n");
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -100,7 +100,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		value = color * node.calc_heuristic();
 
 		// node.print();
-		PRINT("LEAF NODE");
+		// PRINT("LEAF NODE");
 		// std::cout << "value: " << value << std::endl;
 
 		tt_entry.value = value;
@@ -160,7 +160,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	}
 
 	TOTAL_NODES += 1;
-	PRINT(get_current_time().count() << "\n");
+	// PRINT(get_current_time().count() << "\n");
 	for (Board child : child_nodes)
 	{
 		int old_value = value;
