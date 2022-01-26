@@ -17,8 +17,9 @@
 # define SCREEN_HEIGHT 960
 # define SCREEN_WIDTH (SCREEN_HEIGHT + INTERFACE_SIZE)
 # define BOARD_PATH "../textures/board.png"
-# define P1_PATH "../textures/circle_white.png"
-# define P2_PATH "../textures/circle_black.png"
+# define P1_PATH "../textures/watermelon.png"
+# define P2_PATH "../textures/donut.png"
+# define SELECT_PATH "../textures/circle_select1.png"
 # define AMATIC_FONT "../fonts/Amatic-Bold.ttf"
 # define SANS_FONT "../fonts/OpenSans-SemiBold.ttf"
 # define ROBOTO_FONT "../fonts/Roboto-Bold.ttf"
@@ -57,6 +58,7 @@ private:
 	SDL_Texture				*board_texture;
 	SDL_Texture				*p1_texture;
 	SDL_Texture				*p2_texture;
+	SDL_Texture				*select_texture;
 	SDL_Event				event;
 	TTF_Font				*btn_font;
 	TTF_Font				*stats_font;

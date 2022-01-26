@@ -213,11 +213,12 @@ void		GUI::draw_stones(Board &board)
 			continue;
 
 		texture = board.get_player_id(index) == PLAYER1_ID ? this->p1_texture : this->p2_texture;
-
 		row = (get_row(index) * this->size) + this->offset - (this->size >> 1);
 		col = (get_col(index) * this->size) + this->offset - (this->size >> 1);
 
 		this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
+		if (board.get_last_move() == index)
+			this->set_texture(this->select_texture, SDL_Rect{col, row, this->size, this->size});
 	}
 }
 
@@ -278,6 +279,7 @@ void		GUI::load_textures(void)
     this->board_texture = this->load_texture(BOARD_PATH);
     this->p1_texture = this->load_texture(P1_PATH);
     this->p2_texture = this->load_texture(P2_PATH);
+    this->select_texture = this->load_texture(SELECT_PATH);
 }
 
 void		GUI::set_buttons(void)
