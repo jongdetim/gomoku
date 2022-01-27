@@ -124,7 +124,7 @@ bool					Board::place(int index) { return this->place(index, *PLAYER); }
 
 bool					Board::place(int index, Player &player)
 {
-	if (!this->is_valid_move(index, player))
+	if (!this->is_valid_move(index))
 		return false;
 	
 	this->filled_pos[index] = 1;
@@ -136,7 +136,7 @@ bool					Board::place(int index, Player &player)
 	return true;
 }
 
-bool					Board::is_valid_move(int index, Player &player) const
+bool					Board::is_valid_move(int index) const
 {
 	if (index < 0 || index >= BOARDSIZE)
 		return false;
@@ -367,7 +367,8 @@ Board					&Board::operator=(Board const &rhs)
 
 	this->player1.next = &this->player2;
 	this->player2.next = &this->player1;
-
+	this->current_player = rhs.current_player->id == PLAYER1_ID ? &this->player1 : &this->player2;
+	
 	return *this;
 }
 

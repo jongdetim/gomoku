@@ -3,12 +3,13 @@
 
 # include "IAi.hpp"
 
-enum action
+enum e_action 
 {
 	def = 0,
 	restart = 1,
-	quit = 2,
-	pause = 4
+	quit = (1<<1),
+	pause = (1<<2),
+	undo = (1<<3)
 };
 
 class Board;

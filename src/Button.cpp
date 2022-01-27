@@ -58,5 +58,8 @@ short		Button::get_action(void) { return this->action; }
 
 t_point		Button::get_button_size(void)
 {
-	return t_point {this->rect.w, this->rect.h};
+	t_point size;
+
+	TTF_SizeText(this->font, this->text.c_str(), &size.x, &size.y);
+	return size;
 }

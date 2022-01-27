@@ -69,7 +69,7 @@ public:
 	bool					has_won(Player &player) const;
 	bool					is_empty_place(int index) const;
 	bool					is_full(void) const;
-	bool					is_valid_move(int index, Player &player) const;
+	bool					is_valid_move(int index) const;
 	
 	Board					&operator=(Board const &rhs);
 	bool					operator==(Board const &rhs) const;

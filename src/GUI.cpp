@@ -102,22 +102,49 @@ bool		GUI::init(std::string title)
 
 void		GUI::gameloop(Board &board)
 {
+	int index;
+
     while (!this->check_action(quit))
     {
 		if (this->update)
 			this->update_renderer(board);
 	
 		this->handle_events(board);
-		if (!this->check_action(pause) && board.place(this->get_index(board)))
+		
+		if (!this->check_action(pause))
 		{
-			this->check_game_state(board);
-			this->status.update(this->get_status_update(board));
-			this->update = true;
+			index = this->get_index(board);
+			if (board.is_valid_move(index))
+			{
+				this->prev = board; // Only do this when not AI
+				board.place(index);
+				this->check_game_state(board);
+				this->update = true;
+			}
 		}
 
-		if (this->check_action(restart))
-			this->reset(board);
+		this->check_actions(board);
     }
+}
+
+void		GUI::check_actions(Board &board)
+{
+	if (this->check_action(restart))
+		this->reset(board);
+	else if (this->check_action(undo))
+		this->undo_action(board);
+}
+
+void		GUI::undo_action(Board &board)
+{
+	board = this->prev;
+	this->update = true;
+	this->unset_action(undo);
+	if (this->winner)
+	{
+		this->winner = NULL;
+		this->unset_action(pause);
+	}
 }
 
 void		GUI::handle_events(Board &board)
@@ -172,7 +199,7 @@ void		GUI::check_game_state(Board &board)
 		board.next_player();
 }
 
-std::string	GUI::get_status_update(Board &board)
+std::string	GUI::get_status_update(Board &board) const
 {
 	std::stringstream strm;
 	
@@ -197,6 +224,7 @@ void		GUI::reset(Board &board)
 	this->winner = NULL;
 	strm << "Current Player: " << board.current_player->name;
 	this->status.update(strm.str());
+	this->prev = board;
 }
 
 void		GUI::draw_stones(Board &board)
@@ -262,7 +290,9 @@ void		GUI::update_renderer(Board &board)
 	this->draw_stones(board);
 	this->render_buttons();
 
+	this->status.update(this->get_status_update(board));
 	this->status.render();
+
 	this->show_stats();
 
 	SDL_RenderPresent(this->renderer);
@@ -306,7 +336,6 @@ void		GUI::load_fonts(void)
 	this->fonts[status_font] = TTF_OpenFont(SANS_FONT, this->status_size);
 }
 
-
 void		GUI::load_textures(void)
 {
 	this->textures[board_tex] = this->load_texture(BOARD_PATH);
@@ -319,10 +348,20 @@ void		GUI::load_textures(void)
 
 void		GUI::set_buttons(void)
 {
+	int btn_w = 0;
+	int w = this->screen_height;
+	int h = this->offset + (this->size * 5);
+
 	this->buttons.push_back(
-		Button(this->renderer, this->screen_height, (18 * this->size), " RESET ", this->fonts[btn_font], BG_COLOUR, restart));
+		Button(this->renderer, w + btn_w, h, " UNDO ", this->fonts[btn_font], BG_COLOUR, undo));
+	btn_w += this->buttons[0].get_button_size().x + this->offset;
+
 	this->buttons.push_back(
-		Button(this->renderer, this->screen_height + (this->interface_size >> 1), (18 * this->size), " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
+		Button(this->renderer, w + btn_w, h, " RESTART ", this->fonts[btn_font], BG_COLOUR, restart));
+	btn_w += this->buttons[1].get_button_size().x + this->offset;
+
+	this->buttons.push_back(
+		Button(this->renderer, w + btn_w, h, " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
 	
 	for (auto &btn : this->buttons)
 		btn.init();

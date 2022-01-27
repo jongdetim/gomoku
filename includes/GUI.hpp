@@ -78,6 +78,15 @@ public:
 	void					play(Board *board);
 
 private:
+	int						screen_height;
+	int						screen_width;
+	int						size;
+	int						interface_size;
+	double					offset;
+	int						btn_size;
+	int						stats_size;
+	int						status_size;
+	
 	SDL_Window				*window;
 	SDL_Renderer			*renderer;
 	SDL_Event				event;
@@ -89,22 +98,13 @@ private:
 	Stats					statsP1;
 	Stats					statsP2;
 	Text					status;
-	// Board					prev;
-
-	bool					update;
-	int						screen_height;
-	int						screen_width;
-	int						size;
-	int						interface_size;
-	double					offset;
-	int						btn_size;
-	int						stats_size;
-	int						status_size;
-	int						action;
+	Board					prev;
 	t_mouse					mouse;
 	Player					*winner;
 
-	// bool					set_values_from_file(void);
+	bool					update;
+	int						action;
+
 	bool					init(std::string title);
 	void					gameloop(Board &board);
 	void					check_game_state(Board &board);
@@ -129,7 +129,9 @@ private:
 	bool					check_action(int action);
 	void					set_action(int action);
 	void					unset_action(int action);
-	std::string				get_status_update(Board &board);
+	std::string				get_status_update(Board &board) const;
+	void					check_actions(Board &board);
+	void					undo_action(Board &board);
 };
 
 #endif
