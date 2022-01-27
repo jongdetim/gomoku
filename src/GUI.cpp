@@ -95,7 +95,7 @@ bool		GUI::init(std::string title)
 	this->load_fonts();
 	this->load_textures();
 	this->set_buttons();
-	this->status = Text(this->renderer, t_point {this->screen_height, (int)this->offset}, this->fonts[status_font]);
+	this->status = Text(this->renderer, t_point {this->screen_height + (this->interface_size >> 3), (int)this->offset}, this->fonts[status_font]);
 
 	return true;
 }
