@@ -8,6 +8,22 @@ Board::Board(void) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1"), p
 	PLAYER = &PLAYER1;
 }
 
+Board::Board(const Board &rhs)
+{
+	this->h = rhs.h;
+	this->filled_pos = rhs.filled_pos;
+	this->winner = rhs.winner;
+	this->state = rhs.state;
+	this->last_move = rhs.last_move;
+	this->player1 = rhs.player1;
+	this->player2 = rhs.player2;
+
+	this->player1.next = &this->player2;
+	this->player2.next = &this->player1;
+
+	this->current_player = rhs.current_player->id == PLAYER1_ID ? &this->player1 : &this->player2;
+}
+
 Board::~Board() {}
 
 void					Board::reset(void)
@@ -19,6 +35,21 @@ void					Board::reset(void)
 	PLAYER1.reset();
 	PLAYER2.reset();
 	this->filled_pos.reset();
+}
+
+void					Board::print_values(void) const
+{
+	std::cout << "h        : " << this->h << std::endl;
+	std::cout << "winner   : " << this->winner << std::endl;
+	std::cout << "lastmove : " << this->last_move << std::endl;
+	
+	std::cout << "currentP : " << this->current_player << std::endl;
+	
+	std::cout << std::endl << "player1  : " << &this->player1 << std::endl;
+	this->player1.print();
+
+	std::cout << std::endl << "player2  : " << &this->player2 << std::endl;
+	this->player2.print();
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -124,7 +155,7 @@ std::vector<Board>		Board::generate_children(void) const
 	{
 		if (!moves[i])
 			continue;
-		board_copy = this->get_copy();
+		board_copy = *this; //this->get_copy(); Does this do the same now?
 		board_copy.place(i);
 		nodes.push_back(board_copy);
 		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
@@ -234,16 +265,6 @@ bool					Board::has_won(void) const { return this->heuristic.has_won(this, *PLAY
 
 bool					Board::has_won(Player &player) const { return this->heuristic.has_won(this, player); }
 
-Board					Board::get_copy(void) const
-{
-	Board copy =  *this;
-	copy.current_player = copy.get_player_by_id(PLAYER->id);
-	copy.player1.next = &copy.player2;
-	copy.player2.next = &copy.player1;
-
-	return copy;
-}
-
 void					Board::random_player(void) { PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next; }
 
 /* PRIVATE METHODS */
@@ -333,6 +354,22 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 bool					Board::still_winning(Player &player) const { return this->heuristic.still_winning(this, player); }
 
 /* OPERATOR OVERLOADS: */
+
+Board					&Board::operator=(Board const &rhs)
+{
+	this->h = rhs.h;
+	this->filled_pos = rhs.filled_pos;
+	this->winner = rhs.winner;
+	this->state = rhs.state;
+	this->last_move = rhs.last_move;
+	this->player1 = rhs.player1;
+	this->player2 = rhs.player2;
+
+	this->player1.next = &this->player2;
+	this->player2.next = &this->player1;
+
+	return *this;
+}
 
 bool 					Board::operator==(Board const &rhs) const { return (this->state == rhs.state); }
 

@@ -12,6 +12,17 @@ int					random_int(void)
    return rand();
 }
 
+int					random(int min, int max, int seed)
+{
+   static bool first = true;
+   if (first) 
+   {  
+		srand( seed );
+		first = false;
+   }
+   return min + rand() % (( max + 1 ) - min);
+}
+
 int					random(int min, int max)
 {
    static bool first = true;
@@ -130,5 +141,5 @@ Board				create_random_board(int seed)
 			}
 		}
 	}
-	return board.get_copy();
+	return board;//board.get_copy();
 }
