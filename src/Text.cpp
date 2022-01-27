@@ -25,7 +25,19 @@ void		Text::render(void)
 	int texW, texH;
 
 	SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-	auto rect = SDL_Rect { this->pos.x, this->pos.y, texW, texH };
+	SDL_Rect rect = { this->pos.x, this->pos.y, texW, texH };
 
 	SDL_RenderCopy(this->renderer, this->texture, NULL, &rect);
 }
+
+void		Text::render(double ratio)
+{
+	int texW, texH;
+
+	SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+	texW *= ratio; texH *= ratio;
+	SDL_Rect rect = { this->pos.x, this->pos.y, texW, texH };
+
+	SDL_RenderCopy(this->renderer, this->texture, NULL, &rect);
+}
+

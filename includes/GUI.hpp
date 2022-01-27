@@ -16,21 +16,32 @@
 # define INTERFACE_SIZE 420
 # define SCREEN_HEIGHT 960
 # define SCREEN_WIDTH (SCREEN_HEIGHT + INTERFACE_SIZE)
+
+# define BG_COLOUR SDL_Color{220, 179, 92, 255}
+# define BTN_COLOUR SDL_Color{180, 60, 60, 255}
+# define BUTTON_SIZE 25
+# define STATS_SIZE 25
+
 # define BOARD_PATH "../textures/board.png"
 # define P1_PATH "../textures/circle_white.png"
 # define P2_PATH "../textures/circle_black.png"
 # define P1_SELECT "../textures/select_black.png"
 # define P2_SELECT "../textures/select_white.png"
 # define WIN_SELECT "../textures/red_circle.png"
-# define AMATIC_FONT "../fonts/Amatic-Bold.ttf"
+
 # define SANS_FONT "../fonts/OpenSans-SemiBold.ttf"
-# define ROBOTO_FONT "../fonts/Roboto-Bold.ttf"
-# define MONTSER_FONT "../fonts/Montserrat-Medium.ttf"
 # define SCPRO_FONT "../fonts/SourceCodePro-Regular.ttf"
-# define BG_COLOUR SDL_Color{220, 179, 92, 255}
-# define BTN_COLOUR SDL_Color{180, 60, 60, 255}
-# define BUTTON_SIZE 25
-# define STATS_SIZE 20
+
+# define STATUS_SIZE 30
+
+enum e_fonts
+{
+	btn_font,
+	stats_font,
+	status_font,
+	/* ----- */
+	size_font
+};
 
 enum e_textures
 {
@@ -70,9 +81,8 @@ private:
 	SDL_Window				*window;
 	SDL_Renderer			*renderer;
 	SDL_Event				event;
-	TTF_Font				*btn_font;
-	TTF_Font				*stats_font;
 
+	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];
 
 	std::vector<Button>		buttons;
@@ -89,10 +99,12 @@ private:
 	double					offset;
 	int						btn_size;
 	int						stats_size;
+	int						status_size;
 	int						action;
 	t_mouse					mouse;
 	Player					*winner;
 
+	// bool					set_values_from_file(void);
 	bool					init(std::string title);
 	void					gameloop(Board &board);
 	void					check_game_state(Board &board);
@@ -107,6 +119,7 @@ private:
 	int						calc_board_placement(int x, int y) const;
 	SDL_Texture				*load_texture(std::string img_path);
 	void					load_textures(void);
+	void					load_fonts(void);
 	void					set_buttons(void);
 	void					render_buttons(void);
 	void					init_stats(Board &board);

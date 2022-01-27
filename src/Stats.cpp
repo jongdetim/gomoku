@@ -26,7 +26,7 @@ void		Stats::update(void)
 	this->texts[1].update(strm.str());
 	
 	strm.str(std::string());
-	strm << "stones: " << this->player->stones_in_play;
+	strm << "stones  : " << this->player->stones_in_play;
 	this->texts[2].update(strm.str());
 }
 

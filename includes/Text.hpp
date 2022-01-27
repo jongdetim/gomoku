@@ -15,6 +15,7 @@ public:
 
 	void			update(std::string text);
 	void			render(void);
+	void			render(double ratio);
 private:
 	SDL_Renderer	*renderer;
 	SDL_Texture		*texture;

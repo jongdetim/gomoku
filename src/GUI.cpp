@@ -27,6 +27,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->offset = height * OFFSET / (double)SCREEN_HEIGHT;
 	this->btn_size = height * BUTTON_SIZE / (double)SCREEN_HEIGHT;
 	this->stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
+	this->status_size = height * STATUS_SIZE / (double)SCREEN_HEIGHT;
 }
 
 GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL)
@@ -38,15 +39,16 @@ GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL)
 	this->interface_size = INTERFACE_SIZE;
 	this->btn_size = BUTTON_SIZE;
 	this->stats_size = STATS_SIZE;
+	this->status_size = STATUS_SIZE;
 }
 
 GUI::~GUI()
 {
-	if (this->btn_font)
-		TTF_CloseFont(this->btn_font);
-	if (this->stats_font)
-		TTF_CloseFont(this->stats_font);
-
+	for (int i = 0; i < size_font; i++)
+	{
+		if (this->textures[i])
+			TTF_CloseFont(this->fonts[i]);
+	}
 	for (int i = 0; i < size_tex; i++)
 	{
 		if (this->textures[i])
@@ -90,19 +92,10 @@ bool		GUI::init(std::string title)
         return false;
     }
 
-	if (!(this->btn_font = TTF_OpenFont(SCPRO_FONT, this->btn_size))) {
-		SDL_Log("Font can't be loaded.");
-		return false;
-	}
-
-	if (!(this->stats_font = TTF_OpenFont(SCPRO_FONT, this->stats_size))) {
-		SDL_Log("Font can't be loaded.");
-		return false;
-	}
-
+	this->load_fonts();
 	this->load_textures();
 	this->set_buttons();
-	this->status = Text(this->renderer, t_point {this->screen_height, (int)this->offset}, this->stats_font);
+	this->status = Text(this->renderer, t_point {this->screen_height, (int)this->offset}, this->fonts[status_font]);
 
 	return true;
 }
@@ -115,7 +108,6 @@ void		GUI::gameloop(Board &board)
 			this->update_renderer(board);
 	
 		this->handle_events(board);
-
 		if (!this->check_action(pause) && board.place(this->get_index(board)))
 		{
 			this->check_game_state(board);
@@ -130,7 +122,7 @@ void		GUI::gameloop(Board &board)
 
 void		GUI::handle_events(Board &board)
 {
-	// SDL_PollEvent(&this->event) --> Use when always want updating, like active animations when no user input
+	// SDL_PollEvent(&this->event); //--> Use when always want updating, like active animations when no user input
 	SDL_WaitEvent(&this->event);
 	SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);   
 	this->mouse.click = false;
@@ -307,6 +299,14 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 	return texture;
 }
 
+void		GUI::load_fonts(void)
+{
+	this->fonts[btn_font] = TTF_OpenFont(SCPRO_FONT, this->btn_size);
+	this->fonts[stats_font ]= TTF_OpenFont(SCPRO_FONT, this->stats_size);
+	this->fonts[status_font] = TTF_OpenFont(SANS_FONT, this->status_size);
+}
+
+
 void		GUI::load_textures(void)
 {
 	this->textures[board_tex] = this->load_texture(BOARD_PATH);
@@ -320,9 +320,9 @@ void		GUI::load_textures(void)
 void		GUI::set_buttons(void)
 {
 	this->buttons.push_back(
-		Button(this->renderer, this->screen_height, (18 * this->size), " RESET ", this->btn_font, BG_COLOUR, restart));
+		Button(this->renderer, this->screen_height, (18 * this->size), " RESET ", this->fonts[btn_font], BG_COLOUR, restart));
 	this->buttons.push_back(
-		Button(this->renderer, this->screen_height + (this->interface_size >> 1), (18 * this->size), " QUIT ", this->btn_font, BG_COLOUR, quit));
+		Button(this->renderer, this->screen_height + (this->interface_size >> 1), (18 * this->size), " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
 	
 	for (auto &btn : this->buttons)
 		btn.init();
@@ -336,8 +336,8 @@ void		GUI::render_buttons(void)
 
 void		GUI::init_stats(Board &board)
 {
-	this->statsP1 = Stats(this->renderer, &board.player1, t_point {this->screen_height, (int)this->offset << 2}, this->stats_font);
-	this->statsP2 = Stats(this->renderer, &board.player2, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset << 2}, this->stats_font);
+	this->statsP1 = Stats(this->renderer, &board.player1, t_point {this->screen_height, (int)this->offset << 2}, this->fonts[stats_font]);
+	this->statsP2 = Stats(this->renderer, &board.player2, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset << 2}, this->fonts[stats_font]);
 
 	this->statsP1.init();
 	this->statsP2.init();
