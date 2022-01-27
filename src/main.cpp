@@ -340,19 +340,24 @@ void    test()
 
     // TIMEOUT_REACHED = false;
     int player = PLAYER2;
+    int best_move = -1;
     for (int depth = 1; depth <= 6 && !TIMEOUT_REACHED; depth++)
     {
-        int best_move = -1;
+        
         TranspositionTable h_table;
         TranspositionTable t_table;
         int last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true);
         if (TIMEOUT_REACHED)
         {
             PRINT("timeout reached during depth: " << depth << ".\n using previous depth search results");
+            depth -= 1;
+            PRINT("best move: " << best_move << " at depth: " << depth);
             return;
         }
         else
             best_move = last_best_move;
+        PRINT(best_move);
+        PRINT(last_best_move);
 
         // PRINCIPAL VARIATION RETRIEVAL:
         Board node = board;
@@ -360,6 +365,7 @@ void    test()
         TableEntry tt_entry;
 		for (int i = 0; i < depth; i++)
         {
+            PRINT(best_move);
             node.place(best_move, color);
 			node.show_last_move();
             t_table.lookup(node, tt_entry);
@@ -369,6 +375,7 @@ void    test()
 			best_move = tt_entry.best_move;
 			color *= -1;
         }
+        best_move = last_best_move;
         PRINT(TOTAL_NODES);
         PRINT(TOTAL_LEAVES << "\n");
         PRINT(FOUND_IN_TABLE);
