@@ -3,6 +3,9 @@
 
 # include "gomoku.hpp"
 # include "heuristic.hpp"
+# include "TranspositionTable.hpp"
+
+class TranspositionTable;
 
 typedef struct	s_player
 {
@@ -37,6 +40,7 @@ public:
 	bool					check_free_threes(int move, int player) const;
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
+	void					print_principal_variation(int player, int depth, TranspositionTable &t_table);
 
 	int						get_player(int index) const;
 	int						get_last_player(void) const;

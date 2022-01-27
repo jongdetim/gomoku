@@ -32,6 +32,11 @@ size_t		TranspositionTable::size()
 	return t_table.size();
 }
 
+size_t MyHashFunction::operator()(const Board &Key) const
+{
+	return default_hash(Key.get_state());
+}
+
 uint64_t MyHashFunction::hash(BITBOARD board) const
 {
     uint64_t result = 0;

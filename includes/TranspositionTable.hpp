@@ -4,9 +4,6 @@
 #include "board.hpp"
 #include "gomoku.hpp"
 
-// template <class Key>
-// class HashFunction;
-
 class MyHashFunction
 {
 private:
@@ -17,14 +14,8 @@ public:
     uint64_t hash_diff(BITBOARD board) const;
     uint64_t default_hash(BITBOARD board) const;
     uint64_t dumb_hash(BITBOARD board) const;
-    size_t operator()(const Board &Key) const
-    {
-        return default_hash(Key.get_state());
-    }
+    size_t operator()(const Board &Key) const;
 };
-
-// template <typename Key, typename Value>
-// using my_unordered_map = std::unordered_map<Key, Value, HashFunction<Key>>;
 
 class TableEntry
 {

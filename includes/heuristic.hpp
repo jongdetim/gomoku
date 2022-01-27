@@ -52,7 +52,16 @@ public:
 	static int					get_heuristic_last_move(Board *board);
 	static int					determine_score(int count, int gaps, int open);
 	static bool				get_direction(const Board *board, int move, int direction, int player);
-	
+	static void           		cutout_pattern(const Board &board, int move, int direction, int player, t_pattern &pat);
+	static t_pattern			get_pattern_data(Board &board, int move, int direction, int player, std::bitset<BOARDSIZE> *checked_indices);
+	static int					score_remaining_patterns(Board &board, int player);
+	static int					evaluate_patterns(Board &board, int player);
+	static Pattern				find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, Pattern> &map);
+	static Pattern				get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices);
+	static void					get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *checked_indices);
+	static int					get_heuristic_total(Board &board);
+
+
 private:
 
 };

@@ -8,6 +8,7 @@ int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
 int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
+bool TIMEOUT_REACHED = false;
 
 // bool order_moves(std::vector<Board> &nodes, TranspositionTable &t_table, int color)
 // {
@@ -34,12 +35,7 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-std::chrono::milliseconds START_TIME = get_current_time();
-
-std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(500);
-bool TIMEOUT_REACHED = false;
-
-int     	negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
+int     	negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
 {
 	// PRINT(START_TIME.count());
 	TableEntry tt_entry;
@@ -49,17 +45,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	int best_move = -1;
 	std::hash<std::bitset<722>> hashfn;
 
-	std::chrono::milliseconds timediff = get_current_time() - START_TIME;
-	uint64_t count = timediff.count();
 	// PRINT(START_TIME.__rep_);
-	if (timediff.count() >= TIMEOUT.count())
-	{
-		TIMEOUT_REACHED = true;
-		std::chrono::milliseconds time = get_current_time();
-		PRINT("wtf?" << timediff.count());
-		// PRINT(get_current_time().count());
-		return alpha;
-	}
+	// PRINT(timediff.count());
+	if (timer.elapsedMilliseconds() > TIMEOUT)
+		throw "time limit reached";
 	// PRINT(timediff.count());
 	// PRINT(get_current_time().count() << "\n");
 
@@ -167,7 +156,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 		if (child.check_free_threes(child.get_last_move(), color))
 			continue;
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, t_table, h_table, false));
+		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, t_table, h_table, false, timer));
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
 		// 'beta cutoff'?
@@ -181,10 +170,6 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
 			break;
 		}
-
-		if (TIMEOUT_REACHED)
-			return alpha;
-
 	}
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
@@ -214,7 +199,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 		// std::cout << "heuristic value is: " << value << std::endl;
 		// if (best_move == -1)
 		// 	print_and_quit("no best move found. something seriously wrong");
-		PRINT(best_move);
+		// PRINT("HERE!!!!!!!!!!!!!");
+		// PRINT(best_move);
 		return best_move;
 	}
 	return value;

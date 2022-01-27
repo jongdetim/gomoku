@@ -191,6 +191,28 @@ bool					Board::check_free_threes(int move, int player) const
 	return result > 1;
 }
 
+void					Board::print_principal_variation(int player, int depth, TranspositionTable &t_table)
+{
+	Board node = *this;
+	int color = player;
+	TableEntry tt_entry;
+	// int best_move = 
+	for (int i = 0; i < depth; i++)
+	{
+		t_table.lookup(node, tt_entry);
+		int best_move = tt_entry.best_move;
+		PRINT(best_move);
+		node.place(best_move, color);
+		node.show_last_move();
+		
+		std::cout << "depth: " << depth << std::endl;
+		std::cout << "best move is: " << best_move << std::endl;
+		std::cout << "heuristic value is: " << tt_entry.value << std::endl;
+		best_move = tt_entry.best_move;
+		color *= -1;
+	}
+}
+
 int						Board::calc_heuristic(void) { return Heuristic::calc_heuristic(this); }
 
 int						Board::calc_heuristic(Board &node) { return Heuristic::calc_heuristic(&node); }

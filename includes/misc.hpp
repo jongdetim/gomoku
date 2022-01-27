@@ -8,6 +8,24 @@
 
 #define PRINT(x) std::cout << x << std::endl
 
+extern int TOTAL_NODES;
+extern int TOTAL_LEAVES;
+extern int FOUND_IN_TABLE;
+extern int TOTAL_BRANCHES_PRUNED;
+
+class Timer
+{
+public:
+    void start();
+    void stop();
+    int elapsedMilliseconds();
+    double elapsedSeconds();
+private:
+    std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
+    std::chrono::time_point<std::chrono::steady_clock> m_EndTime;
+    bool                                               m_bRunning = false;
+};
+
 Board				    	create_random_board(void);
 Board			    		create_random_board(int seed);
 int			    			get_col(int index);
@@ -17,6 +35,7 @@ bool			    		is_offside(int prev_index, int index);
 void		    			create_star(Board &board, int index, int size, int player);
 void		    			place_pieces(Board &board, int player, int start_pos, int amount, int offset);
 void                        print_and_quit(const char *msg);
-std::chrono::milliseconds   get_current_time();
+void	                    print_stats();
+// std::chrono::milliseconds   get_current_time();
 
 #endif
