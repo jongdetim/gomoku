@@ -20,4 +20,4 @@ DONE-write a wrapper for the first negamax call to catch data such as best move
 
 // GUI
     -menu
-    -undo
+    -random names

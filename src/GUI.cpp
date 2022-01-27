@@ -201,16 +201,12 @@ void		GUI::check_game_state(Board &board)
 
 std::string	GUI::get_status_update(Board &board) const
 {
-	std::stringstream strm;
-	
-	strm.str(std::string());
 	if (this->winner)
-		strm << this->winner->name << " WON";
+		return this->winner->name + " WON";
 	else if (board.is_full())
 		return "DRAW";
 	else
-		strm << "Current Player: " << board.current_player->name;
-	return strm.str();
+		return "Current Player: " + board.current_player->name;
 }
 
 void		GUI::reset(Board &board)

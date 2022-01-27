@@ -16,18 +16,9 @@ void		Stats::init(void)
 
 void		Stats::update(void)
 {
-	std::stringstream strm;
-
-	strm << this->player->name;
-	this->texts[0].update(strm.str());
-
-	strm.str(std::string());
-	strm << "captures: " << this->player->captures;
-	this->texts[1].update(strm.str());
-	
-	strm.str(std::string());
-	strm << "stones  : " << this->player->stones_in_play;
-	this->texts[2].update(strm.str());
+	this->texts[0].update(this->player->name);
+	this->texts[1].update("captures: " + std::to_string(this->player->captures));
+	this->texts[2].update("stones  : " + std::to_string(this->player->stones_in_play));
 }
 
 void		Stats::render(void)
