@@ -11,6 +11,8 @@ class Player
 {
 public:
 
+	Player(void);
+	Player(const Player &rhs);
 	Player(int player_id, std::string name);
 
 	std::string					name;
@@ -28,12 +30,14 @@ public:
 	bool						has_wincondition(void) const;
 	int							index(int index) const;
 
+	Player						&operator=(Player const &rhs);
 	bool						operator==(Player &rhs) const;
 	bool						operator==(int id) const;
 	bool						operator!=(Player &rhs) const;
 	bool						operator!=(int id) const;
 
 private:
+
 	int							index_offset;
 };
 

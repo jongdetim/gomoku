@@ -17,3 +17,10 @@ DONE-write a wrapper for the first negamax call to catch data such as best move
 // other
     -tweak t_table & h_table. check for collisions & spread across buckets
     - GUI
+
+// GUI
+    -menu
+    -undo
+
+// Player
+    delete function pointer

@@ -23,6 +23,7 @@ class Board
 {
 public:
 	Board(void);
+	Board(const Board &rhs);
 	~Board();
 	
 	int						h;
@@ -32,6 +33,7 @@ public:
 	Player					*current_player;
 	int						winner;
 	
+	void					print_values(void) const;
 	void					play(void);
 	void					play(player_fn p1_fn);
 	void					play(player_fn p1_fn, player_fn p2_fn);
@@ -58,7 +60,7 @@ public:
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	Player					*get_player_by_id(int id);
-	Board					get_copy(void) const;
+	// Board					get_copy(void) const;
 
 	bool					is_game_finished(Player &player);
 	bool					check_win_other_player(Player &player) const;
@@ -68,6 +70,7 @@ public:
 	bool					is_full(void) const;
 	bool					is_valid_move(int index, Player &player) const;
 	
+	Board					&operator=(Board const &rhs);
 	bool					operator==(Board const &rhs) const;
 	bool					operator!=(Board const &rhs) const;
 	bool					operator==(int const rhs) const;

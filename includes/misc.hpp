@@ -13,6 +13,7 @@ bool					is_offside(int prev_index, int index);
 void					create_star(Board &board, int index, int size, int player);
 void					place_pieces(Board &board, int start_pos, int amount, int offset);
 int						random(int min, int max);
+int						random(int min, int max, int seed);
 int						random_int(void);
 
 #endif

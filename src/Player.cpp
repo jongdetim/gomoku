@@ -49,7 +49,21 @@ int							get_player_input(void)
 }
 /* ===================== */
 
-Player::Player(int player_id, std::string name)
+Player::Player(void) : next(NULL) {}
+
+Player::Player(const Player &rhs)
+{
+	this->name = rhs.name;
+	this->id = rhs.id;
+	this->last_move = rhs.last_move;
+	this->captures = rhs.captures;
+	this->stones_in_play = rhs.stones_in_play;
+	this->winning_index = rhs.winning_index;
+	this->index_offset = rhs.index_offset;
+	this->next = NULL;
+}
+
+Player::Player(int player_id, std::string name) : next(NULL)
 {
 	assert(player_id == PLAYER1_ID || player_id == PLAYER2_ID);
 
@@ -83,6 +97,19 @@ void						Player::reset(void)
 int							Player::index(int index) const { return (index << 1) + this->index_offset; }
 
 bool						Player::has_wincondition(void) const { return this->winning_index != -1; }
+
+Player						&Player::operator=(Player const &rhs)
+{
+	this->name = rhs.name;
+	this->id = rhs.id;
+	this->last_move = rhs.last_move;
+	this->captures = rhs.captures;
+	this->stones_in_play = rhs.stones_in_play;
+	this->winning_index = rhs.winning_index;
+	this->index_offset = rhs.index_offset;
+	this->next = NULL;
+	return *this;
+}
 
 bool						Player::operator==(Player &rhs) const { return this->id == rhs.id; }
 

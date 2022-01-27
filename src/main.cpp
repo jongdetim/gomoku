@@ -7,16 +7,28 @@
 
 #define PRINT(x) std::cout << x << std::endl
 
-int random_board_int(void)
-{
-    return random(0, BOARDSIZE-1);
-}
-
 int main()
 {
     Board board;
 
-    board.play(&random_board_int);//, &random_board_int);
+    for (int i = 0; i < 3; i++)
+    {
+        board.place(random(0, BOARDSIZE - 1, 1));
+        board.next_player();
+        board.place(random(0, BOARDSIZE - 1, 1));
+        board.next_player();
+    }
 
+
+    PRINT("");
+    board.print_values();
+    PRINT("");
+    // board.show_move();
+    PRINT("------------------------");
+
+    Board copy = board;
+    copy.print_values();
+    PRINT("");
+    // copy.show_move();
     return 0;
 }
