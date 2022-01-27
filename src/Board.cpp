@@ -1,21 +1,7 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-Board::Board(void) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1", NULL), player2(PLAYER2_ID, "P2", NULL), winner(0)
-{
-	PLAYER1.next = &PLAYER2;
-	PLAYER2.next = &PLAYER1;
-	PLAYER = &PLAYER1;
-}
-
-Board::Board(player_fn p1_fn) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1", p1_fn), player2(PLAYER2_ID, "P2", NULL), winner(0)
-{
-	PLAYER1.next = &PLAYER2;
-	PLAYER2.next = &PLAYER1;
-	PLAYER = &PLAYER1;
-}
-
-Board::Board(player_fn p1_fn, player_fn p2_fn) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1", p1_fn), player2(PLAYER2_ID, "P2", p2_fn), winner(0)
+Board::Board(void) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1"), player2(PLAYER2_ID, "P2"), winner(0)
 {
 	PLAYER1.next = &PLAYER2;
 	PLAYER2.next = &PLAYER1;

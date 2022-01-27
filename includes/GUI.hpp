@@ -19,8 +19,8 @@
 # define BOARD_PATH "../textures/board.png"
 # define P1_PATH "../textures/circle_white.png"
 # define P2_PATH "../textures/circle_black.png"
-# define SELECT_BLACK "../textures/select_black.png"
-# define SELECT_WHITE "../textures/select_white.png"
+# define P1_SELECT "../textures/select_black.png"
+# define P2_SELECT "../textures/select_white.png"
 # define AMATIC_FONT "../fonts/Amatic-Bold.ttf"
 # define SANS_FONT "../fonts/OpenSans-SemiBold.ttf"
 # define ROBOTO_FONT "../fonts/Roboto-Bold.ttf"
@@ -31,7 +31,18 @@
 # define BUTTON_SIZE 25
 # define STATS_SIZE 20
 
-enum gui_size
+enum e_textures
+{
+	board_tex,
+	p1_tex,
+	p2_tex,
+	p1_select_tex,
+	p2_select_tex,
+	/* ----- */
+	size_tex
+};
+
+enum e_gui_size
 {
 	big,
 	medium,
@@ -48,7 +59,7 @@ class GUI: public IGameEngine
 {
 public:
 	GUI(IAi *ai);
-	GUI(IAi *ai, gui_size size);
+	GUI(IAi *ai, e_gui_size size);
 	~GUI();
 
 	void					play(Board *board);
@@ -56,14 +67,11 @@ public:
 private:
 	SDL_Window				*window;
 	SDL_Renderer			*renderer;
-	SDL_Texture				*board_texture;
-	SDL_Texture				*p1_texture;
-	SDL_Texture				*p2_texture;
-	SDL_Texture				*select_black;
-	SDL_Texture				*select_white;
 	SDL_Event				event;
 	TTF_Font				*btn_font;
 	TTF_Font				*stats_font;
+
+	SDL_Texture				*textures[size_tex];
 
 	std::vector<Button>		buttons;
 	Stats					statsP1;

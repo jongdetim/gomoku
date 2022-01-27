@@ -26,8 +26,6 @@ class	Board
 {
 public:
 	Board(void);
-	Board(player_fn p1_fn);
-	Board(player_fn p1_fn, player_fn p2_fn);
 	~Board();
 	
 	int						h;

@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 
-GUI::GUI(IAi *ai, gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false})
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false})
 {
 	int height;
 
@@ -46,13 +46,14 @@ GUI::~GUI()
 		TTF_CloseFont(this->btn_font);
 	if (this->stats_font)
 		TTF_CloseFont(this->stats_font);
-	if (this->board_texture)
-    	SDL_DestroyTexture(this->board_texture);
-	if (this->p1_texture)
-    	SDL_DestroyTexture(this->p1_texture);
-	if (this->p2_texture)
-    	SDL_DestroyTexture(this->p2_texture);
-    if (this->renderer)
+
+	for (int i = 0; i < size_tex; i++)
+	{
+		if (this->textures[i])
+			SDL_DestroyTexture(this->textures[i]);
+	}
+    
+	if (this->renderer)
 		SDL_DestroyRenderer(this->renderer);
 	if (this->window)
     	SDL_DestroyWindow(this->window);
@@ -212,14 +213,14 @@ void		GUI::draw_stones(Board &board)
 		if (board.is_empty_place(index))
 			continue;
 
-		texture = board.get_player_id(index) == PLAYER1_ID ? this->p1_texture : this->p2_texture;
+		texture = board.get_player_id(index) == PLAYER1_ID ? this->textures[p1_tex] : this->textures[p2_tex];
 		row = (get_row(index) * this->size) + this->offset - (this->size >> 1);
 		col = (get_col(index) * this->size) + this->offset - (this->size >> 1);
 
 		this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 		if (board.get_last_move() == index)
 		{
-			texture = board.get_player_id(index) == PLAYER1_ID ? this->select_black : this->select_white;
+			texture = board.get_player_id(index) == PLAYER1_ID ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
 			this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 		}
 	}
@@ -235,7 +236,7 @@ inline bool GUI::mouse_on_board(int x, int y) const { return (y < this->screen_h
 void		GUI::update_renderer(Board &board)
 {
 	this->clear_render();
-	this->set_texture(this->board_texture, SDL_Rect{0, 0, this->screen_height, this->screen_height});
+	this->set_texture(this->textures[board_tex], SDL_Rect{0, 0, this->screen_height, this->screen_height});
 	
 	this->draw_stones(board);
 	this->render_buttons();
@@ -279,11 +280,11 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 
 void		GUI::load_textures(void)
 {
-    this->board_texture = this->load_texture(BOARD_PATH);
-    this->p1_texture = this->load_texture(P1_PATH);
-    this->p2_texture = this->load_texture(P2_PATH);
-    this->select_black = this->load_texture(SELECT_BLACK);
-    this->select_white = this->load_texture(SELECT_WHITE);
+	this->textures[board_tex] = this->load_texture(BOARD_PATH);
+    this->textures[p1_tex] = this->load_texture(P1_PATH);
+    this->textures[p2_tex] = this->load_texture(P2_PATH);
+    this->textures[p1_select_tex] = this->load_texture(P1_SELECT);
+    this->textures[p2_select_tex] = this->load_texture(P2_SELECT);
 }
 
 void		GUI::set_buttons(void)

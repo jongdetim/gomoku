@@ -1,14 +1,13 @@
 #include "Player.hpp"
 #include "misc.hpp"
 
-Player::Player(int player_id, std::string name, player_fn fn)
+Player::Player(int player_id, std::string name)
 {
 	assert(player_id == PLAYER1_ID || player_id == PLAYER2_ID);
 
 	this->name = name;
 	this->id = player_id;
 	this->index_offset = player_id == PLAYER1_ID ? 0 : 1;
-	this->fn = fn;
 	this->reset();
 }
 
@@ -34,8 +33,6 @@ void						Player::reset(void)
 int							Player::index(int index) const { return (index << 1) + this->index_offset; }
 
 bool						Player::has_wincondition(void) const { return this->winning_index != -1; }
-
-bool						Player::has_function(void) const { return this->fn; }
 
 bool						Player::operator==(Player &rhs) const { return this->id == rhs.id; }
 

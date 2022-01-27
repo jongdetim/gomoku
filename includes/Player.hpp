@@ -5,13 +5,11 @@
 
 class Board;
 
-typedef int (*player_fn)(Board&);
-
 class Player
 {
 public:
 
-	Player(int player_id, std::string name, player_fn fn);
+	Player(int player_id, std::string name);
 
 	std::string					name;
 	int							id;
@@ -20,12 +18,10 @@ public:
 	int							stones_in_play;
 	int							winning_index;
 	Player						*next;
-	player_fn					fn;
 
 	void						print(void) const;
 	void						reset(void);
 	bool						has_wincondition(void) const;
-	bool						has_function(void) const;
 	int							index(int index) const;
 
 	bool						operator==(Player &rhs) const;
@@ -36,7 +32,5 @@ public:
 private:
 	int							index_offset;
 };
-
-int								get_player_input(Board &_);
 
 #endif
