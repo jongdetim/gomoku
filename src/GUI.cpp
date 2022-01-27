@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false})
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL)
 {
 	int height;
 
@@ -29,7 +29,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false})
+GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL)
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
@@ -118,6 +118,7 @@ void		GUI::gameloop(Board &board)
 
 		if (!this->check_action(pause) && board.place(this->get_index(board)))
 		{
+			this->check_game_state(board);
 			this->status.update(this->get_status_update(board));
 			this->update = true;
 		}
@@ -168,26 +169,28 @@ int			GUI::get_player_input(void)
 	return -1;
 }
 
+void		GUI::check_game_state(Board &board)
+{
+	if (board.is_game_finished(*board.current_player))
+	{
+		this->set_action(pause);
+		this->winner = board.get_player_by_id(board.winner);
+	}
+	else
+		board.next_player();
+}
+
 std::string	GUI::get_status_update(Board &board)
 {
 	std::stringstream strm;
 	
 	strm.str(std::string());
-	if (board.is_game_finished(*board.current_player))
-	{
-		this->set_action(pause);
-		board.switch_to_player(board.winner);
-	
-		if (board.is_full())
-			return "DRAW";
-	
-		strm << board.current_player->name << " WON";
-	}
+	if (this->winner)
+		strm << this->winner->name << " WON";
+	else if (board.is_full())
+		return "DRAW";
 	else
-	{
-		board.next_player();
 		strm << "Current Player: " << board.current_player->name;
-	}
 	return strm.str();
 }
 
@@ -199,6 +202,7 @@ void		GUI::reset(Board &board)
 	board.random_player();
 	this->update = true;
 	this->action = def;
+	this->winner = NULL;
 	strm << "Current Player: " << board.current_player->name;
 	this->status.update(strm.str());
 }
@@ -223,6 +227,31 @@ void		GUI::draw_stones(Board &board)
 			texture = board.get_player_id(index) == PLAYER1_ID ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
 			this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 		}
+	}
+	if (this->winner && this->winner->has_wincondition())
+		this->highlight_5inarow(board);
+}
+
+void		GUI::highlight_5inarow(Board &board)
+{
+	Heuristic heuristic;
+
+	int index = this->winner->winning_index;
+	int dir = heuristic.check_wincodition_all_dir(&board, index, this->winner->id);
+	index += (dir * heuristic.count_direction(&board, index, this->winner->id, dir, 10));
+	dir = -dir;
+
+	int prev_index, row, col;
+	while (board.get_player_id(index) == this->winner->id)
+	{
+		row = (get_row(index) * this->size) + this->offset - (this->size >> 1);
+		col = (get_col(index) * this->size) + this->offset - (this->size >> 1);
+		this->set_texture(this->textures[winning_tex], SDL_Rect{col, row, this->size, this->size});
+
+		prev_index = index;
+		index += dir;
+		if (is_offside(prev_index, index))
+			break;
 	}
 }
 
@@ -285,6 +314,7 @@ void		GUI::load_textures(void)
     this->textures[p2_tex] = this->load_texture(P2_PATH);
     this->textures[p1_select_tex] = this->load_texture(P1_SELECT);
     this->textures[p2_select_tex] = this->load_texture(P2_SELECT);
+    this->textures[winning_tex] = this->load_texture(WIN_SELECT);
 }
 
 void		GUI::set_buttons(void)

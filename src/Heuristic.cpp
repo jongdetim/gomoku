@@ -112,16 +112,16 @@ int				Heuristic::count_both_dir(const Board *board, int index, int player, int 
 	return total;
 }
 
-bool			Heuristic::check_wincodition_all_dir(const Board *board, int index, int player) const
+int /* bool */	Heuristic::check_wincodition_all_dir(const Board *board, int index, int player) const // Does this effect anything changing from bool to int !??!?!?!?!?!?!?!
 {
 	int directions[4] = {DOWN, RIGHT, DIAGDWNL, DIAGDWNR};
 
 	for (int i = 0; i < 4; i++)
 	{
 		if (this->count_both_dir(board, index, player, directions[i]) >= WINCONDITION)
-			return true;
+			return directions[i];
 	}
-	return false;
+	return 0;
 }
 
 bool			Heuristic::continue_game(const Board *board, Player &player) const

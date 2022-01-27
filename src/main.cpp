@@ -11,6 +11,6 @@ int main()
     Board board;
     
     board.play(gui);
-    
+
     return 0;
 }

@@ -21,6 +21,7 @@
 # define P2_PATH "../textures/circle_black.png"
 # define P1_SELECT "../textures/select_black.png"
 # define P2_SELECT "../textures/select_white.png"
+# define WIN_SELECT "../textures/red_circle.png"
 # define AMATIC_FONT "../fonts/Amatic-Bold.ttf"
 # define SANS_FONT "../fonts/OpenSans-SemiBold.ttf"
 # define ROBOTO_FONT "../fonts/Roboto-Bold.ttf"
@@ -38,6 +39,7 @@ enum e_textures
 	p2_tex,
 	p1_select_tex,
 	p2_select_tex,
+	winning_tex,
 	/* ----- */
 	size_tex
 };
@@ -89,14 +91,17 @@ private:
 	int						stats_size;
 	int						action;
 	t_mouse					mouse;
+	Player					*winner;
 
 	bool					init(std::string title);
 	void					gameloop(Board &board);
+	void					check_game_state(Board &board);
 	void					reset(Board &board);
 	bool					mouse_on_board(int row, int col) const;
 	void					clear_render(void);
 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void					draw_stones(Board &board);
+	void					highlight_5inarow(Board &board);
 	void					update_renderer(Board &board);
 	void					handle_events(Board &board);
 	int						calc_board_placement(int x, int y) const;

@@ -163,11 +163,11 @@ int						Board::total_stones_in_play(void) const { return PLAYER->stones_in_play
 
 Player					*Board::get_player_by_id(int id)
 {
-	assert(id == PLAYER1_ID || id == PLAYER2_ID);
-
 	if (id == PLAYER1.id)
 		return &PLAYER1;
-	return &PLAYER2;
+	if (id == PLAYER2.id)
+		return &PLAYER2;
+	return NULL;
 	
 }
 
