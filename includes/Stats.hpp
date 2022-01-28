@@ -24,18 +24,18 @@ class Stats
 {
 public:
 	Stats(void);
-	Stats(SDL_Renderer *renderer, Player *player, t_point pos, TTF_Font *font);
+	Stats(SDL_Renderer *renderer, t_point pos, TTF_Font *font, TTF_Font *name_font);
 
-	void				update(void);
+	void				update(Player &player, int current_id);
 	void				render(void);
 	void				init(void);
 private:
 
-	Player				*player;
 	SDL_Renderer		*renderer;
 	std::vector<Text>	texts;
 	t_point				pos;
 	TTF_Font			*font;
+	TTF_Font			*name_font;
 	int 				textH;
 };
 

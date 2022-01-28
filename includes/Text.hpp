@@ -10,17 +10,15 @@ class Text
 {
 public:
 	Text(void);
-	Text(SDL_Renderer *renderer, t_point pos, TTF_Font *font);
+	Text(SDL_Renderer *renderer, t_point pos);
 	~Text();
 
-	void			update(std::string text);
+	void			update(std::string text, TTF_Font *font);
 	void			render(void);
-	void			render(double ratio);
 private:
 	SDL_Renderer	*renderer;
 	SDL_Texture		*texture;
 	t_point			pos;
-	TTF_Font		*font;
 };
 
 #endif

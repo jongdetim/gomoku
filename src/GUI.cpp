@@ -28,6 +28,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->btn_size = height * BUTTON_SIZE / (double)SCREEN_HEIGHT;
 	this->stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
 	this->status_size = height * STATUS_SIZE / (double)SCREEN_HEIGHT;
+	this->title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
 }
 
 GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL), players_playing(2)
@@ -40,6 +41,7 @@ GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL),
 	this->btn_size = BUTTON_SIZE;
 	this->stats_size = STATS_SIZE;
 	this->status_size = STATUS_SIZE;
+	this->title_size = TITLE_SIZE;
 }
 
 GUI::~GUI()
@@ -94,8 +96,12 @@ bool		GUI::init(std::string title)
 
 	this->load_fonts();
 	this->load_textures();
+	
 	this->set_buttons();
-	this->status = Text(this->renderer, t_point {this->screen_height, (int)this->offset}, this->fonts[status_font]);
+	
+	this->status = Text(this->renderer, t_point {this->screen_height, ((int)this->offset << 1) + (this->size << 1)});
+	this->title = Text(this->renderer, t_point {this->screen_height, (int)this->offset});
+	this->title.update("* GOMOKU *", this->fonts[title_font]);
 
 	return true;
 }
@@ -136,10 +142,11 @@ void		GUI::update_renderer(Board &board)
 	this->draw_stones(board);
 	this->render_buttons();
 
-	this->status.update(this->get_status_update(board));
+	this->status.update(this->get_status_update(board), this->fonts[status_font]); // Find better place for this
 	this->status.render();
+	this->title.render();
 
-	this->show_stats();
+	this->show_stats(board);
 
 	SDL_RenderPresent(this->renderer);
 	this->update = false;
@@ -231,8 +238,8 @@ void		GUI::reset(Board &board)
 {
 	board.reset();
 	board.random_player();
-	while ( (board.player1.name = this->random_name()).length() > 16);
-	while ( (board.player2.name = this->random_name()).length() > 16);
+	while ( (board.player1.name = this->random_name()).length() > 14);
+	while ( (board.player2.name = this->random_name()).length() > 14);
 	this->set_players_ai(board);
 	this->update = true;
 	this->action = def;
@@ -331,9 +338,13 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 
 void		GUI::load_fonts(void)
 {
-	this->fonts[btn_font] = TTF_OpenFont(SCPRO_FONT, this->btn_size);
-	this->fonts[stats_font]= TTF_OpenFont(SCPRO_FONT, this->stats_size);
-	this->fonts[status_font] = TTF_OpenFont(SANS_FONT, this->status_size);
+	this->fonts[btn_font] = TTF_OpenFont(BTN_FONT, this->btn_size);
+
+	this->fonts[stats_font]= TTF_OpenFont(STATS_FONT, this->stats_size);
+	this->fonts[stats_name_font] = TTF_OpenFont(STATS_NAME_FONT, this->stats_size);
+	
+	this->fonts[status_font] = TTF_OpenFont(STATUS_FONT, this->status_size);
+	this->fonts[title_font] = TTF_OpenFont(TITLE_FONT, this->title_size);
 }
 
 void		GUI::load_textures(void)
@@ -349,8 +360,8 @@ void		GUI::load_textures(void)
 void		GUI::set_buttons(void)
 {
 	int btn_w = 0;
-	int w = this->screen_height;
-	int h = this->offset + (this->size * (3 + (size_texts >> 1)));
+	int w = this->screen_height + this->offset;
+	int h = this->offset + (this->size * 17);
 
 	this->buttons.push_back(
 		Button(this->renderer, w + btn_w, h, " UNDO ", this->fonts[btn_font], BG_COLOUR, undo));
@@ -375,20 +386,20 @@ void		GUI::render_buttons(void)
 
 void		GUI::init_stats(Board &board)
 {
-	this->statsP1 = Stats(this->renderer, &board.player1, t_point {this->screen_height, (int)this->offset << 2}, this->fonts[stats_font]);
-	this->statsP2 = Stats(this->renderer, &board.player2, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset << 2}, this->fonts[stats_font]);
+	this->stats[0] = Stats(this->renderer, t_point {this->screen_height, (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
+	this->stats[1] = Stats(this->renderer, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
 
-	this->statsP1.init();
-	this->statsP2.init();
+	this->stats[0].init();
+	this->stats[1].init();
 }
 
-void		GUI::show_stats(void)
+void		GUI::show_stats(Board &board)
 {
-	this->statsP1.update();
-	this->statsP2.update();
+	this->stats[0].update(board.player1, board.current_player->id);
+	this->stats[1].update(board.player2, board.current_player->id);
 	
-	this->statsP1.render();
-	this->statsP2.render();
+	this->stats[0].render();
+	this->stats[1].render();
 }
 
 int			GUI::get_index(Board &board)
