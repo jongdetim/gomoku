@@ -7,7 +7,7 @@
 # include "misc.hpp"
 
 extern bool TIMEOUT_REACHED;
-const int TIMEOUT = 500;
+const int TIMEOUT = 12500;
 
 int negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
 

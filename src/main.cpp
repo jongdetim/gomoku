@@ -1,47 +1,21 @@
 # include "gomoku.hpp"
 # include "heuristic.hpp"
-# include "Board.hpp"
-# include "TranspositionTable.hpp"
+# include "board.hpp"
+# include "transpositionTable.hpp"
 # include "misc.hpp"
 # include "algorithm.hpp"
 
-void    test()
+void    iterative_deepening_negamax(Board &board, int player)
 {
-    Board board;
-    int index = calc_index(8, 8);
-    // int star_index = calc_index(3, 16); 
-
-    // create_star(board, star_index, 3, PLAYER1);
-    // create_star(board, star_index, 4, PLAYER2);
-    
-    // board.remove(star_index);
-
-    // board.place(star_index, PLAYER2);
-    // std::cout << "captures : " << board.get_player_captures(PLAYER2) << std::endl;
-
-    board.place(index, PLAYER1);
-    board.place(index +1, PLAYER2);
-    board.place(index +2, PLAYER1);
-    board.place(index +3, PLAYER1);
-    board.place(index +4, PLAYER2);
-    board.place(index +6, PLAYER1);
-    board.place(index - 3, PLAYER1);
-    // board.place(index - 21, PLAYER2);
-    // board.place(index + 2, PLAYER1);
-    // #include "heuristic.hpp" 
-    // PRINT(board.calc_heuristic());
-    // board = create_random_board(8);
-    // TranspositionTable t_table;
-    // TranspositionTable h_table;
-
     TIMEOUT_REACHED = false;
-    int player = PLAYER2;
     int best_move = -1;
     Timer timer;
     timer.start();
     int last_best_move;
+    int depth = 2;
+    int max_depth = 2;
 
-    for (int depth = 1; depth <= 6 && !TIMEOUT_REACHED; depth++)
+    for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
     {
         
         TranspositionTable h_table;
@@ -60,13 +34,39 @@ void    test()
             return;
         }
         best_move = last_best_move;
-        PRINT(best_move);
-        PRINT(last_best_move);
+        PRINT("best move: " << best_move << " at depth: " << depth);
+        // PRINT(last_best_move);
 
         // PRINCIPAL VARIATION RETRIEVAL:
         board.print_principal_variation(player, depth, t_table);
         print_stats();
     }    
+}
+
+void    test()
+{
+    Board board;
+
+    int index = calc_index(8, 8);
+    board.place(index, PLAYER1);
+    board.place(index +1, PLAYER2);
+    board.place(index +2, PLAYER1);
+    board.place(index +3, PLAYER1);
+    board.place(index +4, PLAYER2);
+    // board.place(index +6, PLAYER1);
+    // board.place(index - 3, PLAYER1);
+
+    int player = PLAYER2;
+    iterative_deepening_negamax(board, player);
+    // board.place(index - 21, PLAYER2);
+    // board.place(index + 2, PLAYER1);
+    // #include "heuristic.hpp" 
+    // PRINT(board.calc_heuristic());
+    // board = create_random_board(8);
+    // TranspositionTable t_table;
+    // TranspositionTable h_table;
+
+    
     // PRINT(TOTAL_NODES);
     // PRINT(TOTAL_LEAVES);
     // PRINT(FOUND_IN_TABLE);

@@ -71,7 +71,7 @@ int Heuristic::score_remaining_patterns(Board &board, int player)
 {
     int score = 0;
 
-    for (int i = 1; i < 5; i++) //closed2, open2, closed3, open3, closed4
+    for (int i = 1; i <= 5; i++) //closed2, open2, closed3, open3, closed4
         score += board.players[player].heuristic.patterns[i] * SCORES[i];
     if (board.players[player].captures)
         score += pow(10, board.players[player].captures);
@@ -80,6 +80,17 @@ int Heuristic::score_remaining_patterns(Board &board, int player)
 
 int Heuristic::evaluate_patterns(Board &board, int player)
 {
+    // int index = player > 0 ? 0 : 1;
+
+    // for (uint8_t i = 0; i < 8; i++) // skip first index which is none
+    // {
+    //     if (i > 0 && board.players[index].heuristic.patterns[i] > 0)
+    //     {
+    //         PRINT(PatternNames[i]);
+    //         PRINT((int)board.players[index].heuristic.patterns[i]);
+    //     }
+    // }
+
     player = player > 0 ? 0 : 1;
     int enemyplayer = 1 - player;
     int score = 0;
@@ -149,9 +160,6 @@ Pattern Heuristic::find_subpattern(t_pattern &pat, uint8_t length, const std::ma
 
 Pattern Heuristic::get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices)
 {
-    // board.heuristic.score = 0;
-    // board.heuristic.patterns = {0};
-
     Pattern result = none;
 
     t_pattern pat = get_pattern_data(board, move, direction, player, checked_indices);
@@ -205,8 +213,19 @@ void    Heuristic::get_heuristic_single(Board &board, int move, std::bitset<BOAR
     // evaluate_patterns_index(board, move);
 }
 
+void  Heuristic::reset_pattern_arrays(Board &board)
+{
+    // board.heuristic.score = 0;
+    for (int i = 0; i < 2; i++)
+    {
+        for (int index = 0; index < 8; index++)
+            board.players[i].heuristic.patterns[index] = 0;
+    }
+}
+
 int   Heuristic::get_heuristic_total(Board &board)
 {
+    reset_pattern_arrays(board);
     std::bitset<BOARDSIZE> checked_indices[4] = {0, 0, 0, 0};
 
     // first check the patterns at last_move just to be sure it is correctly registered

@@ -60,7 +60,7 @@ public:
 	static Pattern				get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices);
 	static void					get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *checked_indices);
 	static int					get_heuristic_total(Board &board);
-
+	static void  				reset_pattern_arrays(Board &board);
 
 private:
 

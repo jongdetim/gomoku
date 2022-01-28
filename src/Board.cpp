@@ -210,6 +210,11 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		std::cout << "heuristic value is: " << tt_entry.value << std::endl;
 		best_move = tt_entry.best_move;
 		color *= -1;
+		if(node.is_game_finished() || node.is_game_won())
+		{
+			PRINT("\n*** game finished ***\n");
+			return;
+		}
 	}
 }
 
@@ -317,5 +322,18 @@ bool 					Board::operator!=(int const rhs) const { return (this->state != rhs); 
 BITBOARD				Board::operator&(Board const &rhs) const { return this->state & rhs.state; }
 
 BITBOARD				Board::operator&(BITBOARD const &rhs) const { return this->state & rhs; }
+
+// Board&					Board::operator=(Board const &rhs)
+// {
+// 	// *this = rhs;
+// 	// // Heuristic::operator=(rhs);
+// 	// // h = new Heuristic;
+// 	// // h2 = new Heuristic;
+// 	// // this->players[0].heuristic.patterns[0] = 1;
+// 	// // this->players[1].heuristic = h2;
+// 	// t_player newplayers[2];
+// 	// this->players[0] = t_player{};
+// 	return *this;
+// }
 
 std::ostream			&operator<<(std::ostream &o, Board const &i) { return (o << i.get_state()); }

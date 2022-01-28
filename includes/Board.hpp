@@ -62,6 +62,7 @@ public:
 	bool					operator!=(int const rhs) const;
 	BITBOARD				operator&(Board const &rhs) const;
 	BITBOARD				operator&(BITBOARD const &rhs) const;
+	// Board&					operator=(Board const &rhs);
 
 private:
 	BITBOARD				state;
@@ -76,7 +77,7 @@ private:
 	bool					free_threes_direction(int move, int direction, int player) const;
 
 };
-
+// wat doet dit..?
 std::ostream &operator<<(std::ostream &o, Board const &i);
 
 #endif

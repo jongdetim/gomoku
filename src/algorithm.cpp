@@ -2,7 +2,7 @@
 #include "board.hpp"
 #include "misc.hpp"
 #include "heuristic.hpp"
-#include "transpositionTable.hpp"
+#include "TranspositionTable.hpp"
 
 int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
@@ -43,14 +43,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	int value = -std::numeric_limits<int>::max();
 	bool is_finished;
 	int best_move = -1;
-	std::hash<std::bitset<722>> hashfn;
+	// std::hash<std::bitset<722>> hashfn;
 
-	// PRINT(START_TIME.__rep_);
-	// PRINT(timediff.count());
 	if (timer.elapsedMilliseconds() > TIMEOUT)
 		throw "time limit reached";
-	// PRINT(timediff.count());
-	// PRINT(get_current_time().count() << "\n");
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -77,7 +73,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 	// this should happen during children node ordering, and should affect evaluation h to be + infinite
 	// should also check if a player has won! currently only checks if board is completely full
-	is_finished = node.is_game_finished();
+	is_finished = node.is_game_finished() || node.is_game_won();
 
 	if (depth == 0 || is_finished)
 	{
@@ -86,7 +82,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = color * node.calc_heuristic();
+		value = -Heuristic::get_heuristic_total(node);
+		// PRINT(value);
+		// value = color * node.calc_heuristic();
 
 		// node.print();
 		// PRINT("LEAF NODE");
@@ -133,7 +131,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			{
 			    // std::cout << "calculating child h" << std::endl;
 
-			    child.h = -color * node.calc_heuristic(child);
+			    child.h = Heuristic::get_heuristic_total(child);
+			    // child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
 				h_table.insert(child, ht_entry);
@@ -149,7 +148,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	}
 
 	TOTAL_NODES += 1;
-	// PRINT(get_current_time().count() << "\n");
+	
+	best_move = child_nodes[0].get_last_move();
 	for (Board child : child_nodes)
 	{
 		int old_value = value;
@@ -173,6 +173,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	}
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
+	// PRINT(tt_entry.best_move);
 	if (t_table.lookup(node, tt_entry))
 		// t_table.update(node, value);
 		;
@@ -181,7 +182,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
 	// 10-01-2022 why does this increase the amount of visited nodes now??
-    TableEntry h_entry;
+    // TableEntry h_entry;
     // if (h_table.lookup(node, h_entry))
 	// {
 	// 	// std::cout << value << std::endl;
