@@ -84,7 +84,7 @@ bool						PrimitiveGui::try_parse_input(std::string &input, int &out)
 		if (tokens.size() == 2)
 		{
 			col = std::stoi(tokens[1]);
-			out = calc_index(out, col);
+			out = misc::calc_index(out, col);
 		}
 	} catch (...) { return false; }
 

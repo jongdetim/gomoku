@@ -111,7 +111,7 @@ void					Board::show_move(int show_index) const
 bool					Board::place(int row, int col, int player_id)
 {
 	this->switch_to_player(player_id);
-	return this->place(calc_index(row, col), *PLAYER);
+	return this->place(misc::calc_index(row, col), *PLAYER);
 }
 
 bool					Board::place(int index, int player_id)
@@ -164,7 +164,7 @@ std::vector<Board>		Board::generate_children(void) const
     return nodes;
 }
 
-void					Board::remove(int row, int col) { this->remove(calc_index(row, col)); }
+void					Board::remove(int row, int col) { this->remove(misc::calc_index(row, col)); }
 
 void					Board::remove(int index)
 {
@@ -265,7 +265,7 @@ bool					Board::has_won(void) const { return this->heuristic.has_won(this, *PLAY
 
 bool					Board::has_won(Player &player) const { return this->heuristic.has_won(this, player); }
 
-void					Board::random_player(void) { PLAYER = random_int() % 2 == 0 ? PLAYER : PLAYER->next; }
+void					Board::random_player(void) { PLAYER = misc::random_int() % 2 == 0 ? PLAYER : PLAYER->next; }
 
 /* PRIVATE METHODS */
 
@@ -300,7 +300,7 @@ bool					Board::can_capture(Player &player, int index, int dir) const
 {
 	for (int i = 1; i < 4; i++)
 	{
-		if (is_offside(index, index + dir))
+		if (misc::is_offside(index, index + dir))
 			break ;
 		index += dir;
 		if (i == 3 && player == this->get_player_id(index))
@@ -333,13 +333,13 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 		for (int i = 0; i < 4; i++)
 		{
 			pos += shift;
-			if (is_offside(pos - shift, pos))
+			if (misc::is_offside(pos - shift, pos))
 				break;
 			if (get_player_id(pos) == player)
 				count++;
 			else if (get_player_id(pos) == -player)
 				break;
-			else if (!(is_offside(pos, pos + shift)) && get_player_id(pos + shift) == player)
+			else if (!(misc::is_offside(pos, pos + shift)) && get_player_id(pos + shift) == player)
 				gaps++;
 			else
 			{

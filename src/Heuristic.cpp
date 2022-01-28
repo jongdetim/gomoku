@@ -38,13 +38,13 @@ bool			Heuristic::get_direction(const Board *board, int move, int direction, int
 		for (int i = 0; i < 4; i++)
 		{
 			pos += shift;
-			if (is_offside(pos - shift, pos))
+			if (misc::is_offside(pos - shift, pos))
 				break;
 			if (board->get_player_id(pos) == player)
 				count++;
 			else if (board->get_player_id(pos) == -player)
 				break;
-			else if (!(is_offside(pos, pos + shift)) && board->get_player_id(pos + shift) == player)
+			else if (!(misc::is_offside(pos, pos + shift)) && board->get_player_id(pos + shift) == player)
 				gaps++;
 			else
 			{
@@ -70,7 +70,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	{
 		prev_index = index;
 		index += dir;
-		if (is_offside(prev_index, index) || board->get_player_id(index) != player)
+		if (misc::is_offside(prev_index, index) || board->get_player_id(index) != player)
 			break ;
 		checked_indices[index] = 1;
 		length++;
@@ -87,7 +87,7 @@ int				Heuristic::count_direction(const Board *board, int index, int player, int
 	{
 		prev_index = index;
 		index += dir;
-		if (is_offside(prev_index, index) || board->get_player_id(index) != player)
+		if (misc::is_offside(prev_index, index) || board->get_player_id(index) != player)
 			break ;
 		length++;
 	}

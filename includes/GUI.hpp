@@ -5,6 +5,7 @@
 # include <SDL.h>
 # include <SDL_image.h>
 # include <SDL_ttf.h>
+# include <fstream>
 # include "Board.hpp"
 # include "Button.hpp"
 # include "Stats.hpp"
@@ -20,19 +21,20 @@
 # define BG_COLOUR SDL_Color{220, 179, 92, 255}
 # define BTN_COLOUR SDL_Color{180, 60, 60, 255}
 # define BUTTON_SIZE 25
-# define STATS_SIZE 25
+# define STATS_SIZE 20
+# define STATUS_SIZE 25
 
-# define BOARD_PATH "../textures/board.png"
-# define P1_PATH "../textures/circle_white.png"
-# define P2_PATH "../textures/circle_black.png"
-# define P1_SELECT "../textures/select_black.png"
-# define P2_SELECT "../textures/select_white.png"
-# define WIN_SELECT "../textures/red_circle.png"
+# define NAMES "resources/names.txt"
 
-# define SANS_FONT "../fonts/OpenSans-SemiBold.ttf"
-# define SCPRO_FONT "../fonts/SourceCodePro-Regular.ttf"
+# define BOARD_PATH "resources/textures/board.png"
+# define P1_PATH "resources/textures/circle_white.png"
+# define P2_PATH "resources/textures/circle_black.png"
+# define P1_SELECT "resources/textures/select_black.png"
+# define P2_SELECT "resources/textures/select_white.png"
+# define WIN_SELECT "resources/textures/red_circle.png"
 
-# define STATUS_SIZE 30
+# define SANS_FONT "resources/fonts/OpenSans-SemiBold.ttf"
+# define SCPRO_FONT "resources/fonts/SourceCodePro-Regular.ttf"
 
 enum e_fonts
 {
@@ -114,6 +116,7 @@ private:
 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void					draw_stones(Board &board);
 	void					highlight_5inarow(Board &board);
+	void					highlight_last_move(Board &board, int row, int col);
 	void					update_renderer(Board &board);
 	void					handle_events(Board &board);
 	int						calc_board_placement(int x, int y) const;
@@ -132,6 +135,7 @@ private:
 	std::string				get_status_update(Board &board) const;
 	void					check_actions(Board &board);
 	void					undo_action(Board &board);
+	std::string				random_name(void);
 };
 
 #endif

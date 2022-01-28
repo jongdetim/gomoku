@@ -1,0 +1,3 @@
+Crazy,Hungry,Pretty,Ugly,Holy,Smelly,Angry,Lazy,Funny,Annoying,Fat,Skinny,Happy,Disgusting,Flat,Futuristic,Powerful,Wise,Greasy,Venomous,Luxurious,Outgoing,Glorious,Yummy,Sticky,Large,Big,Sexy,Small,Serious,Handsome,Sexual,Sick,Prickly,Naughty,Cheerful
+
+Goat,Cat,Dog,Banana,Iguana,Hog,Armadillo,Gnu,Bull,Gazelle,Tapir,Puppy,Lemur,Hamster,Otter,Mandrill,Alpaca,Meerkat,Bunny,Bird,Lizard,Cougar,Ox,Panther,Elephant,Rat,Mouse,Bat,Kitten,Mole,Octopus,Porcupine,Pig,Wolf,Camel,Wildcat,Panda,Fox,Sailor,Bride,Groom,Cop,Nerd,Stripper,King,Queen,Ghost,Pornstar,Princess,Prince,Architect

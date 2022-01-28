@@ -95,7 +95,7 @@ bool		GUI::init(std::string title)
 	this->load_fonts();
 	this->load_textures();
 	this->set_buttons();
-	this->status = Text(this->renderer, t_point {this->screen_height + (this->interface_size >> 3), (int)this->offset}, this->fonts[status_font]);
+	this->status = Text(this->renderer, t_point {this->screen_height /* + (this->interface_size >> 3) */, (int)this->offset}, this->fonts[status_font]);
 
 	return true;
 }
@@ -202,50 +202,53 @@ void		GUI::check_game_state(Board &board)
 std::string	GUI::get_status_update(Board &board) const
 {
 	if (this->winner)
-		return this->winner->name + " WON";
+		return this->winner->name + " Won";
 	else if (board.is_full())
-		return "DRAW";
+		return "Draw";
 	else
 		return "Current Player: " + board.current_player->name;
 }
 
 void		GUI::reset(Board &board)
 {
-	std::stringstream strm;
-
 	board.reset();
 	board.random_player();
+	board.player1.name = this->random_name();
+	board.player2.name = this->random_name();
 	this->update = true;
 	this->action = def;
 	this->winner = NULL;
-	strm << "Current Player: " << board.current_player->name;
-	this->status.update(strm.str());
+	this->status.update("Current Player: " + board.current_player->name);
 	this->prev = board;
 }
 
 void		GUI::draw_stones(Board &board)
 {
 	SDL_Texture *texture;
-	int row, col;
+	int row, col, index;
 
-	for (int index = 0; index < board.filled_pos.size(); index++)
+	for (index = 0; index < board.filled_pos.size(); index++)
 	{
 		if (board.is_empty_place(index))
 			continue;
 
 		texture = board.get_player_id(index) == PLAYER1_ID ? this->textures[p1_tex] : this->textures[p2_tex];
-		row = (get_row(index) * this->size) + this->offset - (this->size >> 1);
-		col = (get_col(index) * this->size) + this->offset - (this->size >> 1);
+		row = (misc::get_row(index) * this->size) + this->offset - (this->size >> 1);
+		col = (misc::get_col(index) * this->size) + this->offset - (this->size >> 1);
 
 		this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
-		if (board.get_last_move() == index)
-		{
-			texture = board.get_player_id(index) == PLAYER1_ID ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
-			this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
-		}
+		if (index == board.get_last_move())
+			this->highlight_last_move(board, row, col);
+
 	}
 	if (this->winner && this->winner->has_wincondition())
 		this->highlight_5inarow(board);
+}
+
+void		GUI::highlight_last_move(Board &board, int row, int col)
+{
+	SDL_Texture *texture = board.get_player_id(board.get_last_move()) == PLAYER1_ID ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
+	this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 }
 
 void		GUI::highlight_5inarow(Board &board)
@@ -260,13 +263,13 @@ void		GUI::highlight_5inarow(Board &board)
 	int prev_index, row, col;
 	while (board.get_player_id(index) == this->winner->id)
 	{
-		row = (get_row(index) * this->size) + this->offset - (this->size >> 1);
-		col = (get_col(index) * this->size) + this->offset - (this->size >> 1);
+		row = (misc::get_row(index) * this->size) + this->offset - (this->size >> 1);
+		col = (misc::get_col(index) * this->size) + this->offset - (this->size >> 1);
 		this->set_texture(this->textures[winning_tex], SDL_Rect{col, row, this->size, this->size});
 
 		prev_index = index;
 		index += dir;
-		if (is_offside(prev_index, index))
+		if (misc::is_offside(prev_index, index))
 			break;
 	}
 }
@@ -308,7 +311,7 @@ int			GUI::calc_board_placement(int x, int y) const
 	int row = (y - this->offset) / this->size + .5;
 	int col = (x - this->offset) / this->size + .5;
 
-	return calc_index(row, col);
+	return misc::calc_index(row, col);
 }
 
 SDL_Texture	*GUI::load_texture(std::string img_path)
@@ -410,4 +413,22 @@ void		GUI::set_action(int action)
 void		GUI::unset_action(int action)
 {
 	this->action = this->action ^ action;
+}
+
+std::string	GUI::random_name(void)
+{
+	std::string value, name("");
+    std::ifstream nameFileout;
+    std::vector<std::string> tokens;
+
+    nameFileout.open(NAMES);
+    while (std::getline(nameFileout, value))
+    {
+        if (value.empty())
+            continue;
+        tokens = misc::tokenize(value, ',');
+        name += tokens[misc::random(0, tokens.size() - 1)];
+    }
+    nameFileout.close();
+    return name;
 }

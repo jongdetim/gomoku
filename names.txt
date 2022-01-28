@@ -1,2 +1,0 @@
-crazy,hungry,pretty,ugly,holy,smelly,angry,lazy,funny,annoying,fat,skinny,happy
-goat,cat,dog,banana

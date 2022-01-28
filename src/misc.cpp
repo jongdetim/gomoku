@@ -1,7 +1,7 @@
 #include "misc.hpp"
 #include "Board.hpp"
 
-int					random_int(void)
+int							misc::random_int(void)
 {
    static bool first = true;
    if (first) 
@@ -12,7 +12,7 @@ int					random_int(void)
    return rand();
 }
 
-int					random(int min, int max, int seed)
+int							misc::random(int min, int max, int seed)
 {
    static bool first = true;
    if (first) 
@@ -23,7 +23,7 @@ int					random(int min, int max, int seed)
    return min + rand() % (( max + 1 ) - min);
 }
 
-int					random(int min, int max)
+int							misc::random(int min, int max)
 {
    static bool first = true;
    if (first) 
@@ -34,18 +34,18 @@ int					random(int min, int max)
    return min + rand() % (( max + 1 ) - min);
 }
 
-int					get_col(int index) { return (index % BOARD_LENGTH); }
+int							misc::get_col(int index) { return (index % BOARD_LENGTH); }
 
-int					get_row(int index) { return (index / BOARD_LENGTH); }
+int							misc::get_row(int index) { return (index / BOARD_LENGTH); }
 
-int					calc_index(int row, int col)
+int							misc::calc_index(int row, int col)
 {
 	if (row < 0 || row >= 19 || col < 0 || col >= 19)
 		return -1;
 	return (row * BOARD_LENGTH + col);
 }
 
-bool				is_offside(int prev_index, int index)
+bool						misc::is_offside(int prev_index, int index)
 {
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
@@ -53,34 +53,14 @@ bool				is_offside(int prev_index, int index)
 	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1) || index < 0 || index >= BOARDSIZE);
 }
 
-void				create_star(Board &board, int index, int size, int player)
+void						misc::create_star(Board &board, int index, int size, int player)
 {
 	board.switch_to_player(player);
     for (auto dir : DIRECTIONS)
         place_pieces(board, index, size, dir);
 }
 
-void    			print_bitboard(BITBOARD bitmap)
-{
-	std::cout << std::endl << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
-	for (int row = 0; row < BOARD_LENGTH; row++)
-	{
-		std::cout << row%10 << ": ";
-		for (int col = 0; col < BOARD_LENGTH; col++)
-		{
-			int index = (row * BOARD_LENGTH + col) << 1;
-			if (bitmap[index])
-				std::cout << 'o' << ' ';
-			else if (bitmap[index + 1])
-				std::cout << 'x' << ' ';
-			else
-				std::cout << ". ";
-		}
-		std::cout << std::endl;
-	}
-}
-
-void				place_pieces(Board &board, int start_pos, int amount, int offset)
+void						misc::place_pieces(Board &board, int start_pos, int amount, int offset)
 {
 	int index = start_pos;
 	int prev_index;
@@ -96,7 +76,7 @@ void				place_pieces(Board &board, int start_pos, int amount, int offset)
 	}
 }
 
-Board				create_random_board(void)
+Board						misc::create_random_board(void)
 {
 	Board board;
 
@@ -120,7 +100,7 @@ Board				create_random_board(void)
 	return board;
 }
 
-Board				create_random_board(int seed)
+Board						misc::create_random_board(int seed)
 {
 	Board board;
 
@@ -144,7 +124,7 @@ Board				create_random_board(int seed)
 	return board;//board.get_copy();
 }
 
-std::vector<std::string>	tokenize(std::string &str, char delim)
+std::vector<std::string>	misc::tokenize(std::string &str, char delim)
 {
 	size_t start;
 	size_t end = 0;
