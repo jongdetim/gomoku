@@ -213,8 +213,8 @@ void		GUI::reset(Board &board)
 {
 	board.reset();
 	board.random_player();
-	board.player1.name = this->random_name();
-	board.player2.name = this->random_name();
+	while ( (board.player1.name = this->random_name()).length() > 16);
+	while ( (board.player2.name = this->random_name()).length() > 16);
 	this->update = true;
 	this->action = def;
 	this->winner = NULL;
