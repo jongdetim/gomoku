@@ -2,6 +2,7 @@
 # define PLAYER_HPP
 
 # include "gomoku.hpp"
+# include "IAi.hpp"
 
 class Board;
 
@@ -20,6 +21,7 @@ public:
 	int							stones_in_play;
 	int							winning_index;
 	Player						*next;
+	IAi							*ai;
 
 	void						print(void) const;
 	void						reset(void);
@@ -33,7 +35,6 @@ public:
 	bool						operator!=(int id) const;
 
 private:
-
 	int							index_offset;
 };
 

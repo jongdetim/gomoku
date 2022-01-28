@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL)
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL), players_playing(2)
 {
 	int height;
 
@@ -30,7 +30,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->status_size = height * STATUS_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL)
+GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL), players_playing(2)
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
@@ -95,7 +95,7 @@ bool		GUI::init(std::string title)
 	this->load_fonts();
 	this->load_textures();
 	this->set_buttons();
-	this->status = Text(this->renderer, t_point {this->screen_height /* + (this->interface_size >> 3) */, (int)this->offset}, this->fonts[status_font]);
+	this->status = Text(this->renderer, t_point {this->screen_height, (int)this->offset}, this->fonts[status_font]);
 
 	return true;
 }
@@ -116,7 +116,8 @@ void		GUI::gameloop(Board &board)
 			index = this->get_index(board);
 			if (board.is_valid_move(index))
 			{
-				this->prev = board; // Only do this when not AI
+				if (!board.current_player->ai)
+					this->prev = board;
 				board.place(index);
 				this->check_game_state(board);
 				this->update = true;
@@ -125,6 +126,23 @@ void		GUI::gameloop(Board &board)
 
 		this->check_actions(board);
     }
+}
+
+void		GUI::update_renderer(Board &board)
+{
+	this->clear_render();
+	this->set_texture(this->textures[board_tex], SDL_Rect{0, 0, this->screen_height, this->screen_height});
+	
+	this->draw_stones(board);
+	this->render_buttons();
+
+	this->status.update(this->get_status_update(board));
+	this->status.render();
+
+	this->show_stats();
+
+	SDL_RenderPresent(this->renderer);
+	this->update = false;
 }
 
 void		GUI::check_actions(Board &board)
@@ -206,7 +224,7 @@ std::string	GUI::get_status_update(Board &board) const
 	else if (board.is_full())
 		return "Draw";
 	else
-		return "Current Player: " + board.current_player->name;
+		return "> " + board.current_player->name;
 }
 
 void		GUI::reset(Board &board)
@@ -215,10 +233,10 @@ void		GUI::reset(Board &board)
 	board.random_player();
 	while ( (board.player1.name = this->random_name()).length() > 16);
 	while ( (board.player2.name = this->random_name()).length() > 16);
+	this->set_players_ai(board);
 	this->update = true;
 	this->action = def;
 	this->winner = NULL;
-	this->status.update("Current Player: " + board.current_player->name);
 	this->prev = board;
 }
 
@@ -281,23 +299,6 @@ void		GUI::set_texture(SDL_Texture *texture, SDL_Rect rect)
 
 inline bool GUI::mouse_on_board(int x, int y) const { return (y < this->screen_height && x < this->screen_height); }
 
-void		GUI::update_renderer(Board &board)
-{
-	this->clear_render();
-	this->set_texture(this->textures[board_tex], SDL_Rect{0, 0, this->screen_height, this->screen_height});
-	
-	this->draw_stones(board);
-	this->render_buttons();
-
-	this->status.update(this->get_status_update(board));
-	this->status.render();
-
-	this->show_stats();
-
-	SDL_RenderPresent(this->renderer);
-	this->update = false;
-}
-
 void		GUI::clear_render(void)
 {
 	SDL_Colour colour = BG_COLOUR;
@@ -331,7 +332,7 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 void		GUI::load_fonts(void)
 {
 	this->fonts[btn_font] = TTF_OpenFont(SCPRO_FONT, this->btn_size);
-	this->fonts[stats_font ]= TTF_OpenFont(SCPRO_FONT, this->stats_size);
+	this->fonts[stats_font]= TTF_OpenFont(SCPRO_FONT, this->stats_size);
 	this->fonts[status_font] = TTF_OpenFont(SANS_FONT, this->status_size);
 }
 
@@ -349,7 +350,7 @@ void		GUI::set_buttons(void)
 {
 	int btn_w = 0;
 	int w = this->screen_height;
-	int h = this->offset + (this->size * 5);
+	int h = this->offset + (this->size * (3 + (size_texts >> 1)));
 
 	this->buttons.push_back(
 		Button(this->renderer, w + btn_w, h, " UNDO ", this->fonts[btn_font], BG_COLOUR, undo));
@@ -392,10 +393,8 @@ void		GUI::show_stats(void)
 
 int			GUI::get_index(Board &board)
 {
-	if (board.current_player->id == PLAYER1_ID)
-		return this->get_player_input();
-	else if (this->ai)
-		return this->ai->calculate(board);
+	if (board.current_player->ai)
+		return board.current_player->ai->calculate(board);
 	else
 		return this->get_player_input();
 }
@@ -431,4 +430,25 @@ std::string	GUI::random_name(void)
     }
     nameFileout.close();
     return name;
+}
+
+void		GUI::set_players_ai(Board &board)
+{
+	switch (this->players_playing)
+	{
+	case 0:
+		board.player1.ai = this->ai;
+		board.player2.ai = this->ai;
+		break;
+	case 1:
+		board.player1.ai = NULL;
+		board.player2.ai = this->ai;
+		break;
+	case 2:
+		board.player1.ai = NULL;
+		board.player2.ai = NULL;
+		break;
+	default:
+		break;
+	}
 }

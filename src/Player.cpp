@@ -2,7 +2,7 @@
 #include "misc.hpp"
 
 
-Player::Player(void) : next(NULL) {}
+Player::Player(void) : next(NULL), ai(NULL) {}
 
 Player::Player(const Player &rhs)
 {
@@ -14,9 +14,10 @@ Player::Player(const Player &rhs)
 	this->winning_index = rhs.winning_index;
 	this->index_offset = rhs.index_offset;
 	this->next = NULL;
+	this->ai = rhs.ai;
 }
 
-Player::Player(int player_id, std::string name) : next(NULL)
+Player::Player(int player_id, std::string name) : next(NULL), ai(NULL)
 {
 	assert(player_id == PLAYER1_ID || player_id == PLAYER2_ID);
 
@@ -59,6 +60,7 @@ Player						&Player::operator=(Player const &rhs)
 	this->winning_index = rhs.winning_index;
 	this->index_offset = rhs.index_offset;
 	this->next = NULL;
+	this->ai = rhs.ai;
 	return *this;
 }
 

@@ -22,7 +22,7 @@
 # define BTN_COLOUR SDL_Color{180, 60, 60, 255}
 # define BUTTON_SIZE 25
 # define STATS_SIZE 20
-# define STATUS_SIZE 25
+# define STATUS_SIZE 30
 
 # define NAMES "resources/names.txt"
 
@@ -106,6 +106,7 @@ private:
 
 	bool					update;
 	int						action;
+	short					players_playing;
 
 	bool					init(std::string title);
 	void					gameloop(Board &board);
@@ -136,6 +137,7 @@ private:
 	void					check_actions(Board &board);
 	void					undo_action(Board &board);
 	std::string				random_name(void);
+	void					set_players_ai(Board &board);
 };
 
 #endif

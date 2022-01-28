@@ -9,6 +9,17 @@
 # include "Text.hpp"
 # include <sstream>
 
+enum e_stats
+{
+	name_text,
+	empty_text,
+	captures_text,
+	stones_text,
+	ai_text,
+	/* ----- */
+	size_texts
+};
+
 class Stats
 {
 public:
