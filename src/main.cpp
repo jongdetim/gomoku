@@ -16,10 +16,9 @@ public:
 int main()
 {
     // PrimitiveGui gui(NULL);
-    // RandomAi ai;
-    // GUI gui(&ai);
+    RandomAi ai;
+    GUI gui(&ai);
 
-    GUI gui(NULL);
     Board board;
     
     board.play(gui);

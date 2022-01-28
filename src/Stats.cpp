@@ -18,9 +18,9 @@ void		Stats::update(Player &player, int current_id)
 {
 	this->texts[name_text].update(player.name, this->name_font);
 	this->texts[empty_text].update("-", this->font);
+	this->texts[ai_text].update((player.ai ? "computer" : "player"), this->font);
 	this->texts[captures_text].update("captures   " + std::to_string(player.captures), this->font);
-	this->texts[stones_text].update	 ("stones       " + std::to_string(player.stones_in_play), this->font);
-	this->texts[ai_text].update		 ("ai                " + (std::string)(player.ai ? "*" : "-"), this->font);
+	this->texts[stones_text].update("stones       " + std::to_string(player.stones_in_play), this->font);
 }
 
 void		Stats::render(void)

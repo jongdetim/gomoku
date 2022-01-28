@@ -13,9 +13,9 @@ enum e_stats
 {
 	name_text,
 	empty_text,
+	ai_text,
 	captures_text,
 	stones_text,
-	ai_text,
 	/* ----- */
 	size_texts
 };
