@@ -158,6 +158,8 @@ void		GUI::check_actions(Board &board)
 		this->reset(board);
 	else if (this->check_action(undo))
 		this->undo_action(board);
+	else if (this->check_action(add_player))
+		this->add_player_action(board);
 }
 
 void		GUI::undo_action(Board &board)
@@ -170,6 +172,14 @@ void		GUI::undo_action(Board &board)
 		this->winner = NULL;
 		this->unset_action(pause);
 	}
+}
+
+void		GUI::add_player_action(Board &board)
+{
+	this->update = true;
+	this->unset_action(add_player);
+	this->players_playing = this->players_playing == 2 ? 1 : 2;
+	this->set_players_ai(board);
 }
 
 void		GUI::handle_events(Board &board)
@@ -373,7 +383,12 @@ void		GUI::set_buttons(void)
 
 	this->buttons.push_back(
 		Button(this->renderer, w + btn_w, h, " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
+
+
+	this->buttons.push_back(
+		Button(this->renderer, this->screen_height + (this->interface_size >> 2), this->offset + (this->size << 3), " PLAYER ", this->fonts[btn_font], BG_COLOUR, add_player));	// Change
 	
+
 	for (auto &btn : this->buttons)
 		btn.init();
 }

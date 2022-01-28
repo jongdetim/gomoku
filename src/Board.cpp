@@ -20,7 +20,6 @@ Board::Board(const Board &rhs)
 
 	this->player1.next = &this->player2;
 	this->player2.next = &this->player1;
-
 	this->current_player = rhs.current_player->id == PLAYER1_ID ? &this->player1 : &this->player2;
 }
 
