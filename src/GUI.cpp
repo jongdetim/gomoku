@@ -178,7 +178,7 @@ void		GUI::add_player_action(Board &board)
 {
 	this->update = true;
 	this->unset_action(add_player);
-	this->players_playing = this->players_playing == 2 ? 1 : 2;
+	this->players_playing = (this->players_playing + 1) % 3;
 	this->set_players_ai(board);
 }
 
