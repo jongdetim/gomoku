@@ -112,10 +112,12 @@ int				Heuristic::count_both_dir(const Board *board, int index, int player, int 
 	return total;
 }
 
-int /* bool */	Heuristic::check_wincodition_all_dir(const Board *board, int index, int player) const // Does this effect anything changing from bool to int !??!?!?!?!?!?!?!
+int				Heuristic::check_wincodition_all_dir(const Board *board, int index, int player) const
 {
 	int directions[4] = {DOWN, RIGHT, DIAGDWNL, DIAGDWNR};
 
+	if (board->is_empty_place(index))
+		return 0;
 	for (int i = 0; i < 4; i++)
 	{
 		if (this->count_both_dir(board, index, player, directions[i]) >= WINCONDITION)
