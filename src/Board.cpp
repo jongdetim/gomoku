@@ -197,7 +197,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 	Board node = *this;
 	int color = player;
 	TableEntry tt_entry;
-	// int best_move = 
+
 	for (int i = 0; i < depth; i++)
 	{
 		t_table.lookup(node, tt_entry);

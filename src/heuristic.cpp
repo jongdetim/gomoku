@@ -95,7 +95,10 @@ int Heuristic::evaluate_patterns(Board &board, int player)
     int enemyplayer = 1 - player;
     int score = 0;
     // if (board.is_game_won()) //has to check if we have 5 pairs captured OR: 5+ in a row, enemy can't break it and can't capture 5 pairs next turn
-    if (board.players[player].captures >= 5 ||
+    if (board.players[enemyplayer].captures >= 5 ||
+    board.players[enemyplayer].heuristic.patterns[five] >= 1)
+        return -std::numeric_limits<int>::max();
+    else if (board.players[player].captures >= 5 ||
     board.players[player].heuristic.patterns[five] >= 1)    
         return std::numeric_limits<int>::max();
     else if (board.players[enemyplayer].heuristic.patterns[closed4] >= 1 ||
