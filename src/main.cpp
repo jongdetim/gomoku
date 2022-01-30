@@ -34,7 +34,7 @@ void    iterative_deepening_negamax(Board &board, int player)
             return;
         }
         best_move = last_best_move;
-        PRINT("best move: " << best_move << " at depth: " << depth);
+        PRINT("best move: " << get_col(best_move) << ", " << get_row(best_move) << " at depth: " << depth);
         // PRINT(last_best_move);
 
         // PRINCIPAL VARIATION RETRIEVAL:
@@ -49,10 +49,10 @@ void    test()
 
     int index = calc_index(8, 8);
     board.place(index, PLAYER1);
-    board.place(index +1, PLAYER2);
-    board.place(index +2, PLAYER1);
-    board.place(index +3, PLAYER1);
-    board.place(index +4, PLAYER2);
+    // board.place(index +1, PLAYER2);
+    // board.place(index +2, PLAYER1);
+    // board.place(index +3, PLAYER1);
+    // board.place(index +4, PLAYER2);
     // board.place(index +6, PLAYER1);
     // board.place(index - 3, PLAYER1);
 
