@@ -3,9 +3,19 @@
 
 # include "gomoku.hpp"
 # include "heuristic.hpp"
-# include "TranspositionTable.hpp"
+// # include "TranspositionTable.hpp"
 
 class TranspositionTable;
+
+class TableEntry
+{
+public:
+    int value;
+    int depth;
+    int flag;
+    bool game_finished;
+    int best_move;
+};
 
 typedef struct	s_player
 {

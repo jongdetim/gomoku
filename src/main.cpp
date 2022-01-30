@@ -12,8 +12,8 @@ void    iterative_deepening_negamax(Board &board, int player)
     Timer timer;
     timer.start();
     int last_best_move;
-    int depth = 2;
-    int max_depth = 2;
+    int depth = 1;
+    int max_depth = 5;
 
     for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
     {

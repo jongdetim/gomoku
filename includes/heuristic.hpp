@@ -2,6 +2,7 @@
 # define BOARDHEURISTIC_HPP
 
 # include "gomoku.hpp"
+// # include "board.hpp"
 
 class Board;
 

@@ -17,15 +17,15 @@ public:
     size_t operator()(const Board &Key) const;
 };
 
-class TableEntry
-{
-public:
-    int value;
-    int depth;
-    int flag;
-    bool game_finished;
-    int best_move;
-};
+// class TableEntry
+// {
+// public:
+//     int value;
+//     int depth;
+//     int flag;
+//     bool game_finished;
+//     int best_move;
+// };
 
 class TranspositionTable
 {
