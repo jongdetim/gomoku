@@ -17,7 +17,7 @@ int main()
 {
     // PrimitiveGui gui(NULL);
     RandomAi ai;
-    GUI gui(&ai);
+    GUI gui(&ai, medium);
 
     Board board;
     

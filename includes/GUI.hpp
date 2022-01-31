@@ -161,7 +161,7 @@ private:
 	std::string				get_status_update(Board &board) const;
 	void					check_actions(Board &board);
 	void					undo_action(Board &board);
-	void					add_player_action(Board &board);
+	void					add_player_action(Board &board); // Change name
 	std::string				random_name(void);
 	void					set_players_ai(Board &board);
 };

@@ -1,26 +1,19 @@
 #include "Board.hpp"
 #include "misc.hpp"
 
-Board::Board(void) : h(0), state(0), filled_pos(0), player1(PLAYER1_ID, "P1"), player2(PLAYER2_ID, "P2"), winner(0)
-{
-	PLAYER1.next = &PLAYER2;
-	PLAYER2.next = &PLAYER1;
-	PLAYER = &PLAYER1;
-}
+Board::Board(void) :
+h(0), state(0), filled_pos(0), players{Player(1, "P1"), Player(-1, "P2")}, winner(-1), current(0), last_move(-1) {}
 
 Board::Board(const Board &rhs)
 {
 	this->h = rhs.h;
 	this->filled_pos = rhs.filled_pos;
+	PLAYERS[PLAYER1] = rhs.players[PLAYER1];
+	PLAYERS[PLAYER2] = rhs.players[PLAYER2];
 	this->winner = rhs.winner;
 	this->state = rhs.state;
+	this->current = rhs.current;
 	this->last_move = rhs.last_move;
-	this->player1 = rhs.player1;
-	this->player2 = rhs.player2;
-
-	this->player1.next = &this->player2;
-	this->player2.next = &this->player1;
-	this->current_player = rhs.current_player->id == PLAYER1_ID ? &this->player1 : &this->player2;
 }
 
 Board::~Board() {}
@@ -29,11 +22,12 @@ void					Board::reset(void)
 {
 	this->h = 0;
 	this->state.reset();
-	this->last_move = -1;
-	this->winner = 0;
-	PLAYER1.reset();
-	PLAYER2.reset();
 	this->filled_pos.reset();
+	this->last_move = -1;
+	this->winner = -1;
+	this->current = 0;
+	PLAYERS[PLAYER1].reset();
+	PLAYERS[PLAYER2].reset();
 }
 
 void					Board::print_values(void) const
@@ -42,13 +36,13 @@ void					Board::print_values(void) const
 	std::cout << "winner   : " << this->winner << std::endl;
 	std::cout << "lastmove : " << this->last_move << std::endl;
 	
-	std::cout << "currentP : " << this->current_player << std::endl;
+	std::cout << "currentP : " << &PLAYERS[current] << std::endl;
 	
-	std::cout << std::endl << "player1  : " << &this->player1 << std::endl;
-	this->player1.print();
+	std::cout << std::endl << "player1  : " << &PLAYERS[PLAYER1] << std::endl;
+	PLAYERS[PLAYER1].print();
 
-	std::cout << std::endl << "player2  : " << &this->player2 << std::endl;
-	this->player2.print();
+	std::cout << std::endl << "player2  : " << &PLAYERS[PLAYER2] << std::endl;
+	PLAYERS[PLAYER2].print();
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -64,7 +58,7 @@ void					Board::print(void) const
 		for (int col = 0; col < BOARD_LENGTH; col++)
 		{
 			int index = (row * BOARD_LENGTH + col);
-			if (this->is_empty_place(index))
+			if (is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
 				std::cout << P1_SYMBOL << ' ';
@@ -75,7 +69,7 @@ void					Board::print(void) const
 	}
 }
 
-void					Board::show_move(void) const { this->show_move(this->last_move); }
+void					Board::show_move(void) const { show_move(this->last_move); }
 
 void					Board::show_move(int show_index) const
 {
@@ -86,7 +80,7 @@ void					Board::show_move(int show_index) const
 		for (int col = 0; col < BOARD_LENGTH; col++)
 		{
 			int index = (row * BOARD_LENGTH + col);
-			if (this->is_empty_place(index))
+			if (is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
 			{
@@ -107,41 +101,31 @@ void					Board::show_move(int show_index) const
 	}
 }
 
-bool					Board::place(int row, int col, int player_id)
+bool					Board::place(int row, int col, int player_index)
 {
-	this->switch_to_player(player_id);
-	return this->place(misc::calc_index(row, col), *PLAYER);
+	return place(misc::calc_index(row, col), player_index);
 }
 
-bool					Board::place(int index, int player_id)
-{
-	this->switch_to_player(player_id);
-	return this->place(index, *PLAYER);
-}
+bool					Board::place(int index) { return this->place(index, this->current); }
 
-bool					Board::place(int index) { return this->place(index, *PLAYER); }
-
-bool					Board::place(int index, Player &player)
+bool					Board::place(int index, int player_index)
 {
-	if (!this->is_valid_move(index))
+	if (!is_valid_move(index))
 		return false;
 	
 	this->filled_pos[index] = 1;
-	this->last_move = player.last_move = index;
-	player.stones_in_play++;
+	this->last_move = PLAYERS[player_index].last_move = index;
+	PLAYERS[player_index].stones_in_play++;
 
-	this->state[player.index(index)] = 1;
-	player.captures += this->check_captures(player, index);
+	this->state[INDEX + player_index] = 1;
+	PLAYERS[player_index].captures += check_captures(player_index, index);
 	return true;
 }
 
+// Add check free threes
 bool					Board::is_valid_move(int index) const
 {
-	if (index < 0 || index >= BOARDSIZE)
-		return false;
-	if (!this->is_empty_place(index))
-		return false;
-	return true;
+	return (index >= 0 && index < BOARDSIZE && is_empty_place(index));
 }
 
 std::vector<Board>		Board::generate_children(void) const
@@ -154,7 +138,7 @@ std::vector<Board>		Board::generate_children(void) const
 	{
 		if (!moves[i])
 			continue;
-		board_copy = *this; //this->get_copy(); Does this do the same now?
+		board_copy = *this;
 		board_copy.place(i);
 		nodes.push_back(board_copy);
 		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
@@ -163,110 +147,162 @@ std::vector<Board>		Board::generate_children(void) const
     return nodes;
 }
 
-void					Board::remove(int row, int col) { this->remove(misc::calc_index(row, col)); }
+void					Board::remove(int row, int col) { remove(misc::calc_index(row, col)); }
 
 void					Board::remove(int index)
 {
-	if (this->is_empty_place(index))
+	if (is_empty_place(index))
 		return ;
+	int pi = get_player_index(index);
+
 	this->filled_pos[index] = 0;
-	auto p = this->get_player_by_id(this->get_player_id(index));
-	p->stones_in_play--;
-	this->state[p->index(index)] = 0;
+	PLAYERS[pi].stones_in_play--;
+	this->state[INDEX + pi] = 0;
 }
 
 bool					Board::is_empty_place(int index) const { return this->filled_pos[index] == 0; }
+
+int						Board::get_player_index(int index) const
+{
+	index <<= 1;
+	if (this->state[index])
+		return 0;
+	else if (this->state[index+1])
+		return 1;
+	throw "No player present";
+	return -1;
+}
 
 int						Board::get_player_id(int index) const
 {
 	index <<= 1;
 	if (this->state[index])
 		return PLAYER1_ID;
-	else if (this->state[index+1])
+	if (this->state[index+1])
 		return PLAYER2_ID;
 	return 0;
 }
 
-bool					Board::is_full(void) const { return (this->total_stones_in_play() == BOARDSIZE); }
+bool					Board::is_full(void) const { return (total_stones_in_play() == BOARDSIZE); }
 
-int						Board::total_stones_in_play(void) const { return PLAYER->stones_in_play + PLAYER->next->stones_in_play; }
+int						Board::total_stones_in_play(void) const { return PLAYERS[PLAYER1].stones_in_play + PLAYERS[PLAYER2].stones_in_play; }
 
-Player					*Board::get_player_by_id(int id)
-{
-	if (id == PLAYER1.id)
-		return &PLAYER1;
-	if (id == PLAYER2.id)
-		return &PLAYER2;
-	return NULL;
-	
-}
-
-int						Board::check_captures(Player &player, int index)
+int						Board::check_captures(int player_index, int index)
 {
 	int amount = 0;
 
 	for (auto dir : DIRECTIONS)
 	{
-		if (this->can_capture(player, index, dir))
+		if (can_capture(player_index, index, dir))
 		{
-			this->capture(dir, index);
+			capture(dir, index);
 			amount++;
 		}
 	}
 	return amount;
 }
 
-bool					Board::check_free_threes(int move, int player) const
+bool					Board::check_free_threes(int move, int player_id) const
 {
 	int result = 0;
 	// still need to check if last move was NOT a capture
 	for (int i = 0; i < 4; i++)
 	{
-		result += free_threes_direction(move, i, player);
+		result += free_threes_direction(move, i, player_id);
 		if (result > 1)
 			break;
 	}
 	return result > 1;
 }
 
-int						Board::calc_heuristic(void) { return this->heuristic.calc_heuristic(this); }
+void					Board::next_player(void) { this->current = (this->current + 1) % 2; }
 
-int						Board::calc_heuristic(Board &node) { return this->heuristic.calc_heuristic(&node); }
+int						Board::get_next_player_index(void) const { return get_next_player_index(this->current); }
 
-void					Board::next_player(void) { PLAYER = PLAYER->next; }
-
-void					Board::switch_to_player(int id)
-{
-	if (id == PLAYER1_ID)
-		PLAYER = &PLAYER1;
-	else if (id == PLAYER2_ID)
-		PLAYER = &PLAYER2;
-}
+int						Board::get_next_player_index(int player_index) const { return (player_index + 1) % 2; }
 
 void					Board::play(IGameEngine &engine) { engine.play(this); }
 
-bool					Board::is_game_finished(Player &player)
+bool					Board::is_game_finished(void) { return is_game_finished(this->current); }
+
+bool					Board::is_game_finished(int player_index)
 {
-	if (player.captures >= CAPTUREWIN)
-		this->winner = player.id;
-	else if (this->check_win_other_player(player))
-		this->winner = player.next->id;
-	else if (this->has_won(player))
-		this->winner = player.id;
-	else if (this->is_full())
+	if (PLAYERS[player_index].captures >= CAPTUREWIN)
+		this->winner = player_index;
+	else if (check_win_other_player(player_index))
+		this->winner = get_next_player_index(player_index);
+	else if (has_won(PLAYERS[player_index]))
+		this->winner = player_index;
+	else if (is_full())
 		return true;
-	return this->winner != 0;
+	return has_winner();
 }
 
-bool					Board::check_win_other_player(Player &player) const { return (player.next->has_wincondition() && this->still_winning(*player.next)); }
+bool					Board::check_win_other_player(int player_index)
+{
+	int opp_player = get_next_player_index(player_index);
+	if (PLAYERS[opp_player].has_wincondition() && still_winning(PLAYERS[opp_player]))
+		return true;
+	PLAYERS[opp_player].winning_index = -1;
+	return false;
+}
 
-bool					Board::has_won(void) const { return this->heuristic.has_won(this, *PLAYER); }
+void					Board::random_player(void) { this->current = misc::random_int() % 2; }
 
-bool					Board::has_won(Player &player) const { return this->heuristic.has_won(this, player); }
+bool					Board::has_winner(void) const { return (this->winner != -1); }
 
-void					Board::random_player(void) { PLAYER = misc::random_int() % 2 == 0 ? PLAYER : PLAYER->next; }
+bool					Board::player_on_index(int index, int player_index) const { return this->state[INDEX + player_index]; }
+
+void					Board::set_current_player(int player_index) { this->current = player_index; }
+
+Player					*Board::current_player(void) { return &this->players[this->current]; }
 
 /* PRIVATE METHODS */
+
+bool					Board::has_won(Player &player)
+{
+	if (check_wincodition_all_dir(player.last_move, player.id))
+	{
+		player.winning_index = player.last_move;
+		return !continue_game(player);
+	}
+	return false;
+}
+
+int						Board::check_wincodition_all_dir(int index, int player_id) const { return check_wincodition_all_dir(*this, index, player_id); }
+
+int						Board::check_wincodition_all_dir(const Board &board, int index, int player_id) const
+{
+	int directions[4] = {DOWN, RIGHT, DIAGDWNL, DIAGDWNR};
+
+	if (is_empty_place(index))
+		return 0;
+	for (int i = 0; i < 4; i++)
+	{
+		if (heuristic::count_both_dir(board, index, player_id, directions[i]) >= WINCONDITION)
+			return directions[i];
+	}
+	return 0;
+}
+
+bool					Board::continue_game(const Player &player)
+{
+	int op_player = player.get_next_player_index();
+	Board tmp;
+
+	for (int i = 0; i < BOARDSIZE; i++)
+	{
+		if (!is_empty_place(i))
+			continue;
+		tmp = *this;
+		if ((tmp.check_captures(op_player, i) + PLAYERS[op_player].captures) >= CAPTUREWIN
+		|| !check_wincodition_all_dir(tmp, player.last_move, player.id))
+			return true;
+	}
+	return false;
+}
+
+bool					Board::still_winning(const Player &player) const { return check_wincodition_all_dir(player.winning_index, player.id); }
 
 // creates a set of positions surrounding the currently occupied spaces
 std::bitset<BOARDSIZE>	Board::get_moves(void) const
@@ -295,16 +331,16 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 	return moves;
 }
 
-bool					Board::can_capture(Player &player, int index, int dir) const
+bool					Board::can_capture(int player_index, int index, int dir) const
 {
 	for (int i = 1; i < 4; i++)
 	{
 		if (misc::is_offside(index, index + dir))
 			break ;
 		index += dir;
-		if (i == 3 && player == this->get_player_id(index))
+		if (i == 3 && player_on_index(index, player_index))
 			return true;
-		else if (this->get_player_id(index) != -player.id)
+		else if (!player_on_index(index, get_next_player_index(player_index)))
 			break ;
 	}
 	return false;
@@ -313,10 +349,10 @@ bool					Board::can_capture(Player &player, int index, int dir) const
 void					Board::capture(int dir, int index)
 {
 	for (int i = 1; i < 3; i++)
-		this->remove(index + (i * dir));
+		remove(index + (i * dir));
 }
 
-bool					Board::free_threes_direction(int move, int direction, int player) const
+bool					Board::free_threes_direction(int move, int direction, int player_id) const
 {
 	int pos;
 	int gaps = 0;
@@ -334,11 +370,11 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 			pos += shift;
 			if (misc::is_offside(pos - shift, pos))
 				break;
-			if (get_player_id(pos) == player)
+			if (get_player_id(pos) == player_id)
 				count++;
-			else if (get_player_id(pos) == -player)
+			else if (get_player_id(pos) == -player_id)
 				break;
-			else if (!(misc::is_offside(pos, pos + shift)) && get_player_id(pos + shift) == player)
+			else if (!(misc::is_offside(pos, pos + shift)) && get_player_id(pos + shift) == player_id)
 				gaps++;
 			else
 			{
@@ -350,24 +386,19 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 	return count == 3 && gaps < 2 && open + gaps > 2;
 }
 
-bool					Board::still_winning(Player &player) const { return this->heuristic.still_winning(this, player); }
-
 /* OPERATOR OVERLOADS: */
 
 Board					&Board::operator=(Board const &rhs)
 {
 	this->h = rhs.h;
 	this->filled_pos = rhs.filled_pos;
+	PLAYERS[PLAYER1] = rhs.players[PLAYER1];
+	PLAYERS[PLAYER2] = rhs.players[PLAYER2];
 	this->winner = rhs.winner;
 	this->state = rhs.state;
+	this->current = rhs.current;
 	this->last_move = rhs.last_move;
-	this->player1 = rhs.player1;
-	this->player2 = rhs.player2;
 
-	this->player1.next = &this->player2;
-	this->player2.next = &this->player1;
-	this->current_player = rhs.current_player->id == PLAYER1_ID ? &this->player1 : &this->player2;
-	
 	return *this;
 }
 

@@ -4,8 +4,9 @@ PrimitiveGui::PrimitiveGui(IAi *ai) : IGameEngine(ai) {}
 
 void						PrimitiveGui::play(Board *board)
 {
-	this->reset(*board);
-	this->gameloop(*board);
+	reset(*board);
+	board->players[PLAYER1].ai = this->ai;
+	gameloop(*board);
 }
 
 void						PrimitiveGui::gameloop(Board &board)
@@ -14,24 +15,24 @@ void						PrimitiveGui::gameloop(Board &board)
 
 	while (this->action != quit)
 	{
-		this->print_stats(board);
+		print_stats(board);
 		board.show_move();
 
-		index = this->get_index(board);
+		index = get_index(board);
 
 		if (board.place(index))
 		{
-			if (board.is_game_finished(*board.current_player))
+			if (board.is_game_finished())
 				break;
 			
 			board.next_player();
 		}
 
 		if (this->action == restart)
-			this->reset(board);
+			reset(board);
 	}
-	if (board.winner)
-		this->print_winner(board);
+	if (board.has_winner())
+		print_winner(board);
 }
 
 void						PrimitiveGui::reset(Board &board)
@@ -46,12 +47,12 @@ void						PrimitiveGui::print_stats(Board &board) const
 	system("clear");
 	std::cout << std::endl;
 
-	printf("Name.%-*s Name.%s\n", 18, board.player1.name.c_str(), board.player2.name.c_str());
-	printf("Captures.%-*d Captures.%d\n", 14, board.player1.captures, board.player2.captures);
-	printf("StonesInPlay.%-*d StonesInPlay.%d\n", 10, board.player1.stones_in_play, board.player2.stones_in_play);
+	printf("Name.%-*s Name.%s\n", 18, board.players[PLAYER1].name.c_str(), board.players[PLAYER2].name.c_str());
+	printf("Captures.%-*d Captures.%d\n", 14, board.players[PLAYER1].captures, board.players[PLAYER2].captures);
+	printf("StonesInPlay.%-*d StonesInPlay.%d\n", 10, board.players[PLAYER1].stones_in_play, board.players[PLAYER2].stones_in_play);
 	std::cout << std::endl;
-	std::cout << "Current Player: " << board.current_player->name;
-	char symbol = (board.current_player->id == PLAYER1_ID ? P1_SYMBOL-32 : P2_SYMBOL-32);
+	std::cout << "Current Player: " << board.current_player()->name;
+	char symbol = (board.current_player()->id == PLAYER1_ID ? P1_SYMBOL-32 : P2_SYMBOL-32);
 	std::cout << ' ' << symbol << std::endl;
 	std::cout << std::endl;
 }
@@ -108,19 +109,16 @@ int							PrimitiveGui::get_player_input(void)
 
 int							PrimitiveGui::get_index(Board &board)
 {
-	if (board.current_player->id == PLAYER1_ID)
-		return this->get_player_input();
-	else if (this->ai)
-		return this->ai->calculate(board);
+	if (board.current_player()->ai)
+		return board.current_player()->ai->calculate(board);
 	else
-		return this->get_player_input();
+		return get_player_input();
 }
 
 void						PrimitiveGui::print_winner(Board &board) const
 {
-	board.switch_to_player(board.winner);
-	this->print_stats(board);
-	board.show_move(board.current_player->last_move);
+	print_stats(board);
+	board.show_move(board.current_player()->last_move);
 	if (!board.is_full())
-		std::cout << "*** " << board.current_player->name << " WINS!!! ***" << std::endl;
+		std::cout << "*** " << board.current_player()->name << " WINS!!! ***" << std::endl;
 }

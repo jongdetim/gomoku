@@ -12,7 +12,7 @@ namespace misc
 	int							get_row(int index);
 	int							calc_index(int row, int col);
 	bool						is_offside(int prev_index, int index);
-	void						create_star(Board &board, int index, int size, int player);
+	void						create_star(Board &board, int index, int size, int player_index);
 	void						place_pieces(Board &board, int start_pos, int amount, int offset);
 	int							random(int min, int max);
 	int							random(int min, int max, int seed);

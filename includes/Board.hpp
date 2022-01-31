@@ -2,8 +2,8 @@
 # define BOARD_HPP
 
 # include "gomoku.hpp"
+# include "heuristic.hpp"
 # include "Player.hpp"
-# include "Heuristic.hpp"
 # include "IGameEngine.hpp"
 
 # define BLACK "\033[0;30m"
@@ -16,9 +16,10 @@
 # define WHITE "\033[0;37m"
 # define DEFAULT "\033[0m"
 
-# define PLAYER this->current_player
-# define PLAYER1 this->player1
-# define PLAYER2 this->player2
+# define INDEX (index << 1)
+
+# define PLAYERS this->players
+# define PLAYER this->players[this->current]
 # define P1_SYMBOL 'o'
 # define P2_SYMBOL 'x'
 
@@ -31,9 +32,7 @@ public:
 	
 	int						h;
 	std::bitset<BOARDSIZE>	filled_pos;
-	Player					player1;
-	Player					player2;
-	Player					*current_player;
+	Player					players[2];
 	int						winner;
 	
 	void					play(IGameEngine &engine);
@@ -42,34 +41,37 @@ public:
 	void					show_move(void) const;
 	void					show_move(int show_index) const;
 	bool					place(int index);
-	bool					place(int index, int player_id);
-	bool					place(int index, Player &player);
-	bool					place(int row, int col, int player_id);
+	bool					place(int index, int player_index);
+	bool					place(int row, int col, int player_index);
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
-	int						check_captures(Player &player_id, int index);
-	std::vector<Board>		generate_children(void) const;
-	bool					check_free_threes(int move, int player) const;
-	int						calc_heuristic(void);
-	int						calc_heuristic(Board &node);
-	void					next_player(void);
-	void					switch_to_player(int id);
+	bool					is_empty_place(int index) const;
+	bool					is_valid_move(int index) const;
+	bool					is_full(void) const;
 	int						total_stones_in_play(void) const;
-	void					random_player(void);
+	
+	int						check_captures(int player_index, int index);
+	std::vector<Board>		generate_children(void) const;
+	bool					check_free_threes(int move, int player_id) const;
+	int						check_wincodition_all_dir(int index, int player_id) const;
 
+	void					set_current_player(int player_index);
+	bool					player_on_index(int index, int player_index) const;
+	void					next_player(void);
+	int						get_next_player_index(int player_index) const;
+	int						get_next_player_index(void) const;
+	void					random_player(void);
+	int						get_player_index(int index) const;
 	int						get_player_id(int index) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
-	Player					*get_player_by_id(int id);
+	Player					*current_player(void);
 
-	bool					is_game_finished(Player &player);
-	bool					check_win_other_player(Player &player) const;
-	bool					has_won(void) const;
-	bool					has_won(Player &player) const;
-	bool					is_empty_place(int index) const;
-	bool					is_full(void) const;
-	bool					is_valid_move(int index) const;
+	bool					has_winner(void) const;
+	bool					is_game_finished(void);
+	bool					is_game_finished(int player_index);
+	bool					check_win_other_player(int player_index);
 	
 	Board					&operator=(Board const &rhs);
 	bool					operator==(Board const &rhs) const;
@@ -79,14 +81,17 @@ public:
 
 private:
 	BITBOARD				state;
+	int						current;
 	int						last_move;
-	Heuristic				heuristic;
 
-	bool					still_winning(Player &player) const;
-	bool					can_capture(Player &player, int index, int dir) const;
+	int						check_wincodition_all_dir(const Board &board, int index, int player_id) const;
+	bool					continue_game(const Player &player);
+	bool					has_won(Player &player);
+	bool					can_capture(int player_index, int index, int dir) const;
 	void					capture(int dir, int index);
 	std::bitset<BOARDSIZE>	get_moves(void) const;
-	bool					free_threes_direction(int move, int direction, int player) const;
+	bool					free_threes_direction(int move, int direction, int player_id) const;
+	bool					still_winning(const Player &player) const;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

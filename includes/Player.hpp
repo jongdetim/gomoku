@@ -16,17 +16,17 @@ public:
 
 	std::string					name;
 	int							id;
+	int							index;
 	int							last_move;
 	int							captures;
 	int							stones_in_play;
 	int							winning_index;
-	Player						*next;
 	IAi							*ai;
 
 	void						print(void) const;
 	void						reset(void);
 	bool						has_wincondition(void) const;
-	int							index(int index) const;
+	int							get_next_player_index(void) const;
 
 	Player						&operator=(Player const &rhs);
 	bool						operator==(Player &rhs) const;
@@ -35,7 +35,6 @@ public:
 	bool						operator!=(int id) const;
 
 private:
-	int							index_offset;
 };
 
 #endif

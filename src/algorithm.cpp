@@ -1,6 +1,6 @@
 #include "algorithm.hpp"
 #include "Board.hpp"
-#include "Heuristic.hpp"
+#include "heuristic.hpp"
 #include "TranspositionTable.hpp"
 
 int TOTAL_LEAVES = 0;
@@ -64,7 +64,7 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 			return tt_entry.value;
 	}
 
-	is_finished = node.is_game_finished(*node.current_player->next); // Checked nu of de current player heeft gewonnen???
+	is_finished = node.is_game_finished(node.get_next_player_index());//*node.current_player()->next); // Checked nu of de current player heeft gewonnen???
 
 	if (depth == 0 || is_finished)
 	{
@@ -73,7 +73,7 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = node.current_player->id * node.calc_heuristic();
+		value = node.current_player()->id * heuristic::calc_heuristic(node);
 
 		// node.print();
 		// std::cout << "value: " << value * color << std::endl;
@@ -119,7 +119,7 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 			{
 				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = -node.current_player->id * node.calc_heuristic(child);
+			    child.h = -node.current_player()->id * heuristic::calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
 				// h_table.insert(child, ht_entry);
@@ -137,7 +137,7 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 	{
 		int old_value = value;
 
-		if (child.check_free_threes(child.current_player->last_move, node.current_player->id)) // Welke last move wil je hier hebben?
+		if (child.check_free_threes(child.current_player()->last_move, node.current_player()->id)) // Welke last move wil je hier hebben?
 			continue;
 		child.next_player();
 		Board copy = child; /* used to be get_copy()*/

@@ -5,7 +5,7 @@ int							misc::random_int(void)
 {
    static bool first = true;
    if (first) 
-   {  
+   {
 		srand( time(NULL) );
 		first = false;
    }
@@ -53,9 +53,9 @@ bool						misc::is_offside(int prev_index, int index)
 	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1) || index < 0 || index >= BOARDSIZE);
 }
 
-void						misc::create_star(Board &board, int index, int size, int player)
+void						misc::create_star(Board &board, int index, int size, int player_index)
 {
-	board.switch_to_player(player);
+	board.set_current_player(player_index);
     for (auto dir : DIRECTIONS)
         place_pieces(board, index, size, dir);
 }
@@ -121,7 +121,7 @@ Board						misc::create_random_board(int seed)
 			}
 		}
 	}
-	return board;//board.get_copy();
+	return board;
 }
 
 std::vector<std::string>	misc::tokenize(std::string &str, char delim)

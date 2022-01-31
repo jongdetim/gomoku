@@ -14,7 +14,7 @@ void		Stats::init(void)
 		this->texts.push_back(Text(this->renderer, t_point {this->pos.x, this->pos.y + (i * this->textH)}));
 }
 
-void		Stats::update(Player &player, int current_id)
+void		Stats::update(Player &player)
 {
 	this->texts[name_text].update(player.name, this->name_font);
 	this->texts[empty_text].update("-", this->font);

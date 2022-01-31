@@ -26,7 +26,7 @@ public:
 	Stats(void);
 	Stats(SDL_Renderer *renderer, t_point pos, TTF_Font *font, TTF_Font *name_font);
 
-	void				update(Player &player, int current_id);
+	void				update(Player &player);
 	void				render(void);
 	void				init(void);
 private:

@@ -122,7 +122,7 @@ void		GUI::gameloop(Board &board)
 			index = this->get_index(board);
 			if (board.is_valid_move(index))
 			{
-				if (!board.current_player->ai)
+				if (!board.current_player()->ai)
 					this->prev = board;
 				board.place(index);
 				this->check_game_state(board);
@@ -225,10 +225,10 @@ int			GUI::get_player_input(void)
 
 void		GUI::check_game_state(Board &board)
 {
-	if (board.is_game_finished(*board.current_player))
+	if (board.is_game_finished())
 	{
 		this->set_action(pause);
-		this->winner = board.get_player_by_id(board.winner);
+		this->winner = &board.players[board.winner];
 	}
 	else
 		board.next_player();
@@ -241,15 +241,15 @@ std::string	GUI::get_status_update(Board &board) const
 	else if (board.is_full())
 		return "Draw";
 	else
-		return "> " + board.current_player->name;
+		return "> " + board.current_player()->name;
 }
 
 void		GUI::reset(Board &board)
 {
 	board.reset();
 	board.random_player();
-	while ( (board.player1.name = this->random_name()).length() > 14);
-	while ( (board.player2.name = this->random_name()).length() > 14);
+	while ( (board.players[PLAYER1].name = this->random_name()).length() > 14);
+	while ( (board.players[PLAYER2].name = this->random_name()).length() > 14);
 	this->set_players_ai(board);
 	this->update = true;
 	this->action = def;
@@ -267,7 +267,7 @@ void		GUI::draw_stones(Board &board)
 		if (board.is_empty_place(index))
 			continue;
 
-		texture = board.get_player_id(index) == PLAYER1_ID ? this->textures[p1_tex] : this->textures[p2_tex];
+		texture = board.get_player_index(index) == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
 		row = (misc::get_row(index) * this->size) + this->offset - (this->size >> 1);
 		col = (misc::get_col(index) * this->size) + this->offset - (this->size >> 1);
 
@@ -282,17 +282,15 @@ void		GUI::draw_stones(Board &board)
 
 void		GUI::highlight_last_move(Board &board, int row, int col)
 {
-	SDL_Texture *texture = board.get_player_id(board.get_last_move()) == PLAYER1_ID ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
+	SDL_Texture *texture = board.get_player_index(board.get_last_move()) == PLAYER1 ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
 	this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 }
 
 void		GUI::highlight_5inarow(Board &board)
 {
-	Heuristic heuristic;
-
 	int index = this->winner->winning_index;
-	int dir = heuristic.check_wincodition_all_dir(&board, index, this->winner->id);
-	index += (dir * heuristic.count_direction(&board, index, this->winner->id, dir, 10));
+	int dir = board.check_wincodition_all_dir(index, this->winner->id);
+	index += (dir * heuristic::count_direction(board, index, this->winner->id, dir, 10));
 	dir = -dir;
 
 	int prev_index, row, col;
@@ -401,28 +399,28 @@ void		GUI::render_buttons(void)
 
 void		GUI::init_stats(Board &board)
 {
-	this->stats[0] = Stats(this->renderer, t_point {this->screen_height, (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
-	this->stats[1] = Stats(this->renderer, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
+	this->stats[PLAYER1] = Stats(this->renderer, t_point {this->screen_height, (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
+	this->stats[PLAYER2] = Stats(this->renderer, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
 
-	this->stats[0].init();
-	this->stats[1].init();
+	this->stats[PLAYER1].init();
+	this->stats[PLAYER2].init();
 }
 
 void		GUI::show_stats(Board &board)
 {
-	this->stats[0].update(board.player1, board.current_player->id);
-	this->stats[1].update(board.player2, board.current_player->id);
+	this->stats[PLAYER1].update(board.players[PLAYER1]);
+	this->stats[PLAYER2].update(board.players[PLAYER2]);
 	
-	this->stats[0].render();
-	this->stats[1].render();
+	this->stats[PLAYER1].render();
+	this->stats[PLAYER2].render();
 }
 
 int			GUI::get_index(Board &board)
 {
-	if (board.current_player->ai)
-		return board.current_player->ai->calculate(board);
+	if (board.current_player()->ai)
+		return board.current_player()->ai->calculate(board);
 	else
-		return this->get_player_input();
+		return get_player_input();
 }
 
 bool		GUI::check_action(int action)
@@ -463,16 +461,16 @@ void		GUI::set_players_ai(Board &board)
 	switch (this->players_playing)
 	{
 	case 0:
-		board.player1.ai = this->ai;
-		board.player2.ai = this->ai;
+		board.players[PLAYER1].ai = this->ai;
+		board.players[PLAYER2].ai = this->ai;
 		break;
 	case 1:
-		board.player1.ai = NULL;
-		board.player2.ai = this->ai;
+		board.players[PLAYER1].ai = NULL;
+		board.players[PLAYER2].ai = this->ai;
 		break;
 	case 2:
-		board.player1.ai = NULL;
-		board.player2.ai = NULL;
+		board.players[PLAYER1].ai = NULL;
+		board.players[PLAYER2].ai = NULL;
 		break;
 	default:
 		break;
