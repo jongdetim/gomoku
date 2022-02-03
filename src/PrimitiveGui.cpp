@@ -5,7 +5,7 @@ PrimitiveGui::PrimitiveGui(IAi *ai) : IGameEngine(ai) {}
 void						PrimitiveGui::play(Board *board)
 {
 	reset(*board);
-	board->players[PLAYER1].ai = this->ai;
+	board->players[PLAYER1_IDX].ai = this->ai;
 	gameloop(*board);
 }
 
@@ -47,9 +47,9 @@ void						PrimitiveGui::print_stats(Board &board) const
 	system("clear");
 	std::cout << std::endl;
 
-	printf("Name.%-*s Name.%s\n", 18, board.players[PLAYER1].name.c_str(), board.players[PLAYER2].name.c_str());
-	printf("Captures.%-*d Captures.%d\n", 14, board.players[PLAYER1].captures, board.players[PLAYER2].captures);
-	printf("StonesInPlay.%-*d StonesInPlay.%d\n", 10, board.players[PLAYER1].stones_in_play, board.players[PLAYER2].stones_in_play);
+	printf("Name.%-*s Name.%s\n", 18, board.players[PLAYER1_IDX].name.c_str(), board.players[PLAYER2_IDX].name.c_str());
+	printf("Captures.%-*d Captures.%d\n", 14, board.players[PLAYER1_IDX].captures, board.players[PLAYER2_IDX].captures);
+	printf("StonesInPlay.%-*d StonesInPlay.%d\n", 10, board.players[PLAYER1_IDX].stones_in_play, board.players[PLAYER2_IDX].stones_in_play);
 	std::cout << std::endl;
 	std::cout << "Current Player: " << board.current_player()->name;
 	char symbol = (board.current_player()->id == PLAYER1_ID ? P1_SYMBOL-32 : P2_SYMBOL-32);

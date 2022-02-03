@@ -248,8 +248,8 @@ void		GUI::reset(Board &board)
 {
 	board.reset();
 	board.random_player();
-	while ( (board.players[PLAYER1].name = this->random_name()).length() > 14);
-	while ( (board.players[PLAYER2].name = this->random_name()).length() > 14);
+	while ( (board.players[PLAYER1_IDX].name = this->random_name()).length() > 14);
+	while ( (board.players[PLAYER2_IDX].name = this->random_name()).length() > 14);
 	this->set_players_ai(board);
 	this->update = true;
 	this->action = def;
@@ -267,7 +267,7 @@ void		GUI::draw_stones(Board &board)
 		if (board.is_empty_place(index))
 			continue;
 
-		texture = board.get_player_index(index) == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
+		texture = board.get_player_index(index) == PLAYER1_IDX ? this->textures[p1_tex] : this->textures[p2_tex];
 		row = (misc::get_row(index) * this->size) + this->offset - (this->size >> 1);
 		col = (misc::get_col(index) * this->size) + this->offset - (this->size >> 1);
 
@@ -282,7 +282,7 @@ void		GUI::draw_stones(Board &board)
 
 void		GUI::highlight_last_move(Board &board, int row, int col)
 {
-	SDL_Texture *texture = board.get_player_index(board.get_last_move()) == PLAYER1 ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
+	SDL_Texture *texture = board.get_player_index(board.get_last_move()) == PLAYER1_IDX ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
 	this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 }
 
@@ -399,20 +399,20 @@ void		GUI::render_buttons(void)
 
 void		GUI::init_stats(Board &board)
 {
-	this->stats[PLAYER1] = Stats(this->renderer, t_point {this->screen_height, (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
-	this->stats[PLAYER2] = Stats(this->renderer, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
+	this->stats[PLAYER1_IDX] = Stats(this->renderer, t_point {this->screen_height, (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
+	this->stats[PLAYER2_IDX] = Stats(this->renderer, t_point {this->screen_height + (this->interface_size >> 1), (int)this->offset + (this->size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
 
-	this->stats[PLAYER1].init();
-	this->stats[PLAYER2].init();
+	this->stats[PLAYER1_IDX].init();
+	this->stats[PLAYER2_IDX].init();
 }
 
 void		GUI::show_stats(Board &board)
 {
-	this->stats[PLAYER1].update(board.players[PLAYER1]);
-	this->stats[PLAYER2].update(board.players[PLAYER2]);
+	this->stats[PLAYER1_IDX].update(board.players[PLAYER1_IDX]);
+	this->stats[PLAYER2_IDX].update(board.players[PLAYER2_IDX]);
 	
-	this->stats[PLAYER1].render();
-	this->stats[PLAYER2].render();
+	this->stats[PLAYER1_IDX].render();
+	this->stats[PLAYER2_IDX].render();
 }
 
 int			GUI::get_index(Board &board)
@@ -461,16 +461,16 @@ void		GUI::set_players_ai(Board &board)
 	switch (this->players_playing)
 	{
 	case 0:
-		board.players[PLAYER1].ai = this->ai;
-		board.players[PLAYER2].ai = this->ai;
+		board.players[PLAYER1_IDX].ai = this->ai;
+		board.players[PLAYER2_IDX].ai = this->ai;
 		break;
 	case 1:
-		board.players[PLAYER1].ai = NULL;
-		board.players[PLAYER2].ai = this->ai;
+		board.players[PLAYER1_IDX].ai = NULL;
+		board.players[PLAYER2_IDX].ai = this->ai;
 		break;
 	case 2:
-		board.players[PLAYER1].ai = NULL;
-		board.players[PLAYER2].ai = NULL;
+		board.players[PLAYER1_IDX].ai = NULL;
+		board.players[PLAYER2_IDX].ai = NULL;
 		break;
 	default:
 		break;

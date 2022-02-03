@@ -8,8 +8,8 @@ Board::Board(const Board &rhs)
 {
 	this->h = rhs.h;
 	this->filled_pos = rhs.filled_pos;
-	PLAYERS[PLAYER1] = rhs.players[PLAYER1];
-	PLAYERS[PLAYER2] = rhs.players[PLAYER2];
+	PLAYERS[PLAYER1_IDX] = rhs.players[PLAYER1_IDX];
+	PLAYERS[PLAYER2_IDX] = rhs.players[PLAYER2_IDX];
 	this->winner = rhs.winner;
 	this->state = rhs.state;
 	this->current = rhs.current;
@@ -26,8 +26,8 @@ void					Board::reset(void)
 	this->last_move = -1;
 	this->winner = -1;
 	this->current = 0;
-	PLAYERS[PLAYER1].reset();
-	PLAYERS[PLAYER2].reset();
+	PLAYERS[PLAYER1_IDX].reset();
+	PLAYERS[PLAYER2_IDX].reset();
 }
 
 void					Board::print_values(void) const
@@ -38,11 +38,11 @@ void					Board::print_values(void) const
 	
 	std::cout << "currentP : " << &PLAYERS[current] << std::endl;
 	
-	std::cout << std::endl << "player1  : " << &PLAYERS[PLAYER1] << std::endl;
-	PLAYERS[PLAYER1].print();
+	std::cout << std::endl << "player1  : " << &PLAYERS[PLAYER1_IDX] << std::endl;
+	PLAYERS[PLAYER1_IDX].print();
 
-	std::cout << std::endl << "player2  : " << &PLAYERS[PLAYER2] << std::endl;
-	PLAYERS[PLAYER2].print();
+	std::cout << std::endl << "player2  : " << &PLAYERS[PLAYER2_IDX] << std::endl;
+	PLAYERS[PLAYER2_IDX].print();
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -185,7 +185,7 @@ int						Board::get_player_id(int index) const
 
 bool					Board::is_full(void) const { return (total_stones_in_play() == BOARDSIZE); }
 
-int						Board::total_stones_in_play(void) const { return PLAYERS[PLAYER1].stones_in_play + PLAYERS[PLAYER2].stones_in_play; }
+int						Board::total_stones_in_play(void) const { return PLAYERS[PLAYER1_IDX].stones_in_play + PLAYERS[PLAYER2_IDX].stones_in_play; }
 
 int						Board::check_captures(int player_index, int index)
 {
@@ -392,8 +392,8 @@ Board					&Board::operator=(Board const &rhs)
 {
 	this->h = rhs.h;
 	this->filled_pos = rhs.filled_pos;
-	PLAYERS[PLAYER1] = rhs.players[PLAYER1];
-	PLAYERS[PLAYER2] = rhs.players[PLAYER2];
+	PLAYERS[PLAYER1_IDX] = rhs.players[PLAYER1_IDX];
+	PLAYERS[PLAYER2_IDX] = rhs.players[PLAYER2_IDX];
 	this->winner = rhs.winner;
 	this->state = rhs.state;
 	this->current = rhs.current;
