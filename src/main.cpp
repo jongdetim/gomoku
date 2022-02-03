@@ -3,7 +3,7 @@
 #include "PrimitiveGui.hpp"
 #include "gomoku.hpp"
 #include "heuristic.hpp"
-#include "transpositionTable.hpp"
+#include "TranspositionTable.hpp"
 #include "misc.hpp"
 #include "algorithm.hpp"
 
@@ -31,12 +31,12 @@ void    iterative_deepening_negamax(Board &board, int player)
             TIMEOUT_REACHED = true;
             PRINT("timeout reached during depth: " << depth << ".\nusing previous depth search results:");
             depth -= 1;
-            PRINT("best move: " << get_col(best_move) << ", " << get_row(best_move) << " at depth: " << depth);
-            print_stats();
+            PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
+            misc::print_stats();
             return;
         }
         best_move = last_best_move;
-        PRINT("best move: " << get_col(best_move) << ", " << get_row(best_move) << " at depth: " << depth);
+        PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
         // PRINT(last_best_move);
 
         Board node = board;
@@ -44,7 +44,7 @@ void    iterative_deepening_negamax(Board &board, int player)
         node.show_last_move();
         // PRINCIPAL VARIATION RETRIEVAL:
         // board.print_principal_variation(player, depth, t_table);
-        print_stats();
+        misc::print_stats();
     }    
 }
 
@@ -72,7 +72,7 @@ void    test()
 {
     Board board;
 
-    int index = calc_index(8, 8);
+    int index = misc::calc_index(8, 8);
     board.place(index, PLAYER1);
     board.print();
     board.place(7, 7, PLAYER2);

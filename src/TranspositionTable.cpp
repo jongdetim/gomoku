@@ -1,6 +1,4 @@
-# include "gomoku.hpp"
 # include "TranspositionTable.hpp"
-# include "Board.hpp"
 
 bool		TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 {

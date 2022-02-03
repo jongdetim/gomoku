@@ -2,7 +2,7 @@
 # define MISC_HPP
 
 # include "gomoku.hpp"
-# include "board.hpp"
+# include "Board.hpp"
 # include <chrono>
 # include <iostream>
 

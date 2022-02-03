@@ -1,5 +1,5 @@
 #include "algorithm.hpp"
-#include "board.hpp"
+#include "Board.hpp"
 #include "misc.hpp"
 #include "heuristic.hpp"
 #include "TranspositionTable.hpp"

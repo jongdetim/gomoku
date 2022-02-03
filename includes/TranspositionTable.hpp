@@ -1,7 +1,7 @@
 #ifndef TRANSPOSITION_TABLE_HPP
 #define TRANSPOSITION_TABLE_HPP
 
-#include "board.hpp"
+#include "Board.hpp"
 #include "gomoku.hpp"
 
 class MyHashFunction
@@ -17,7 +17,7 @@ public:
     size_t operator()(const Board &Key) const;
 };
 
-// class TableEntry
+class TableEntry;
 // {
 // public:
 //     int value;

@@ -1,5 +1,5 @@
 #include "misc.hpp"
-#include "board.hpp"
+#include "Board.hpp"
 
 void						Timer::start()
 {
