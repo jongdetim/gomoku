@@ -36,12 +36,6 @@
 //     int best_move;
 // };
 
-typedef struct	s_player
-{
-	int			captures;
-	Heuristic	heuristic;
-}				t_player;
-
 class	Board
 {
 public:
@@ -49,11 +43,10 @@ public:
 	Board(const Board &rhs);
 	~Board();
 	
-	t_player				players[2];
 	int						h;
 	std::bitset<BOARDSIZE>	filled_pos;
-	Player					players[2];
-	int						winner;
+	t_player				players[2];
+	int						winner_index;
 	
 	void					play(IGameEngine &engine);
 	void					print(void) const;
@@ -95,7 +88,8 @@ public:
 	int						get_player_id(int index) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
-	Player					*current_player(void);
+	int						get_last_player(void) const;
+	int						get_current_player(void);
 
 	bool					has_winner(void) const;
 	bool					is_game_finished(void);
@@ -110,7 +104,7 @@ public:
 
 private:
 	BITBOARD				state;
-	int						current;
+	int						current_player;
 	int						last_move;
 
 	int						check_wincodition_all_dir(const Board &board, int index, int player_id) const;

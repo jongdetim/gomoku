@@ -1,19 +1,25 @@
-#include "board.hpp"
+#include "Board.hpp"
 #include "misc.hpp"
 #include "TranspositionTable.hpp"
 
 Board::Board(void) :
-h(0), state(0), filled_pos(0), players{Player(1, "P1"), Player(-1, "P2")}, winner(-1), current(0), last_move(-1) {}
+h(0),
+state(0),
+filled_pos(0),
+winner_index(-1),
+current_player(0),
+last_move(-1)
+{}
 
 Board::Board(const Board &rhs)
 {
 	this->h = rhs.h;
 	this->filled_pos = rhs.filled_pos;
-	PLAYERS[PLAYER1_IDX] = rhs.players[PLAYER1_IDX];
-	PLAYERS[PLAYER2_IDX] = rhs.players[PLAYER2_IDX];
-	this->winner = rhs.winner;
+	PLAYERS[PLAYER1] = rhs.players[PLAYER1];
+	PLAYERS[PLAYER2] = rhs.players[PLAYER2];
+	this->winner_index = rhs.winner_index;
 	this->state = rhs.state;
-	this->current = rhs.current;
+	this->current_player = rhs.current_player;
 	this->last_move = rhs.last_move;
 }
 
@@ -25,25 +31,25 @@ void					Board::reset(void)
 	this->state.reset();
 	this->filled_pos.reset();
 	this->last_move = -1;
-	this->winner = -1;
-	this->current = 0;
-	PLAYERS[PLAYER1_IDX].reset();
-	PLAYERS[PLAYER2_IDX].reset();
+	this->winner_index = -1;
+	this->current_player = 0;
+	PLAYERS[PLAYER1].reset();
+	PLAYERS[PLAYER2].reset();
 }
 
 void					Board::print_values(void) const
 {
 	std::cout << "h        : " << this->h << std::endl;
-	std::cout << "winner   : " << this->winner << std::endl;
+	std::cout << "winner   : " << this->winner_index << std::endl;
 	std::cout << "lastmove : " << this->last_move << std::endl;
 	
-	std::cout << "currentP : " << &PLAYERS[current] << std::endl;
+	std::cout << "currentP : " << &PLAYERS[current_player] << std::endl;
 	
-	std::cout << std::endl << "player1  : " << &PLAYERS[PLAYER1_IDX] << std::endl;
-	PLAYERS[PLAYER1_IDX].print();
+	std::cout << std::endl << "player1  : " << &PLAYERS[PLAYER1] << std::endl;
+	PLAYERS[PLAYER1].print();
 
-	std::cout << std::endl << "player2  : " << &PLAYERS[PLAYER2_IDX] << std::endl;
-	PLAYERS[PLAYER2_IDX].print();
+	std::cout << std::endl << "player2  : " << &PLAYERS[PLAYER2] << std::endl;
+	PLAYERS[PLAYER2].print();
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -107,7 +113,7 @@ bool					Board::place(int row, int col, int player_index)
 	return place(misc::calc_index(row, col), player_index);
 }
 
-bool					Board::place(int index) { return this->place(index, this->current); }
+bool					Board::place(int index) { return this->place(index, this->current_player); }
 
 bool					Board::place(int index, int player_index)
 {
@@ -186,7 +192,7 @@ int						Board::get_player_id(int index) const
 
 bool					Board::is_full(void) const { return (total_stones_in_play() == BOARDSIZE); }
 
-int						Board::total_stones_in_play(void) const { return PLAYERS[PLAYER1_IDX].stones_in_play + PLAYERS[PLAYER2_IDX].stones_in_play; }
+int						Board::total_stones_in_play(void) const { return this->filled_pos.count(); }
 
 int						Board::check_captures(int player_index, int index)
 {
@@ -243,24 +249,24 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 	}
 }
 
-void					Board::next_player(void) { this->current = (this->current + 1) % 2; }
+void					Board::next_player(void) { this->current_player = (this->current_player + 1) % 2; }
 
-int						Board::get_next_player_index(void) const { return get_next_player_index(this->current); }
+int						Board::get_next_player_index(void) const { return get_next_player_index(this->current_player); }
 
 int						Board::get_next_player_index(int player_index) const { return (player_index + 1) % 2; }
 
 void					Board::play(IGameEngine &engine) { engine.play(this); }
 
-bool					Board::is_game_finished(void) { return is_game_finished(this->current); }
+bool					Board::is_game_finished(void) { return is_game_finished(this->current_player); }
 
 bool					Board::is_game_finished(int player_index)
 {
 	if (PLAYERS[player_index].captures >= CAPTUREWIN)
-		this->winner = player_index;
+		this->winner_index = player_index;
 	else if (check_win_other_player(player_index))
-		this->winner = get_next_player_index(player_index);
+		this->winner_index = get_next_player_index(player_index);
 	else if (has_won(PLAYERS[player_index]))
-		this->winner = player_index;
+		this->winner_index = player_index;
 	else if (is_full())
 		return true;
 	return has_winner();
@@ -275,16 +281,17 @@ bool					Board::check_win_other_player(int player_index)
 	return false;
 }
 
-void					Board::random_player(void) { this->current = misc::random_int() % 2; }
+void					Board::random_player(void) { this->current_player = misc::random_int() % 2; }
 
-bool					Board::has_winner(void) const { return (this->winner != -1); }
+bool					Board::has_winner(void) const { return (this->winner_index != -1); }
 
 bool					Board::player_on_index(int index, int player_index) const { return this->state[INDEX + player_index]; }
 
-void					Board::set_current_player(int player_index) { this->current = player_index; }
+void					Board::set_current_player(int player_index) { this->current_player = player_index; }
 
-Player					*Board::current_player(void) { return &this->players[this->current]; }
+int						Board::get_current_player(void) { return this->current_player; }
 
+int						Board::get_last_player(void) const { return get_player_index(this->last_move); }
 /* PRIVATE METHODS */
 
 bool					Board::has_won(Player &player)
@@ -344,7 +351,7 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 		for (int i = 0; i < 8; i++)
 		{
 			int n_index = index + DIRECTIONS[i];
-			if (is_empty_place(n_index) && !is_offside(index, n_index))
+			if (is_empty_place(n_index) && !misc::is_offside(index, n_index))
 				moves[n_index] = 1;
 		}
 	}
@@ -412,11 +419,11 @@ Board					&Board::operator=(Board const &rhs)
 {
 	this->h = rhs.h;
 	this->filled_pos = rhs.filled_pos;
-	PLAYERS[PLAYER1_IDX] = rhs.players[PLAYER1_IDX];
-	PLAYERS[PLAYER2_IDX] = rhs.players[PLAYER2_IDX];
-	this->winner = rhs.winner;
+	PLAYERS[PLAYER1] = rhs.players[PLAYER1];
+	PLAYERS[PLAYER2] = rhs.players[PLAYER2];
+	this->winner_index = rhs.winner_index;
 	this->state = rhs.state;
-	this->current = rhs.current;
+	this->current_player = rhs.current_player;
 	this->last_move = rhs.last_move;
 
 	return *this;

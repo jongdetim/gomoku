@@ -6,21 +6,29 @@
 
 class Board;
 
-class Player
+typedef struct					s_player
+{
+	int							captures = 0;
+	int							score = 0;
+	uint8_t						patterns[8] = {0};
+
+}								t_player;
+
+class GuiPlayer
 {
 public:
 
-	Player(void);
-	Player(const Player &rhs);
-	Player(int player_id, std::string name);
+	GuiPlayer(void);
+	GuiPlayer(const Player &rhs);
+	GuiPlayer(int player_id, std::string name);
 
 	std::string					name;
 	int							id;
 	int							index;
 	int							last_move;
-	int							captures;
 	int							stones_in_play;
 	int							winning_index;
+	t_player					player;
 	IAi							*ai;
 
 	void						print(void) const;

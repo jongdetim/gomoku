@@ -18,7 +18,7 @@ Player::Player(const Player &rhs)
 }
 
 Player::Player(int player_id, std::string name) :
-name(name), id(player_id), index((player_id == PLAYER1_ID ? PLAYER1_IDX : PLAYER2_IDX)), last_move(-1), captures(0), stones_in_play(0), winning_index(-1), ai(NULL) {}
+name(name), id(player_id), index((player_id == PLAYER1_ID ? PLAYER1 : PLAYER2)), last_move(-1), captures(0), stones_in_play(0), winning_index(-1), ai(NULL) {}
 
 void						Player::print(void) const
 {
