@@ -2,7 +2,29 @@
 # define MISC_HPP
 
 # include "gomoku.hpp"
-# include "Board.hpp"
+# include "board.hpp"
+# include <chrono>
+# include <iostream>
+
+#define PRINT(x) std::cout << x << std::endl
+
+extern int TOTAL_NODES;
+extern int TOTAL_LEAVES;
+extern int FOUND_IN_TABLE;
+extern int TOTAL_BRANCHES_PRUNED;
+
+class Timer
+{
+public:
+    void start();
+    void stop();
+    int elapsedMilliseconds();
+    double elapsedSeconds();
+private:
+    std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
+    std::chrono::time_point<std::chrono::steady_clock> m_EndTime;
+    bool                                               m_bRunning = false;
+};
 
 namespace misc
 {
@@ -18,6 +40,8 @@ namespace misc
 	int							random(int min, int max, int seed);
 	int							random_int(void);
 	std::vector<std::string>	tokenize(std::string &str, char delim);
+	void                        print_and_quit(const char *msg);
+	void	                    print_stats();
 }
 
 #endif

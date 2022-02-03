@@ -1,5 +1,6 @@
-#include "Board.hpp"
+#include "board.hpp"
 #include "misc.hpp"
+#include "TranspositionTable.hpp"
 
 Board::Board(void) :
 h(0), state(0), filled_pos(0), players{Player(1, "P1"), Player(-1, "P2")}, winner(-1), current(0), last_move(-1) {}
@@ -215,6 +216,33 @@ bool					Board::check_free_threes(int move, int player_id) const
 	return result > 1;
 }
 
+void					Board::print_principal_variation(int player, int depth, TranspositionTable &t_table)
+{
+	Board node = *this;
+	int color = player;
+	TableEntry tt_entry;
+
+	for (int i = 0; i < depth; i++)
+	{
+		t_table.lookup(node, tt_entry);
+		int best_move = tt_entry.best_move;
+		PRINT(best_move);
+		node.place(best_move, color);
+		node.show_last_move();
+		
+		std::cout << "depth: " << depth << std::endl;
+		std::cout << "best move is: " << best_move << std::endl;
+		std::cout << "heuristic value is: " << tt_entry.value << std::endl;
+		best_move = tt_entry.best_move;
+		color *= -1;
+		if(node.is_game_finished() || node.is_game_won())
+		{
+			PRINT("\n*** game finished ***\n");
+			return;
+		}
+	}
+}
+
 void					Board::next_player(void) { this->current = (this->current + 1) % 2; }
 
 int						Board::get_next_player_index(void) const { return get_next_player_index(this->current); }
@@ -316,16 +344,8 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 		for (int i = 0; i < 8; i++)
 		{
 			int n_index = index + DIRECTIONS[i];
-			if (0 <= n_index && n_index < BOARDSIZE && is_empty_place(n_index))
-			{
-				if ((i == 0 || i == 2) && n_index / 19 != (index / 19) - 1)
-					continue;
-				else if ((i == 5 || i == 7) && n_index / 19 != index / 19 + 1)
-					continue;
-				else if ((i == 3 || i == 4) && n_index / 19 != index / 19)
-					continue;
+			if (is_empty_place(n_index) && !is_offside(index, n_index))
 				moves[n_index] = 1;
-			}
 		}
 	}
 	return moves;

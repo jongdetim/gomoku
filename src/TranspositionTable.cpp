@@ -19,7 +19,7 @@ bool		TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 
 void		TranspositionTable::insert(const Board &node, TableEntry &tt_entry)
 {
-	std::pair ding = t_table.insert({node, tt_entry});
+	t_table.insert({node, tt_entry});
 }
 
 void		TranspositionTable::update(Board &node, int value)
@@ -30,6 +30,11 @@ void		TranspositionTable::update(Board &node, int value)
 size_t		TranspositionTable::size()
 {
 	return t_table.size();
+}
+
+size_t MyHashFunction::operator()(const Board &Key) const
+{
+	return default_hash(Key.get_state());
 }
 
 uint64_t MyHashFunction::hash(BITBOARD board) const

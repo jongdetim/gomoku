@@ -24,6 +24,8 @@
 # define PLAYER1_IDX	0
 # define PLAYER2_IDX	1
 # define BITBOARD		std::bitset<MASKSIZE>
+
+// makes more sense to be enum?
 # define EXACT 0
 # define UPPERBOUND 2
 # define LOWERBOUND 1
@@ -39,7 +41,9 @@ const int				DIRECTIONS[8] = {DIAGUPL, UP, DIAGUPR, RIGHT, DIAGDWNR, DOWN, DIAGD
 # include <set>
 # include <algorithm>
 # include <unordered_map>
+# include <map>
 # include <stdlib.h>
 # include <time.h>
+# include <math.h>
 
 #endif

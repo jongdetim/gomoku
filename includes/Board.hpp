@@ -22,6 +22,25 @@
 # define PLAYER this->players[this->current]
 # define P1_SYMBOL 'o'
 # define P2_SYMBOL 'x'
+// # include "TranspositionTable.hpp"
+
+// class TranspositionTable;
+
+// class TableEntry
+// {
+// public:
+//     int value;
+//     int depth;
+//     int flag;
+//     bool game_finished;
+//     int best_move;
+// };
+
+typedef struct	s_player
+{
+	int			captures;
+	Heuristic	heuristic;
+}				t_player;
 
 class	Board
 {
@@ -30,6 +49,7 @@ public:
 	Board(const Board &rhs);
 	~Board();
 	
+	t_player				players[2];
 	int						h;
 	std::bitset<BOARDSIZE>	filled_pos;
 	Player					players[2];
@@ -52,9 +72,18 @@ public:
 	int						total_stones_in_play(void) const;
 	
 	int						check_captures(int player_index, int index);
+
 	std::vector<Board>		generate_children(void) const;
+	std::vector<Board>		generate_children(int player) const;
+
 	bool					check_free_threes(int move, int player_id) const;
+
 	int						check_wincodition_all_dir(int index, int player_id) const;
+	void					set_state(BITBOARD new_state);
+	int						calculate_index(int row, int col) const;
+	int						calc_heuristic(void);
+	int						calc_heuristic(Board &node);
+	void					print_principal_variation(int player, int depth, TranspositionTable &t_table);
 
 	void					set_current_player(int player_index);
 	bool					player_on_index(int index, int player_index) const;
@@ -93,7 +122,7 @@ private:
 	bool					free_threes_direction(int move, int direction, int player_id) const;
 	bool					still_winning(const Player &player) const;
 };
-
+// wat doet dit..?
 std::ostream &operator<<(std::ostream &o, Board const &i);
 
 #endif

@@ -1,5 +1,33 @@
 #include "misc.hpp"
-#include "Board.hpp"
+#include "board.hpp"
+
+void						Timer::start()
+{
+	m_StartTime = std::chrono::steady_clock::now();
+	m_bRunning = true;
+}
+
+void						Timer::stop()
+{
+	m_EndTime = std::chrono::steady_clock::now();
+	m_bRunning = false;
+}
+
+int							Timer::elapsedMilliseconds()
+{
+	std::chrono::time_point<std::chrono::steady_clock> endTime;
+	
+	if(m_bRunning)
+		endTime = std::chrono::steady_clock::now();
+	else
+		endTime = m_EndTime;
+	return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
+}
+
+double						Timer::elapsedSeconds()
+{
+	return elapsedMilliseconds() / 1000.0;
+}
 
 int							misc::random_int(void)
 {
@@ -45,6 +73,20 @@ int							misc::calc_index(int row, int col)
 	return (row * BOARD_LENGTH + col);
 }
 
+void    					misc::print_and_quit(const char *msg)
+{
+    PRINT(msg);
+    exit(1);
+}
+
+void						misc::print_stats()
+{
+	PRINT("Total nodes: " << TOTAL_NODES);
+	PRINT("Total leaves: " << TOTAL_LEAVES << "\n");
+	PRINT("Total found in table: " << FOUND_IN_TABLE);
+	PRINT("Total times branches pruned: " << TOTAL_BRANCHES_PRUNED << "\n");
+}
+
 bool						misc::is_offside(int prev_index, int index)
 {
 	int row = get_row(index), col = get_col(index);
@@ -65,7 +107,7 @@ void						misc::place_pieces(Board &board, int start_pos, int amount, int offset
 	int index = start_pos;
 	int prev_index;
 
-	assert(start_pos >= 0 and start_pos < (BOARDSIZE));
+	assert(start_pos >= 0 && start_pos < (BOARDSIZE));
 	for (int i = 0; i < amount; i++)
 	{
 		prev_index = index;

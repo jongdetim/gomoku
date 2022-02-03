@@ -1,5 +1,6 @@
 #include "algorithm.hpp"
-#include "Board.hpp"
+#include "board.hpp"
+#include "misc.hpp"
 #include "heuristic.hpp"
 #include "TranspositionTable.hpp"
 
@@ -7,6 +8,7 @@ int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
 int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
+bool TIMEOUT_REACHED = false;
 
 // bool order_moves(std::vector<Board> &nodes, TranspositionTable &t_table, int color)
 // {
@@ -19,9 +21,10 @@ inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, Tra
 	return t_table.lookup(node, tt_entry) && tt_entry.depth >= depth;
 }
 
-void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int beta, int depth, bool is_finished)
+void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int beta, int depth, bool is_finished, int best_move)
 {
 	tt_entry.value = value;
+	tt_entry.best_move = best_move;
 	if (value <= alpha_orig)
 		tt_entry.flag = UPPERBOUND;
 	else if (value >= beta)
@@ -32,14 +35,18 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call)
+int     	negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
 {
+	// PRINT(START_TIME.count());
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
 	int value = -std::numeric_limits<int>::max();
 	bool is_finished;
 	int best_move = -1;
-	std::hash<std::bitset<722>> hashfn;
+	// std::hash<std::bitset<722>> hashfn;
+
+	if (timer.elapsedMilliseconds() > TIMEOUT)
+		throw "time limit reached";
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -64,7 +71,9 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 			return tt_entry.value;
 	}
 
-	is_finished = node.is_game_finished(node.get_next_player_index());//*node.current_player()->next); // Checked nu of de current player heeft gewonnen???
+	// this should happen during children node ordering, and should affect evaluation h to be + infinite
+	// should also check if a player has won! currently only checks if board is completely full
+	is_finished = node.is_game_finished() || node.is_game_won();
 
 	if (depth == 0 || is_finished)
 	{
@@ -73,10 +82,13 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = node.current_player()->id * heuristic::calc_heuristic(node);
+		value = -Heuristic::get_heuristic_total(node);
+		// PRINT(value);
+		// value = color * node.calc_heuristic();
 
 		// node.print();
-		// std::cout << "value: " << value * color << std::endl;
+		// PRINT("LEAF NODE");
+		// std::cout << "value: " << value << std::endl;
 
 		tt_entry.value = value;
 		tt_entry.flag = EXACT;
@@ -103,8 +115,7 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
-	// if we've already seen the child in a shallower depth (previous search) we read the heuristic && multiply by
-	// -color to accommodate the fact that leaf nodes are stored 1 recursion deeper than the children are generated in
+	// if we've already seen the child in a shallower depth (previous search) we read the heuristic
 	if (depth > 1)
 	{
 		for (Board &child : child_nodes)
@@ -113,40 +124,47 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 			if (h_table.lookup(child, ht_entry))
 			{
 				// std::cout << "al gezien" << std::endl;
+				// child.h = ht_entry.value * pow(color, depth - ht_entry.depth);
 				child.h = ht_entry.value;
 			}
 			else
 			{
-				// child.h = 100000000;
 			    // std::cout << "calculating child h" << std::endl;
-			    child.h = -node.current_player()->id * heuristic::calc_heuristic(child);
+
+			    child.h = Heuristic::get_heuristic_total(child);
+			    // child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
-				// h_table.insert(child, ht_entry);
+				h_table.insert(child, ht_entry);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
+
+		// std::cout << child_nodes[0].h << std::endl;
+		// std::cout << (child_nodes.end() -1)->h << std::endl;
 		// for (auto &it : child_nodes)
 		// 	std::cout << it.get_last_move() << std::endl;
 		// exit(1);
 	}
 
 	TOTAL_NODES += 1;
-
+	
+	best_move = child_nodes[0].get_last_move();
 	for (Board child : child_nodes)
 	{
 		int old_value = value;
 
 		if (child.check_free_threes(child.current_player()->last_move, node.current_player()->id)) // Welke last move wil je hier hebben?
 			continue;
-		child.next_player();
-		Board copy = child; /* used to be get_copy()*/
-		value = std::max(value, -negamax(copy, depth - 1, -beta, -alpha, t_table, h_table, false)); // Copy mee geven
+		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, t_table, h_table, false, timer));
+		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
-		if (initial_call && value > old_value)
+		// 'beta cutoff'?
+		if (value > old_value)
 			best_move = child.get_last_move();
 		if (alpha >= beta)
 		{
+			// PV[depth] = child.get_last_move();
 			TOTAL_BRANCHES_PRUNED++;
 			// if (depth == 1)
 			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
@@ -154,20 +172,37 @@ int     	negamax(Board &node, int depth, int alpha, int beta, TranspositionTable
 		}
 	}
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
-	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished);
-	t_table.insert(node, tt_entry);
+	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
+	// PRINT(tt_entry.best_move);
+	if (t_table.lookup(node, tt_entry))
+		// t_table.update(node, value);
+		;
+	else
+		t_table.insert(node, tt_entry);
 
 	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
+	// 10-01-2022 why does this increase the amount of visited nodes now??
     // TableEntry h_entry;
     // if (h_table.lookup(node, h_entry))
+	// {
+	// 	// std::cout << value << std::endl;
+	// 	// node.print();
+	// 	// std::cout << h_entry.value << std::endl;
 	//     h_table.update(node, value);
+	// 	// h_table.lookup(node, h_entry);
+	// 	// std::cout << "new value: " << h_entry.value << std::endl;
+	// }
+
 	if (initial_call)
 	{
-		std::cout << "depth: " << depth << std::endl;
-		std::cout << "best move is: " << best_move << std::endl;
-		std::cout << "heuristic value is: " << value << std::endl;
-		node.place(best_move);
-		node.print();
+		// std::cout << "depth: " << depth << std::endl;
+		// std::cout << "best move is: " << best_move << std::endl;
+		// std::cout << "heuristic value is: " << value << std::endl;
+		// if (best_move == -1)
+		// 	print_and_quit("no best move found. something seriously wrong");
+		// PRINT("HERE!!!!!!!!!!!!!");
+		// PRINT(best_move);
+		return best_move;
 	}
 	return value;
 }
