@@ -5,6 +5,7 @@
 # include "heuristic.hpp"
 # include "Player.hpp"
 # include "IGameEngine.hpp"
+# include "TranspositionTable.hpp"
 
 # define BLACK "\033[0;30m"
 # define RED "\033[0;31m"
@@ -22,19 +23,19 @@
 # define PLAYER this->players[this->current]
 # define P1_SYMBOL 'o'
 # define P2_SYMBOL 'x'
-// # include "TranspositionTable.hpp"
+
 
 // class TranspositionTable;
 
-// class TableEntry
-// {
-// public:
-//     int value;
-//     int depth;
-//     int flag;
-//     bool game_finished;
-//     int best_move;
-// };
+class TableEntry
+{
+public:
+    int value;
+    int depth;
+    int flag;
+    bool game_finished;
+    int best_move;
+};
 
 class	Board
 {
@@ -81,11 +82,10 @@ public:
 	void					set_current_player(int player_index);
 	bool					player_on_index(int index, int player_index) const;
 	void					next_player(void);
-	int						get_next_player_index(int player_index) const;
+	int						get_next_player(int player) const;
 	int						get_next_player_index(void) const;
 	void					random_player(void);
-	int						get_player_index(int index) const;
-	int						get_player_id(int index) const;
+	int						get_player(int player) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	int						get_last_player(void) const;

@@ -5,7 +5,6 @@
 // # include "board.hpp"
 
 class Board;
-class Player;
 
 enum Pattern {none, closed2, open2, closed3, open3, closed4, open4, five};
 const char * const PatternNames[8] = {"none", "closed2", "open2", "closed3", "open3", "closed4", "open4", "five"};
@@ -34,49 +33,18 @@ namespace heuristic
 	int					count_direction(const Board &board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices);
 	int					count_direction(const Board &board, int index, int player, int dir, int size);
 	int					calc_heuristic(Board &board);
-	int					eight_directions_heuristic(Board &board, int index, std::bitset<BOARDSIZE> &checked_indices, int player_id);
-	int					get_heuristic_from_player(Board &board, const Player &player);
+	int					eight_directions_heuristic(Board &board, int index, std::bitset<BOARDSIZE> &checked_indices, int player);
 	int					determine_score(int count, int gaps, int open);
-	bool				get_direction(const Board &board, int move, int direction, int player);
+	int					get_direction(const Board &board, int move, int direction, int player);
+	void           		cutout_pattern(const Board &board, int move, int direction, int player, t_pattern &pat);
+	t_pattern			get_pattern_data(Board &board, int move, int direction, int player, std::bitset<BOARDSIZE> *checked_indices);
+	int					score_remaining_patterns(Board &board, int player);
+	int					evaluate_patterns(Board &board, int player);
+	Pattern				find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, Pattern> &map);
+	Pattern				get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices);
+	void				get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *checked_indices);
+	int					get_heuristic_total(Board &board);
+	void  				reset_pattern_arrays(Board &board);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-class Heuristic
-{
-public:
-	int		score = 0;
-	uint8_t patterns[8] = {0};
-
-	Heuristic(void);
-	~Heuristic();
-
-	static bool				continue_game(const Board *board, int index, int player);
-	static bool				has_won(const Board *board, int index, int player);
-	static int					count_both_dir(const Board *board, int index, int player, int dir);
-	static int					count_both_dir(const Board *board, int index, int player, int dir, std::bitset<BOARDSIZE> &checked_indices);
-	static bool				check_wincodition_all_dir(const Board *board, int index, int player);
-	static int					count_direction(const Board *board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices);
-	static int					count_direction(const Board *board, int index, int player, int dir, int size);
-	static int					calc_heuristic(Board *board);
-	static int					eight_directions_heuristic(Board *node, int index, std::bitset<BOARDSIZE> &checked_indices, int player);
-	static int					get_heuristic_last_move(Board *board);
-	static int					determine_score(int count, int gaps, int open);
-	static bool				get_direction(const Board *board, int move, int direction, int player);
-	static void           		cutout_pattern(const Board &board, int move, int direction, int player, t_pattern &pat);
-	static t_pattern			get_pattern_data(Board &board, int move, int direction, int player, std::bitset<BOARDSIZE> *checked_indices);
-	static int					score_remaining_patterns(Board &board, int player);
-	static int					evaluate_patterns(Board &board, int player);
-	static Pattern				find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, Pattern> &map);
-	static Pattern				get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices);
-	static void					get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *checked_indices);
-	static int					get_heuristic_total(Board &board);
-	static void  				reset_pattern_arrays(Board &board);
-
-private:
-
-};
 
 #endif

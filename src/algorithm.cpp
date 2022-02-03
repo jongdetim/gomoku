@@ -35,16 +35,15 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int     	negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
+int     	negamax(Board node, int depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
 {
-	// PRINT(START_TIME.count());
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
 	int value = -std::numeric_limits<int>::max();
 	bool is_finished;
 	int best_move = -1;
-	// std::hash<std::bitset<722>> hashfn;
 
+	// check if timeout occured
 	if (timer.elapsedMilliseconds() > TIMEOUT)
 		throw "time limit reached";
 
@@ -73,7 +72,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 	// this should happen during children node ordering, and should affect evaluation h to be + infinite
 	// should also check if a player has won! currently only checks if board is completely full
-	is_finished = node.is_game_finished() || node.is_game_won();
+	is_finished = node.is_game_finished();
 
 	if (depth == 0 || is_finished)
 	{
@@ -82,7 +81,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = -Heuristic::get_heuristic_total(node);
+		value = -heuristic::get_heuristic_total(node);
 		// PRINT(value);
 		// value = color * node.calc_heuristic();
 
@@ -131,7 +130,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 			{
 			    // std::cout << "calculating child h" << std::endl;
 
-			    child.h = Heuristic::get_heuristic_total(child);
+			    child.h = heuristic::get_heuristic_total(child);
 			    // child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
@@ -154,9 +153,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int color, Transpos
 	{
 		int old_value = value;
 
-		if (child.check_free_threes(child.current_player()->last_move, node.current_player()->id)) // Welke last move wil je hier hebben?
+		if (child.check_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, -color, t_table, h_table, false, timer));
+		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, child.get_next_player(player), t_table, h_table, false, timer));
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
 		// 'beta cutoff'?

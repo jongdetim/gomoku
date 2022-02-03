@@ -241,7 +241,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		std::cout << "heuristic value is: " << tt_entry.value << std::endl;
 		best_move = tt_entry.best_move;
 		color *= -1;
-		if(node.is_game_finished() || node.is_game_won())
+		if(node.is_game_finished())
 		{
 			PRINT("\n*** game finished ***\n");
 			return;
@@ -253,7 +253,7 @@ void					Board::next_player(void) { this->current_player = (this->current_player
 
 int						Board::get_next_player_index(void) const { return get_next_player_index(this->current_player); }
 
-int						Board::get_next_player_index(int player_index) const { return (player_index + 1) % 2; }
+int						Board::get_next_player(int player) const { return 1 - player; }
 
 void					Board::play(IGameEngine &engine) { engine.play(this); }
 
