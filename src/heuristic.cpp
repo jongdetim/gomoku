@@ -1,5 +1,5 @@
 # include "heuristic.hpp"
-# include "board.hpp"
+# include "Board.hpp"
 # include "misc.hpp"
 
 // this can fail in cases where length > 8, such as . o o o o . o o . where the leftmost empty space is cut off and it's seen as closed4 instead of open4. Can be solved with 16-bit cutouts.
