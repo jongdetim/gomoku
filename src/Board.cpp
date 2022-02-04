@@ -257,7 +257,7 @@ bool					Board::player_on_index(int index, int player) const { return this->stat
 
 void					Board::set_current_player(int player) { this->current_player = player; }
 
-int						Board::get_current_player(void) { return this->current_player; }
+int						Board::get_current_player(void) const { return this->current_player; }
 
 int						Board::get_last_player(void) const { return get_player(this->last_move); }
 

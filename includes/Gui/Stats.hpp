@@ -4,7 +4,7 @@
 # include <iostream>
 # include <SDL.h>
 # include <SDL_ttf.h>
-# include "Player.hpp"
+# include "GuiPlayer.hpp"
 # include "Button.hpp"
 # include "Text.hpp"
 # include <sstream>

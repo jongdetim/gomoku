@@ -3,7 +3,6 @@
 
 # include "gomoku.hpp"
 # include "heuristic.hpp"
-# include "Player.hpp"
 # include "IGameEngine.hpp"
 # include "TranspositionTable.hpp"
 
@@ -35,6 +34,15 @@ public:
     bool					game_finished;
     int						best_move;
 };
+
+typedef struct					s_player
+{
+	int							last_move		= -1;
+	int							captures		= 0;
+	int							score			= 0;
+	uint8_t						patterns[8]		= {0};
+	bool						wincondition	= false;
+}								t_player;
 
 class	Board
 {
@@ -86,7 +94,7 @@ public:
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	int						get_last_player(void) const;
-	int						get_current_player(void);
+	int						get_current_player(void) const;
 
 	bool					has_winner(void) const;
 	bool					is_game_finished(void);
