@@ -43,7 +43,7 @@ void    iterative_deepening_negamax(Board &board, int player)
         node.place(best_move, player);
         node.show_last_move();
         // PRINCIPAL VARIATION RETRIEVAL:
-        // board.print_principal_variation(player, depth, t_table);
+        board.print_principal_variation(player, depth, t_table);
         misc::print_stats();
     }    
 }
@@ -74,57 +74,9 @@ void    test()
 
     int index = misc::calc_index(8, 8);
     board.place(index, PLAYER1);
-    board.print();
-    board.place(7, 7, PLAYER2);
-    board.print();
-    board.place(7, 8, PLAYER1);
-    board.print();
-    board.place(6, 8, PLAYER2);
-    board.print();
-    board.place(8, 7, PLAYER1);
-    board.print();
-    board.place(9, 8, PLAYER2);
-    board.print();
-    board.place(7, 8, PLAYER1);
-    board.print();
-    board.place(8, 6, PLAYER2);
-    board.print();
-    board.place(9, 5, PLAYER1);
-    board.print();
-    board.place(6, 9, PLAYER2);
-    board.print();
-    board.place(9, 6, PLAYER1);
-    board.print();
-    board.place(9, 7, PLAYER2);
-    board.print();
-    board.place(10, 5, PLAYER1);
-    board.print();
-    board.place(9, 4, PLAYER2);
-    board.print();
-    board.place(9, 5, PLAYER1);
-    board.print();
-    board.place(6, 6, PLAYER2);
-    board.print();
-    board.place(9, 6, PLAYER1);
-    board.print();
-    board.place(11, 4, PLAYER2);
-    board.print();
-    board.place(8, 5, PLAYER1);
-    board.print();
-    board.place(5, 9, PLAYER2);
-    board.print();
-    board.place(4, 10, PLAYER1);
-    board.print();
-    board.place(6, 7, PLAYER2);
-    board.print();
-    board.place(11, 5, PLAYER1);
-    board.print();
-    board.place(6, 5, PLAYER2);
-    board.print();
-    board.place(5, 7, PLAYER1);
-    board.print();
-    board.place(6, 7, PLAYER2);
-    board.print();
+    // board.place(index - 20, PLAYER2);
+    // board.place(index - 38, PLAYER1);
+
     // board.place(index +1, PLAYER2);
     // board.place(index +2, PLAYER1);
     // board.place(index +3, PLAYER1);
@@ -136,7 +88,7 @@ void    test()
     // PRINT(Heuristic::get_heuristic_total(board));
 
     int player = PLAYER2;
-    // iterative_deepening_negamax(board, player);
+    iterative_deepening_negamax(board, player);
     // board.place(index - 21, PLAYER2);
     // board.place(index + 2, PLAYER1);
     // #include "heuristic.hpp" 

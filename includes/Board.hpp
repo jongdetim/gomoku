@@ -101,8 +101,8 @@ public:
 
 private:
 	BITBOARD				state;
-	int						current_player;
-	int						last_move;
+	int						current_player = 0;
+	int						last_move = -1;
 
 	int						check_wincondition_all_dir(int index, int player) const;
 	int						check_wincondition_all_dir(int player) const;

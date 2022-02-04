@@ -9,7 +9,7 @@ void               heuristic::cutout_pattern(const Board &board, int move, int d
     int pos = move - (pat.left_right[0] * shift);
     for (int i = 0; i < pat.length; i++)
     {
-        pat.pattern += abs(board.get_player(pos));
+        pat.pattern += board.get_player(pos) == player;
         if (i != pat.length - 1)
             pat.pattern <<= 1;
         pos += shift;
@@ -80,12 +80,14 @@ int heuristic::evaluate_patterns(Board &board, int player)
 {
     // for (uint8_t i = 0; i < 8; i++) // skip first index which is none
     // {
-    //     if (i > 0 && board.players[index].patterns[i] > 0)
+    //     if (i > 0 && board.players[player].patterns[i] > 0)
     //     {
+    //         PRINT("player: " << player);
     //         PRINT(PatternNames[i]);
-    //         PRINT((int)board.players[index].patterns[i]);
+    //         PRINT((int)board.players[player].patterns[i]);
     //     }
     // }
+    // board.show_last_move();
 
     int enemyplayer = 1 - player;
     int score = 0;
@@ -174,6 +176,7 @@ Pattern heuristic::get_heuristic_data(Board &board, const int &move, const int &
     if (pat.count == 2)
     {
         cutout_pattern(board, move, direction, player, pat);
+        // PRINT('\n' << std::bitset<8>(pat.pattern));
         if (pat.space > 5 && ((pat.pattern == 0b00000110 && pat.length == 4) || (pat.pattern == 0b00001010 && pat.length == 5))) // .xx. with > 5 space OR .x.x. with > 5 space
             return open2;
         else
@@ -200,6 +203,7 @@ void    heuristic::get_heuristic_single(Board &board, int move, std::bitset<BOAR
         if (checked_indices[dir][move] == 1)
             continue;
         Pattern pattern = get_heuristic_data(board, move, dir, player, checked_indices);
+        // PRINT(PatternNames[pattern]);
         board.players[player].patterns[pattern] += 1;
     }
 }
