@@ -1,1 +1,1 @@
-# xargs brew install < brew.txt
+# xargs brew install < requirements.txt

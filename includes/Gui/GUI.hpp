@@ -58,112 +58,114 @@
 # define STATUS_FONT POPPINS_FONT_BOLD
 # define TITLE_FONT "resources/fonts/Title.ttf"
 
-// enum e_fonts
-// {
-// 	btn_font,
-// 	stats_font,
-// 	stats_name_font,
-// 	status_font,
-// 	title_font,
-// 	/* ----- */
-// 	size_font
-// };
+enum e_fonts
+{
+	btn_font,
+	stats_font,
+	stats_name_font,
+	status_font,
+	title_font,
+	/* ----- */
+	size_font
+};
 
-// enum e_textures
-// {
-// 	board_tex,
-// 	p1_tex,
-// 	p2_tex,
-// 	p1_select_tex,
-// 	p2_select_tex,
-// 	winning_tex,
-// 	/* ----- */
-// 	size_tex
-// };
+enum e_textures
+{
+	board_tex,
+	p1_tex,
+	p2_tex,
+	p1_select_tex,
+	p2_select_tex,
+	winning_tex,
+	/* ----- */
+	size_tex
+};
 
-// enum e_gui_size
-// {
-// 	big,
-// 	medium,
-// 	small
-// };
+enum e_gui_size
+{
+	big,
+	medium,
+	small
+};
 
-// typedef struct	s_mouse
-// {
-// 	t_point		pos;
-// 	bool 		click;
-// }				t_mouse;
+typedef struct	s_mouse
+{
+	t_point		pos;
+	bool 		click;
+}				t_mouse;
 
-// class GUI: public IGameEngine
-// {
-// public:
-// 	GUI(IAi *ai);
-// 	GUI(IAi *ai, e_gui_size size);
-// 	~GUI();
+class GUI: public IGameEngine
+{
+public:
+	GUI(IAi *ai);
+	GUI(IAi *ai, e_gui_size size);
+	~GUI();
 
-// 	void					play(Board *board);
+	void					play(Board *board);
 
-// private:
-// 	int						screen_height;
-// 	int						screen_width;
-// 	int						size;
-// 	int						interface_size;
-// 	double					offset;
-// 	int						btn_size;
-// 	int						stats_size;
-// 	int						status_size;
-// 	int						title_size;
+private:
+	GuiBoard				guiboard;
+
+	int						screen_height;
+	int						screen_width;
+	int						size;
+	int						interface_size;
+	double					offset;
+	int						btn_size;
+	int						stats_size;
+	int						status_size;
+	int						title_size;
 	
-// 	SDL_Window				*window;
-// 	SDL_Renderer			*renderer;
-// 	SDL_Event				event;
+	SDL_Window				*window;
+	SDL_Renderer			*renderer;
+	SDL_Event				event;
 
-// 	TTF_Font				*fonts[size_font];
-// 	SDL_Texture				*textures[size_tex];
-// 	Stats					stats[2];
+	TTF_Font				*fonts[size_font];
+	SDL_Texture				*textures[size_tex];
+	Stats					stats[2];
 
-// 	std::vector<Button>		buttons;
-// 	Text					title;
-// 	Text					status;
-// 	Board					prev;
-// 	t_mouse					mouse;
-// 	Player					*winner;
+	std::vector<Button>		buttons;
+	Text					title;
+	Text					status;
+	Board					prev;
+	t_mouse					mouse;
+	Player					*winner;
 
-// 	bool					update;
-// 	int						action;
-// 	short					players_playing;
+	bool					update;
+	int						action;
+	short					players_playing;
 
-// 	bool					init(std::string title);
-// 	void					gameloop(Board &board);
-// 	void					check_game_state(Board &board);
-// 	void					reset(Board &board);
-// 	bool					mouse_on_board(int row, int col) const;
-// 	void					clear_render(void);
-// 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
-// 	void					draw_stones(Board &board);
-// 	void					highlight_5inarow(Board &board);
-// 	void					highlight_last_move(Board &board, int row, int col);
-// 	void					update_renderer(Board &board);
-// 	void					handle_events(Board &board);
-// 	int						calc_board_placement(int x, int y) const;
-// 	SDL_Texture				*load_texture(std::string img_path);
-// 	void					load_textures(void);
-// 	void					load_fonts(void);
-// 	void					set_buttons(void);
-// 	void					render_buttons(void);
-// 	void					init_stats(Board &board);
-// 	void					show_stats(Board &board);
-// 	int						get_index(Board &board);
-// 	int						get_player_input(void);
-// 	bool					check_action(int action);
-// 	void					set_action(int action);
-// 	void					unset_action(int action);
-// 	std::string				get_status_update(Board &board) const;
-// 	void					check_actions(Board &board);
-// 	void					undo_action(Board &board);
-// 	void					add_player_action(Board &board); // Change name
-// 	std::string				random_name(void);
-// 	void					set_players_ai(Board &board);
-// };
+	bool					init(std::string title);
+	void					gameloop(void);
+	void					check_game_state(void);
+	void					reset(void);
+	bool					mouse_on_board(int row, int col) const;
+	void					clear_render(void);
+	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
+	void					draw_stones(void);
+	void					highlight_5inarow(void);
+	void					highlight_last_move(void, int row, int col);
+	void					update_renderer(void);
+	void					handle_events(void);
+	int						calc_board_placement(int x, int y) const;
+	SDL_Texture				*load_texture(std::string img_path);
+	void					load_textures(void);
+	void					load_fonts(void);
+	void					set_buttons(void);
+	void					render_buttons(void);
+	void					init_stats(void);
+	void					show_stats(void);
+	int						get_index(void);
+	int						get_player_input(void);
+	bool					check_action(int action);
+	void					set_action(int action);
+	void					unset_action(int action);
+	std::string				get_status_update(void) const;
+	void					check_actions(void);
+	void					undo_action(void);
+	void					add_player_action(void); // Change name
+	std::string				random_name(void);
+	void					set_players_ai(void);
+};
 
 #endif
