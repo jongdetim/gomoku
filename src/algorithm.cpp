@@ -3,6 +3,7 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
 #include "TranspositionTable.hpp"
+#include "gomoku.hpp"
 
 int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;

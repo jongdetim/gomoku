@@ -1,5 +1,10 @@
 #include "Board.hpp"
 #include "misc.hpp"
+#include "gomoku.hpp"
+#include "heuristic.hpp"
+#include "Player.hpp"
+#include "IGameEngine.hpp"
+#include "TranspositionTable.hpp"
 
 Board::Board(void) :
 h(0),

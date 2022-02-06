@@ -1,3 +1,4 @@
+# include "gomoku.hpp"
 # include "heuristic.hpp"
 # include "board.hpp"
 # include "misc.hpp"
@@ -285,54 +286,54 @@ int				heuristic::count_both_dir(const Board &board, int index, int player, int 
 	return total;
 }
 
-int				heuristic::eight_directions_heuristic(Board &board, int index, std::bitset<BOARDSIZE> &checked_indices, int player)
-{
-	int points = 0;
+// int				heuristic::eight_directions_heuristic(Board &board, int index, std::bitset<BOARDSIZE> &checked_indices, int player)
+// {
+// 	int points = 0;
 
 
-	points += POINTS[count_both_dir(board, index, player, RIGHT, checked_indices)];
-	points += POINTS[count_both_dir(board, index, player, DIAGDWNR, checked_indices)];
-	points += POINTS[count_both_dir(board, index, player, DOWN, checked_indices)];
-	points += POINTS[count_both_dir(board, index, player, DIAGDWNL, checked_indices)];
+// 	points += POINTS[count_both_dir(board, index, player, RIGHT, checked_indices)];
+// 	points += POINTS[count_both_dir(board, index, player, DIAGDWNR, checked_indices)];
+// 	points += POINTS[count_both_dir(board, index, player, DOWN, checked_indices)];
+// 	points += POINTS[count_both_dir(board, index, player, DIAGDWNL, checked_indices)];
 
-	// std::cout << (player * points) << std::endl;
-    return player == PLAYER1 ? points : -points;
-}
+// 	// std::cout << (player * points) << std::endl;
+//     return player == PLAYER1 ? points : -points;
+// }
 
-int				heuristic::calc_heuristic(Board &board)
-{
-	std::bitset<BOARDSIZE> checked_indices = 0;
-	int total_score = 0;
-	int	player;
+// int				heuristic::calc_heuristic(Board &board)
+// {
+// 	std::bitset<BOARDSIZE> checked_indices = 0;
+// 	int total_score = 0;
+// 	int	player;
 
-	for (int index = 0; index < board.filled_pos.size(); index++)
-	{
-		if (board.is_empty_place(index))
-			continue;
-		if (checked_indices[index])
-			continue;
-		player = board.get_player(index);
-		if (player == 0)
-			std::cout << index << std::endl;
-		total_score += eight_directions_heuristic(board, index, checked_indices, player);
-		checked_indices[index] = 1;
-	}
-	if (board.filled_pos.count() != checked_indices.count())
-	{
-		board.print();
-		for (int i = 0; i < board.filled_pos.size(); i++)
-		{
-			if (board.is_empty_place(i))
-				continue;
-			std::cout << i << " ";
-		}
-		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
-		for (int j = 0; j < BOARDSIZE; j++)
-		{
-			if (checked_indices[j])
-				std::cout << j << " ";
-		}
-		std::cout << std::endl;
-	}
-	return total_score;
-}
+// 	for (int index = 0; index < board.filled_pos.size(); index++)
+// 	{
+// 		if (board.is_empty_place(index))
+// 			continue;
+// 		if (checked_indices[index])
+// 			continue;
+// 		player = board.get_player(index);
+// 		if (player == 0)
+// 			std::cout << index << std::endl;
+// 		total_score += eight_directions_heuristic(board, index, checked_indices, player);
+// 		checked_indices[index] = 1;
+// 	}
+// 	if (board.filled_pos.count() != checked_indices.count())
+// 	{
+// 		board.print();
+// 		for (int i = 0; i < board.filled_pos.size(); i++)
+// 		{
+// 			if (board.is_empty_place(i))
+// 				continue;
+// 			std::cout << i << " ";
+// 		}
+// 		std::cout << std::endl << "^ filled positions. check_indices v" << std::endl;
+// 		for (int j = 0; j < BOARDSIZE; j++)
+// 		{
+// 			if (checked_indices[j])
+// 				std::cout << j << " ";
+// 		}
+// 		std::cout << std::endl;
+// 	}
+// 	return total_score;
+// }
