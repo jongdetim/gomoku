@@ -133,7 +133,6 @@ private:
 
 	bool					update;
 	int						action;
-	short					players_playing;
 
 	bool					init(std::string title);
 	void					gameloop(void);
@@ -163,9 +162,7 @@ private:
 	std::string				get_status_update(void);
 	void					check_actions(void);
 	void					undo_action(void);
-	void					add_player_action(void); // Change name
 	std::string				random_name(void);
-	void					set_players_ai(void);
 	GuiPlayer				get_winner(void);
 };
 

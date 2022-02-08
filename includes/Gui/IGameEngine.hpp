@@ -9,8 +9,7 @@ enum e_action
 	restart = 1,
 	quit = (1<<1),
 	pause = (1<<2),
-	undo = (1<<3),
-	add_player = (1<<4)
+	undo = (1<<3)
 };
 
 class Board;

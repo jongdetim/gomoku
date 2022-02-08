@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false})
 {
 	int height;
 
@@ -31,7 +31,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
+GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false})
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
@@ -159,8 +159,6 @@ void		GUI::check_actions(void)
 		this->reset();
 	else if (this->check_action(undo))
 		this->undo_action();
-	else if (this->check_action(add_player))
-		this->add_player_action();
 }
 
 void		GUI::undo_action(void)
@@ -170,14 +168,6 @@ void		GUI::undo_action(void)
 	this->unset_action(undo);
 	if (GUIBOARD.has_winner())
 		this->unset_action(pause);
-}
-
-void		GUI::add_player_action(void)
-{
-	this->update = true;
-	this->unset_action(add_player);
-	this->players_playing = (this->players_playing + 1) % 3;
-	this->set_players_ai();
 }
 
 void		GUI::handle_events(void)
@@ -245,10 +235,10 @@ void		GUI::reset(void)
 	GUIBOARD.random_player();
 	while ( (this->guiboard.players[PLAYER1].name = this->random_name()).length() > 14);
 	while ( (this->guiboard.players[PLAYER2].name = this->random_name()).length() > 14);
-	this->set_players_ai();
 	this->update = true;
 	this->action = def;
 	this->prev = this->guiboard;
+	this->guiboard.players[PLAYER2].ai = this->ai;
 }
 
 void		GUI::draw_stones(void)
@@ -377,11 +367,6 @@ void		GUI::set_buttons(void)
 	this->buttons.push_back(
 		Button(this->renderer, w + btn_w, h, " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
 
-
-	this->buttons.push_back(
-		Button(this->renderer, this->screen_height + (this->interface_size >> 2), this->offset + (this->size << 3), " PLAYER ", this->fonts[btn_font], BG_COLOUR, add_player));	// Change
-	
-
 	for (auto &btn : this->buttons)
 		btn.init();
 }
@@ -449,27 +434,6 @@ std::string	GUI::random_name(void)
     }
     nameFileout.close();
     return name;
-}
-
-void		GUI::set_players_ai(void)
-{
-	switch (this->players_playing)
-	{
-	case 0:
-		this->guiboard.players[PLAYER1].ai = this->ai;
-		this->guiboard.players[PLAYER2].ai = this->ai;
-		break;
-	case 1:
-		this->guiboard.players[PLAYER1].ai = NULL;
-		this->guiboard.players[PLAYER2].ai = this->ai;
-		break;
-	case 2:
-		this->guiboard.players[PLAYER1].ai = NULL;
-		this->guiboard.players[PLAYER2].ai = NULL;
-		break;
-	default:
-		break;
-	}
 }
 
 GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
