@@ -11,7 +11,6 @@ public:
 
 	GuiPlayer(void);
 	GuiPlayer(t_player &player);
-	// GuiPlayer(const Player &rhs);
 
 	std::string					name;
 	IAi							*ai;
@@ -21,8 +20,6 @@ public:
 	int							captures(void) const;
 	int							last_move(void) const;
 	void						reset(void);
-
-	// Player						&operator=(Player const &rhs);
 
 private:
 	t_player					*player;

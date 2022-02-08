@@ -19,11 +19,11 @@ private:
 
 	void						gameloop(void);
 	void						reset(void);
-	void						print_stats(void) const;
+	void						print_stats(void);
 	bool						try_parse_input(std::string &input, int &out);
 	int							get_player_input(void);
 	int							get_index(void);
-	void						print_winner(void) const;
+	void						print_winner(void);
 };
 
 #endif

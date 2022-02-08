@@ -77,6 +77,7 @@ public:
 	std::vector<Board>		generate_children(int player) const;
 
 	bool					check_free_threes(int move, int player) const;
+	int						check_wincondition_all_dir(int index, int player) const;
 
 	void					set_state(BITBOARD new_state);
 	int						calculate_index(int row, int col) const;
@@ -112,7 +113,6 @@ private:
 	int						current_player;
 	int						last_move;
 
-	int						check_wincondition_all_dir(int index, int player) const;
 	int						check_wincondition_all_dir(int player) const;
 	bool					continue_game(int player);
 	bool					has_won(int player);

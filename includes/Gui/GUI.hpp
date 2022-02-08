@@ -11,6 +11,7 @@
 # include "Stats.hpp"
 # include "misc.hpp"
 # include "IAi.hpp"
+# include "GuiBoard.hpp"
 
 # define OFFSET 31
 # define SIZE 50
@@ -127,9 +128,8 @@ private:
 	std::vector<Button>		buttons;
 	Text					title;
 	Text					status;
-	Board					prev;
 	t_mouse					mouse;
-	Player					*winner;
+	GuiBoard				prev;
 
 	bool					update;
 	int						action;
@@ -144,7 +144,7 @@ private:
 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
 	void					draw_stones(void);
 	void					highlight_5inarow(void);
-	void					highlight_last_move(void, int row, int col);
+	void					highlight_last_move(int row, int col);
 	void					update_renderer(void);
 	void					handle_events(void);
 	int						calc_board_placement(int x, int y) const;
@@ -160,12 +160,13 @@ private:
 	bool					check_action(int action);
 	void					set_action(int action);
 	void					unset_action(int action);
-	std::string				get_status_update(void) const;
+	std::string				get_status_update(void);
 	void					check_actions(void);
 	void					undo_action(void);
 	void					add_player_action(void); // Change name
 	std::string				random_name(void);
 	void					set_players_ai(void);
+	GuiPlayer				get_winner(void);
 };
 
 #endif

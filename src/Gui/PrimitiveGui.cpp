@@ -19,33 +19,33 @@ void						PrimitiveGui::gameloop(void)
 	while (this->action != quit)
 	{
 		print_stats();
-		this->guiboard.show_last_move();
+		GUIBOARD.show_last_move();
 
 		index = get_index();
 
-		if (this->guiboard.place(index))
+		if (GUIBOARD.place(index))
 		{
-			if (this->guiboard.is_game_finished())
+			if (GUIBOARD.is_game_finished())
 				break;
 			
-			this->guiboard.next_player();
+			GUIBOARD.next_player();
 		}
 
 		if (this->action == restart)
 			reset();
 	}
-	if (this->guiboard.has_winner())
+	if (GUIBOARD.has_winner())
 		print_winner();
 }
 
 void						PrimitiveGui::reset(void)
 {
-	this->guiboard.reset();
-	this->guiboard.random_player();
+	GUIBOARD.reset();
+	GUIBOARD.random_player();
 	this->action = def;
 }
 
-void						PrimitiveGui::print_stats(void) const
+void						PrimitiveGui::print_stats(void)
 {
 	system("clear");
 	std::cout << std::endl;
@@ -53,7 +53,7 @@ void						PrimitiveGui::print_stats(void) const
 	printf("Captures.%-*d Captures.%d\n", 14, this->guiboard.players[PLAYER1].captures(), this->guiboard.players[PLAYER2].captures());
 	std::cout << std::endl;
 	std::cout << "Current Player: " << this->guiboard.current_player().name;
-	char symbol = (this->guiboard.get_current_player() == PLAYER1 ? P1_SYMBOL-32 : P2_SYMBOL-32);
+	char symbol = (GUIBOARD.get_current_player() == PLAYER1 ? P1_SYMBOL-32 : P2_SYMBOL-32);
 	std::cout << ' ' << symbol << std::endl;
 	std::cout << std::endl;
 }
@@ -102,11 +102,11 @@ int							PrimitiveGui::get_index(void)
 		return get_player_input();
 }
 
-void						PrimitiveGui::print_winner(void) const
+void						PrimitiveGui::print_winner(void)
 {
-	int winner = this->guiboard.get_winner();
+	int winner = GUIBOARD.winner;
 
 	print_stats();
-	this->guiboard.show_move(this->guiboard.players[winner].last_move());
+	GUIBOARD.show_move(this->guiboard.players[winner].last_move());
 	std::cout << "*** " << this->guiboard.players[winner].name << " WINS!!! ***" << std::endl;
 }

@@ -9,34 +9,33 @@
 # include "Text.hpp"
 # include <sstream>
 
-// enum e_stats
-// {
-// 	name_text,
-// 	empty_text,
-// 	ai_text,
-// 	captures_text,
-// 	stones_text,
-// 	/* ----- */
-// 	size_texts
-// };
+enum e_stats
+{
+	name_text,
+	empty_text,
+	ai_text,
+	captures_text,
+	/* ----- */
+	size_texts
+};
 
-// class Stats
-// {
-// public:
-// 	Stats(void);
-// 	Stats(SDL_Renderer *renderer, t_point pos, TTF_Font *font, TTF_Font *name_font);
+class Stats
+{
+public:
+	Stats(void);
+	Stats(SDL_Renderer *renderer, t_point pos, TTF_Font *font, TTF_Font *name_font);
 
-// 	void				update(Player &player);
-// 	void				render(void);
-// 	void				init(void);
-// private:
+	void				update(GuiPlayer &player);
+	void				render(void);
+	void				init(void);
+private:
 
-// 	SDL_Renderer		*renderer;
-// 	std::vector<Text>	texts;
-// 	t_point				pos;
-// 	TTF_Font			*font;
-// 	TTF_Font			*name_font;
-// 	int 				textH;
-// };
+	SDL_Renderer		*renderer;
+	std::vector<Text>	texts;
+	t_point				pos;
+	TTF_Font			*font;
+	TTF_Font			*name_font;
+	int 				textH;
+};
 
 #endif

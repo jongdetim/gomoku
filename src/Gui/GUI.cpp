@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL), players_playing(2)
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
 {
 	int height;
 
@@ -31,7 +31,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), winner(NULL), players_playing(2)
+GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
@@ -70,9 +70,10 @@ void		GUI::play(Board *board)
 {
 	if (!this->init("Gomoku"))
         return;
-	this->reset(*board);
-	this->init_stats(*board);
-	this->gameloop(*board);
+	this->guiboard = GuiBoard(*board);
+	this->reset();
+	this->init_stats();
+	this->gameloop();
 }
 
 /* Private Methods */
@@ -120,11 +121,11 @@ void		GUI::gameloop(void)
 		if (!this->check_action(pause))
 		{
 			index = this->get_index();
-			if (this->guiboard.is_valid_move(index))
+			if (GUIBOARD.is_valid_move(index))
 			{
-				if (!this->guiboard.current_player()->ai)
+				if (!this->guiboard.current_player().ai)
 					this->prev = this->guiboard;
-				this->guiboard.place(index);
+				GUIBOARD.place(index);
 				this->check_game_state();
 				this->update = true;
 			}
@@ -167,11 +168,8 @@ void		GUI::undo_action(void)
 	this->guiboard = this->prev;
 	this->update = true;
 	this->unset_action(undo);
-	if (this->winner)
-	{
-		this->winner = NULL;
+	if (GUIBOARD.has_winner())
 		this->unset_action(pause);
-	}
 }
 
 void		GUI::add_player_action(void)
@@ -225,35 +223,31 @@ int			GUI::get_player_input(void)
 
 void		GUI::check_game_state(void)
 {
-	if (this->guiboard.is_game_finished())
-	{
+	if (GUIBOARD.is_game_finished())
 		this->set_action(pause);
-		this->winner = &this->guiboard.players[this->guiboard.winner];
-	}
 	else
-		this->guiboard.next_player();
+		GUIBOARD.next_player();
 }
 
-std::string	GUI::get_status_update(void) const
+std::string	GUI::get_status_update(void)
 {
-	if (this->winner)
-		return this->winner->name + " Won";
-	else if (this->guiboard.is_full())
+	if (GUIBOARD.has_winner())
+		return this->get_winner().name + " Won";
+	else if (GUIBOARD.is_full())
 		return "Draw";
 	else
-		return "> " + this->guiboard.current_player()->name;
+		return "> " + this->guiboard.current_player().name;
 }
 
 void		GUI::reset(void)
 {
-	this->guiboard.reset();
-	this->guiboard.random_player();
+	GUIBOARD.reset();
+	GUIBOARD.random_player();
 	while ( (this->guiboard.players[PLAYER1].name = this->random_name()).length() > 14);
 	while ( (this->guiboard.players[PLAYER2].name = this->random_name()).length() > 14);
 	this->set_players_ai();
 	this->update = true;
 	this->action = def;
-	this->winner = NULL;
 	this->prev = this->guiboard;
 }
 
@@ -262,39 +256,40 @@ void		GUI::draw_stones(void)
 	SDL_Texture *texture;
 	int row, col, index;
 
-	for (index = 0; index < this->guiboard.filled_pos.size(); index++)
+	for (index = 0; index < GUIBOARD.filled_pos.size(); index++)
 	{
-		if (this->guiboard.is_empty_place(index))
+		if (GUIBOARD.is_empty_place(index))
 			continue;
 
-		texture = this->guiboard.get_player_index(index) == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
+		texture = GUIBOARD.get_player(index) == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
 		row = (misc::get_row(index) * this->size) + this->offset - (this->size >> 1);
 		col = (misc::get_col(index) * this->size) + this->offset - (this->size >> 1);
 
 		this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
-		if (index == this->guiboard.get_last_move())
-			this->highlight_last_move(this->guiboard, row, col);
+		if (index == GUIBOARD.get_last_move())
+			this->highlight_last_move(row, col);
 
 	}
-	if (this->winner && this->winner->has_wincondition())
+	if (GUIBOARD.has_winner() && this->get_winner().wincondition())
 		this->highlight_5inarow();
 }
 
-void		GUI::highlight_last_move(void, int row, int col)
+void		GUI::highlight_last_move(int row, int col)
 {
-	SDL_Texture *texture = this->guiboard.get_player_index(this->guiboard.get_last_move()) == PLAYER1 ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
+	SDL_Texture *texture = GUIBOARD.get_player(GUIBOARD.get_last_move()) == PLAYER1 ? this->textures[p1_select_tex] : this->textures[p2_select_tex];
 	this->set_texture(texture, SDL_Rect{col, row, this->size, this->size});
 }
 
 void		GUI::highlight_5inarow(void)
 {
-	int index = this->winner->winning_index;
-	int dir = this->guiboard.check_wincodition_all_dir(index, this->winner->id);
-	index += (dir * heuristic::count_direction(this->guiboard, index, this->winner->id, dir, 10));
+	int player = GUIBOARD.winner;
+	int index = this->get_winner().last_move();
+	int dir = GUIBOARD.check_wincondition_all_dir(index, player);
+	index += (dir * heuristic::count_direction(this->guiboard.get_board(), index, player, dir, BOARD_LENGTH));
 	dir = -dir;
 
 	int prev_index, row, col;
-	while (this->guiboard.get_player_id(index) == this->winner->id)
+	while (GUIBOARD.get_player(index) == player)
 	{
 		row = (misc::get_row(index) * this->size) + this->offset - (this->size >> 1);
 		col = (misc::get_col(index) * this->size) + this->offset - (this->size >> 1);
@@ -417,8 +412,8 @@ void		GUI::show_stats(void)
 
 int			GUI::get_index(void)
 {
-	if (this->guiboard.current_player()->ai)
-		return this->guiboard.current_player()->ai->calculate();
+	if (this->guiboard.current_player().ai)
+		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
 	else
 		return get_player_input();
 }
@@ -476,3 +471,5 @@ void		GUI::set_players_ai(void)
 		break;
 	}
 }
+
+GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
