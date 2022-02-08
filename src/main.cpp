@@ -20,7 +20,7 @@ int main()
 {
     RandomAi ai;
     // PrimitiveGui gui(&ai);
-    GUI gui(&ai, medium);
+    GUI gui(&ai);
 
     Board board;
     // GuiBoard guiboard(board);

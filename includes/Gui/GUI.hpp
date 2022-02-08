@@ -130,6 +130,7 @@ private:
 	Text					status;
 	t_mouse					mouse;
 	GuiBoard				prev;
+	short					players_playing;
 
 	bool					update;
 	int						action;
@@ -164,6 +165,7 @@ private:
 	void					undo_action(void);
 	std::string				random_name(void);
 	GuiPlayer				get_winner(void);
+	void					set_ai(void);
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false})
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
 {
 	int height;
 
@@ -31,7 +31,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false})
+GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
 {
 	this->screen_height = SCREEN_HEIGHT;
 	this->screen_width = SCREEN_WIDTH;
@@ -182,6 +182,16 @@ void		GUI::handle_events(void)
 		case SDL_QUIT:
 			this->set_action(quit);
 			break;
+		case SDL_KEYUP:
+		{
+			switch (event.key.keysym.sym)
+			{
+				case SDLK_0: this->players_playing = 0; this->set_ai(); break;
+				case SDLK_1: this->players_playing = 1; this->set_ai(); break;
+				case SDLK_2: this->players_playing = 2; this->set_ai(); break;
+			}
+			break;
+		}
 		case SDL_MOUSEMOTION:
 		{
 			for (auto &btn : this->buttons)
@@ -238,7 +248,7 @@ void		GUI::reset(void)
 	this->update = true;
 	this->action = def;
 	this->prev = this->guiboard;
-	this->guiboard.players[PLAYER2].ai = this->ai;
+	this->set_ai();
 }
 
 void		GUI::draw_stones(void)
@@ -437,3 +447,16 @@ std::string	GUI::random_name(void)
 }
 
 GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
+
+void		GUI::set_ai(void)
+{
+	int i = 0;
+
+	for (; i < this->players_playing; i++)
+		this->guiboard.players[i].ai = NULL;
+
+	for (; i < 2; i++)
+		this->guiboard.players[i].ai = this->ai;
+	
+	this->update = true;
+}
