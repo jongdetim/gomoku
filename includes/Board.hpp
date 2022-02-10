@@ -1,11 +1,8 @@
 #ifndef BOARD_HPP
 # define BOARD_HPP
 
-# include "gomoku.hpp"
-# include "heuristic.hpp"
-# include "Player.hpp"
-# include "IGameEngine.hpp"
-# include "TranspositionTable.hpp"
+#include "gomoku.hpp"
+#include "Player.hpp"
 
 # define BLACK "\033[0;30m"
 # define RED "\033[0;31m"
@@ -25,16 +22,17 @@
 # define P2_SYMBOL 'x'
 
 class TranspositionTable;
+class IGameEngine;
 
-class TableEntry
-{
-public:
-    int						value;
-    int						depth;
-    int						flag;
-    bool					game_finished;
-    int						best_move;
-};
+class TableEntry;
+// {
+// public:
+//     int						value;
+//     int						depth;
+//     int						flag;
+//     bool					game_finished;
+//     int						best_move;
+// };
 
 class	Board
 {
@@ -101,8 +99,8 @@ public:
 
 private:
 	BITBOARD				state;
-	int						current_player;
-	int						last_move;
+	int						current_player = 0;
+	int						last_move = -1;
 
 	int						check_wincondition_all_dir(int index, int player) const;
 	int						check_wincondition_all_dir(int player) const;

@@ -1,10 +1,10 @@
 #ifndef MISC_HPP
 # define MISC_HPP
 
-# include "gomoku.hpp"
-# include "Board.hpp"
 # include <chrono>
 # include <iostream>
+
+# include "gomoku.hpp"
 
 #define PRINT(x) std::cout << x << std::endl
 
@@ -12,6 +12,8 @@ extern int TOTAL_NODES;
 extern int TOTAL_LEAVES;
 extern int FOUND_IN_TABLE;
 extern int TOTAL_BRANCHES_PRUNED;
+
+class Board;
 
 class Timer
 {

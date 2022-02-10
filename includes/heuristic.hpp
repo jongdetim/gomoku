@@ -1,9 +1,6 @@
 #ifndef BOARDHEURISTIC_HPP
 # define BOARDHEURISTIC_HPP
 
-# include "gomoku.hpp"
-// # include "board.hpp"
-
 class Board;
 
 enum Pattern {none, closed2, open2, closed3, open3, closed4, open4, five};
