@@ -111,7 +111,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 
 	auto comp = [&](Board a, Board b)-> bool
 	{
-			return a.h < b.h;
+			return a.h > b.h;
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
@@ -125,17 +125,18 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 			{
 				// std::cout << "al gezien" << std::endl;
 				// child.h = ht_entry.value * pow(color, depth - ht_entry.depth);
-				child.h = ht_entry.value;
+				child.h = -ht_entry.value; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
 			}
 			else
 			{
 			    // std::cout << "calculating child h" << std::endl;
 
-			    child.h = heuristic::get_heuristic_total(child);
+			    // child.h = heuristic::get_heuristic_total(child);
 			    // child.h = -color * node.calc_heuristic(child);
-				ht_entry.value = child.h;
-				ht_entry.depth = depth - 1;
-				h_table.insert(child, ht_entry);
+				// ht_entry.value = -child.h;
+				// ht_entry.depth = depth - 1;
+				// h_table.insert(child, ht_entry);
+				child.h = -std::numeric_limits<int>::max();
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
@@ -174,24 +175,32 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
 	// PRINT(tt_entry.best_move);
-	if (t_table.lookup(node, tt_entry))
-		// t_table.update(node, value);
-		;
-	else
+	// if (t_table.lookup(node, tt_entry))
+	// 	// t_table.update(node, value);
+	// 	;
+	// else
 		t_table.insert(node, tt_entry);
+		// why does this improve performance???
+		// h_table.insert(node, tt_entry);
 
 	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
 	// 10-01-2022 why does this increase the amount of visited nodes now??
-    // TableEntry h_entry;
-    // if (h_table.lookup(node, h_entry))
-	// {
-	// 	// std::cout << value << std::endl;
-	// 	// node.print();
-	// 	// std::cout << h_entry.value << std::endl;
-	//     h_table.update(node, value);
-	// 	// h_table.lookup(node, h_entry);
-	// 	// std::cout << "new value: " << h_entry.value << std::endl;
-	// }
+    TableEntry ht_entry;
+    if (h_table.lookup(node, ht_entry))
+	{
+		// std::cout << value << std::endl;
+		// node.print();
+		// std::cout << h_entry.value << std::endl;
+	    // h_table.update(node, value);
+		// h_table.lookup(node, h_entry);
+		// std::cout << "new value: " << h_entry.value << std::endl;
+	}
+	else //why does this improve performance????
+	{
+		PRINT("this actually ever occurs");
+		ht_entry.value = value;
+		h_table.insert(node, ht_entry);
+	}
 
 	if (initial_call)
 	{

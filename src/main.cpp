@@ -15,12 +15,13 @@ void    iterative_deepening_negamax(Board &board, int player)
     timer.start();
     int last_best_move;
     int depth = 1;
-    int max_depth = 7;
+    int max_depth = 6;
 
+    TranspositionTable h_table;
     for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
     {
         
-        TranspositionTable h_table;
+        // TranspositionTable h_table;
         TranspositionTable t_table;
         try
         {
