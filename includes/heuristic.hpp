@@ -6,6 +6,8 @@ class Board;
 enum Pattern {none, closed2, open2, closed3, open3, closed4, open4, five};
 const char * const PatternNames[8] = {"none", "closed2", "open2", "closed3", "open3", "closed4", "open4", "five"};
 const int SCORES[] {0, 100, 900, 1000, 9000, 10000};
+const int SCALING_CAPTURE_SCORE = 10;
+const int CONSTANT_CAPTURE_SCORE = 1000; //hoog! maar captures zijn best wel goed
 const std::map<uint8_t, Pattern> SUBPATTERNS_5 = {	{0b00011111, five},
 													{0b00001111, closed4}, {0b00011110, closed4}, {0b00010111, closed4}, {0b00011011, closed4}, {0b00011101, closed4},
 													// {0b00010101, closed3}, {0b00010110, closed3}, {0b00001011, closed3},

@@ -73,7 +73,7 @@ int heuristic::score_remaining_patterns(Board &board, int player)
     for (int i = 1; i <= 5; i++) //closed2, open2, closed3, open3, closed4
         score += board.players[player].patterns[i] * SCORES[i];
     if (board.players[player].captures)
-        score += pow(10, board.players[player].captures);
+        score += pow(SCALING_CAPTURE_SCORE, board.players[player].captures) + CONSTANT_CAPTURE_SCORE;
     return score;
 }
 
