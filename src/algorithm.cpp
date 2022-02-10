@@ -11,12 +11,6 @@ int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
 bool TIMEOUT_REACHED = false;
 
-// bool order_moves(std::vector<Board> &nodes, TranspositionTable &t_table, int color)
-// {
-// 	return true;
-//     if (color == 1);
-// }
-
 inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, TranspositionTable &t_table)
 {
 	return t_table.lookup(node, tt_entry) && tt_entry.depth >= depth;
@@ -116,27 +110,25 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
 	// if we've already seen the child in a shallower depth (previous search) we read the heuristic
-	if (depth > 1)
+	if (depth > 1)  // improve pruning by sorting leaf nodes based on cheap sorting heuristic. currently does not sort leaf nodes at all!
 	{
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
 			if (h_table.lookup(child, ht_entry))
 			{
-				// std::cout << "al gezien" << std::endl;
-				// child.h = ht_entry.value * pow(color, depth - ht_entry.depth);
+				// std::cout << "already seen this child node" << std::endl;
 				child.h = -ht_entry.value; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
 			}
 			else
 			{
 			    // std::cout << "calculating child h" << std::endl;
 
-			    // child.h = heuristic::get_heuristic_total(child);
-			    // child.h = -color * node.calc_heuristic(child);
+				// child.h = -std::numeric_limits<int>::max();
+			    child.h = heuristic::get_heuristic_total(child);
 				// ht_entry.value = -child.h;
 				// ht_entry.depth = depth - 1;
 				// h_table.insert(child, ht_entry);
-				child.h = -std::numeric_limits<int>::max();
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
@@ -160,9 +152,16 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, child.get_next_player(player), t_table, h_table, false, timer));
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
-		// 'beta cutoff'?
+		if (alpha > old_alpha)
+		{
+			// 'beta cutoff'?
+		}
 		if (value > old_value)
 			best_move = child.get_last_move();
+
+		if (node.get_state() == DEBUG_BOARD.get_state())
+			PRINT("**** " << best_move << "*****");
+
 		if (alpha >= beta)
 		{
 			// PV[depth] = child.get_last_move();
@@ -180,13 +179,19 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	// 	;
 	// else
 		t_table.insert(node, tt_entry);
+		if (node.get_state() == DEBUG_BOARD.get_state())
+		{
+			t_table.lookup(node, tt_entry);
+			PRINT("*****!!!!!!!   " << tt_entry.best_move);
+		}
 		// why does this improve performance???
 		// h_table.insert(node, tt_entry);
 
 	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
 	// 10-01-2022 why does this increase the amount of visited nodes now??
-    TableEntry ht_entry;
-    if (h_table.lookup(node, ht_entry))
+    TableEntry h_entry;
+	
+    if (h_table.lookup(node, h_entry))
 	{
 		// std::cout << value << std::endl;
 		// node.print();
@@ -197,9 +202,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	}
 	else //why does this improve performance????
 	{
-		PRINT("this actually ever occurs");
-		ht_entry.value = value;
-		h_table.insert(node, ht_entry);
+		// PRINT("this actually ever occurs");
+		// node.show_last_move();
+		h_entry.value = value;
+		h_table.insert(node, h_entry);
 	}
 
 	if (initial_call)
@@ -209,7 +215,6 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 		// std::cout << "heuristic value is: " << value << std::endl;
 		// if (best_move == -1)
 		// 	print_and_quit("no best move found. something seriously wrong");
-		// PRINT("HERE!!!!!!!!!!!!!");
 		// PRINT(best_move);
 		return best_move;
 	}
