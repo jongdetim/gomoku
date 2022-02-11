@@ -1,6 +1,5 @@
 #include "GUI.hpp"
 #include <SDL_image.h>
-#include <fstream>
 #include "misc.hpp"
 #include "heuristic.hpp"
 
@@ -117,6 +116,7 @@ void		GUI::gameloop(void)
 
     while (!this->check_action(quit))
     {
+		this->log_board_state();
 		if (this->update)
 			this->update_renderer();
 	
@@ -475,4 +475,39 @@ void		GUI::set_ai(void)
 		this->guiboard.players[i].ai = this->ai;
 	
 	this->update = true;
+}
+
+void		GUI::log_board_state(void)
+{
+    std::ofstream log;
+    log = std::ofstream(LOG_PATH);
+
+	log << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
+	for (int row = 0; row < BOARD_LENGTH; row++)
+	{
+		log << row%10 << ": ";
+		for (int col = 0; col < BOARD_LENGTH; col++)
+		{
+			int index = (row * BOARD_LENGTH + col);
+			if (GUIBOARD.is_empty_place(index))
+				log << ". ";
+			else if (GUIBOARD.get_state()[index<<1])
+			{
+				if (GUIBOARD.get_last_move() == index)
+					log << (P1_SYMBOL-32) << ' ';
+				else
+					log << P1_SYMBOL << ' ';
+			}
+			else
+			{
+				if (GUIBOARD.get_last_move() == index)
+					log << (P2_SYMBOL-32) << ' ';
+				else
+					log << P2_SYMBOL << ' ';
+			}
+		}
+		log << std::endl;
+	}
+	log << std::endl;
+    log.close();
 }

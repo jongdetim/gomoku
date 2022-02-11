@@ -59,6 +59,9 @@ private:
     }
 };
 
+// #include <iostream>
+#include <fstream>
+
 int main()
 {
     // RandomAi ai;

@@ -9,6 +9,9 @@
 # include "Stats.hpp"
 # include "GuiBoard.hpp"
 
+# include <fstream>
+# include <iostream>
+
 # define OFFSET 31
 # define SIZE 50
 # define INTERFACE_SIZE 420
@@ -54,6 +57,8 @@
 # define STATS_NAME_FONT SANS_FONT_BOLD
 # define STATUS_FONT POPPINS_FONT_BOLD
 # define TITLE_FONT "resources/fonts/Title.ttf"
+
+# define LOG_PATH "log.txt"
 
 enum e_fonts
 {
@@ -162,6 +167,7 @@ private:
 	std::string				random_name(void);
 	GuiPlayer				get_winner(void);
 	void					set_ai(void);
+	void					log_board_state(void);
 };
 
 #endif
