@@ -1,4 +1,8 @@
 #include "GUI.hpp"
+#include <SDL_image.h>
+#include <fstream>
+#include "misc.hpp"
+#include "heuristic.hpp"
 
 GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
 {

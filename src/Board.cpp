@@ -1,5 +1,9 @@
 #include "Board.hpp"
 #include "misc.hpp"
+#include "gomoku.hpp"
+#include "heuristic.hpp"
+#include "IGameEngine.hpp"
+#include "TranspositionTable.hpp"
 
 Board::Board(void) :
 h(0),
@@ -98,6 +102,9 @@ bool					Board::place(int index) { return this->place(index, this->current_playe
 
 bool					Board::place(int index, int player)
 {
+	assert(player == PLAYER1 || player == PLAYER2);
+	assert(index >= 0 && index < BOARDSIZE);
+
 	if (!is_valid_move(index))
 		return false;
 	
@@ -126,7 +133,7 @@ std::vector<Board>		Board::generate_children(void) const
 		if (!moves[i])
 			continue;
 		board_copy = *this;
-		board_copy.place(i);
+		board_copy.place(i, this->get_next_player(this->get_last_player()));
 		nodes.push_back(board_copy);
 		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
 		// nodes.insert(nodes.begin(), board_copy);
@@ -193,22 +200,36 @@ bool					Board::check_free_threes(int move, int player) const
 void					Board::print_principal_variation(int player, int depth, TranspositionTable &t_table)
 {
 	Board node = *this;
-	int color = player;
 	TableEntry tt_entry;
 
 	for (int i = 0; i < depth; i++)
 	{
-		t_table.lookup(node, tt_entry);
+		if (!t_table.lookup(node, tt_entry))
+			misc::print_and_quit("can't find node in table! (Print PV)");
 		int best_move = tt_entry.best_move;
 		PRINT(best_move);
-		node.place(best_move, color);
+		node.place(best_move, player);
 		node.show_last_move();
 		
 		std::cout << "depth: " << depth << std::endl;
 		std::cout << "best move is: " << best_move << std::endl;
-		std::cout << "heuristic value is: " << tt_entry.value << std::endl;
+
+		int h = heuristic::get_heuristic_total(node);
+		for (uint8_t i = 0; i < 8; i++) // skip first index which is none
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				if (i > 0 && node.players[j].patterns[i] > 0)
+				{
+					PRINT("player: " << j);
+					PRINT(PatternNames[i]);
+					PRINT((int)node.players[j].patterns[i]);
+				}
+			}
+		}
+		std::cout << "heuristic value is: " << h << std::endl;
 		best_move = tt_entry.best_move;
-		color *= -1;
+		player = 1 - player;
 		if(node.is_game_finished())
 		{
 			PRINT("\n*** game finished ***\n");

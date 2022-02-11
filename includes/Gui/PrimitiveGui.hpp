@@ -1,10 +1,9 @@
 #ifndef PRIMITIVEGUI_HPP
 # define PRIMITIVEGUI_HPP
 
-# include "Board.hpp"
 # include "GuiBoard.hpp"
-# include "misc.hpp"
 # include "IAi.hpp"
+# include "IGameEngine.hpp"
 
 class PrimitiveGui : public IGameEngine
 {

@@ -11,10 +11,6 @@
 # define DIAGUPL		-(BOARD_LENGTH + 1)
 # define DIAGDWNR		(BOARD_LENGTH + 1)
 # define DIAGDWNL		(BOARD_LENGTH - 1)
-# define ROW5 			1000
-# define ROW4 			100
-# define ROW3 			10
-# define ROW2 			1
 # define BOARD_LENGTH	19
 # define BOARDSIZE		(BOARD_LENGTH*BOARD_LENGTH)
 # define MASKSIZE		((BOARD_LENGTH*BOARD_LENGTH)<<1)
@@ -28,7 +24,6 @@
 # define UPPERBOUND 2
 # define LOWERBOUND 1
 
-const int				POINTS[6]{0,0,ROW2,ROW3,ROW4,ROW5};
 const int				DIRECTIONS[8] = {DIAGUPL, UP, DIAGUPR, RIGHT, DIAGDWNR, DOWN, DIAGDWNL, LEFT};
 
 # include <iostream>

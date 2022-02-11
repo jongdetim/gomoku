@@ -1,16 +1,12 @@
 #ifndef GUI_HPP
 # define GUI_HPP
 
-# include <iostream>
 # include <SDL.h>
-# include <SDL_image.h>
 # include <SDL_ttf.h>
-# include <fstream>
+# include "IGameEngine.hpp"
 # include "Board.hpp"
 # include "Button.hpp"
 # include "Stats.hpp"
-# include "misc.hpp"
-# include "IAi.hpp"
 # include "GuiBoard.hpp"
 
 # define OFFSET 31

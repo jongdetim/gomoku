@@ -1,4 +1,6 @@
 #include "PrimitiveGui.hpp"
+#include "Board.hpp"
+#include "misc.hpp"
 
 PrimitiveGui::PrimitiveGui(IAi *ai) : IGameEngine(ai) {}
 
