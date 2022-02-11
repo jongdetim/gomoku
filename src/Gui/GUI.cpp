@@ -114,9 +114,9 @@ void		GUI::gameloop(void)
 {
 	int index;
 
+	this->log_board_state(); //////////////////////
     while (!this->check_action(quit))
     {
-		this->log_board_state();
 		if (this->update)
 			this->update_renderer();
 	
@@ -130,6 +130,7 @@ void		GUI::gameloop(void)
 				if (!this->guiboard.current_player().ai)
 					this->prev = this->guiboard;
 				GUIBOARD.place(index);
+				this->log_board_state(); //////////////////////
 				this->check_game_state();
 				this->update = true;
 			}
@@ -479,8 +480,10 @@ void		GUI::set_ai(void)
 
 void		GUI::log_board_state(void)
 {
+	static bool first_time = true;
     std::ofstream log;
-    log = std::ofstream(LOG_PATH);
+
+    log = first_time ? std::ofstream(LOG_PATH) : std::ofstream(LOG_PATH, std::ios::app); 
 
 	log << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
 	for (int row = 0; row < BOARD_LENGTH; row++)
@@ -494,14 +497,14 @@ void		GUI::log_board_state(void)
 			else if (GUIBOARD.get_state()[index<<1])
 			{
 				if (GUIBOARD.get_last_move() == index)
-					log << (P1_SYMBOL-32) << ' ';
+					log << (char)(P1_SYMBOL-32) << ' ';
 				else
 					log << P1_SYMBOL << ' ';
 			}
 			else
 			{
 				if (GUIBOARD.get_last_move() == index)
-					log << (P2_SYMBOL-32) << ' ';
+					log << (char)(P2_SYMBOL-32) << ' ';
 				else
 					log << P2_SYMBOL << ' ';
 			}
@@ -510,4 +513,5 @@ void		GUI::log_board_state(void)
 	}
 	log << std::endl;
     log.close();
+	first_time = false;
 }
