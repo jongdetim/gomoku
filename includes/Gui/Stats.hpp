@@ -13,7 +13,7 @@ enum e_stats
 {
 	name_text,
 	empty_text,
-	ai_text,
+	player_text,
 	captures_text,
 	/* ----- */
 	size_texts
@@ -28,6 +28,8 @@ public:
 	void				update(GuiPlayer &player);
 	void				render(void);
 	void				init(void);
+	t_point				get_position(int index) const;
+	t_point				get_size(int index) const;
 private:
 
 	SDL_Renderer		*renderer;

@@ -403,6 +403,13 @@ void		GUI::show_stats(void)
 	
 	this->stats[PLAYER1].render();
 	this->stats[PLAYER2].render();
+
+	for (int player = 0; player < 2; player++)
+	{
+		t_point pos = this->stats[player].get_position(captures_text);
+		SDL_Texture *texture = player == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
+		this->set_texture(texture, SDL_Rect{ pos.x , pos.y + this->size, (this->size>>1), (this->size>>1)});
+	}
 }
 
 int			GUI::get_index(void)

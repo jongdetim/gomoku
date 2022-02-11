@@ -15,10 +15,13 @@ public:
 
 	void			update(std::string text, TTF_Font *font);
 	void			render(void);
+	t_point			get_pos(void) const;
+	t_point			get_size(void) const;
 private:
 	SDL_Renderer	*renderer;
 	SDL_Texture		*texture;
 	t_point			pos;
+	t_point			size;
 };
 
 #endif
