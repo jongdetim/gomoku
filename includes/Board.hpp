@@ -95,6 +95,7 @@ public:
 	int						get_last_player(void) const;
 	int						get_current_player(void) const;
 
+	bool					is_empty(void) const;
 	bool					has_winner(void) const;
 	bool					is_game_finished(void);
 	bool					is_game_finished(int player);

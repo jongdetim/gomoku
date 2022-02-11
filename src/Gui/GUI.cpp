@@ -419,7 +419,12 @@ void		GUI::show_stats(void)
 int			GUI::get_index(void)
 {
 	if (this->guiboard.current_player().ai)
+	{
+		int index = this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
+		if (index < 0 || index >= BOARDSIZE)
+			throw "Invalid index: " + std::to_string(index);
 		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
+	}
 	else
 		return get_player_input();
 }

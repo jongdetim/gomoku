@@ -167,6 +167,8 @@ int						Board::get_player(int index) const
 
 bool					Board::is_full(void) const { return (total_stones_in_play() == BOARDSIZE); }
 
+bool					Board::is_empty(void) const { return (total_stones_in_play() == 0); }
+
 int						Board::total_stones_in_play(void) const { return this->filled_pos.count(); }
 
 int						Board::check_captures(int player, int index)
