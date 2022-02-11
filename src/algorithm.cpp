@@ -9,11 +9,12 @@ int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
 int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
+int DEBUG_COUNTER = 0;
 bool TIMEOUT_REACHED = false;
 
 inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, TranspositionTable &t_table)
 {
-	return t_table.lookup(node, tt_entry) && tt_entry.depth >= depth;
+	return t_table.retrieve(node, tt_entry) && tt_entry.depth >= depth;
 }
 
 void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int beta, int depth, bool is_finished, int best_move)
@@ -95,15 +96,11 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 
 		return (value);
 	}
+
 	std::vector<Board> child_nodes;
-	// for (int i = 0; i < 100; i++)
-		child_nodes = node.generate_children();
+	child_nodes = node.generate_children();
 
-		// for (auto &it : child_nodes)
-		// 	std::cout << it.last_move << std::endl;
-		// exit(1);
-
-	auto comp = [&](Board a, Board b)-> bool
+	auto comp = [&](Board &a, Board &b)-> bool
 	{
 			return a.h > b.h;
 	};
@@ -115,8 +112,9 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			if (h_table.lookup(child, ht_entry))
+			if (h_table.retrieve(child, ht_entry))
 			{
+				DEBUG_COUNTER++;
 				// std::cout << "already seen this child node" << std::endl;
 				child.h = -ht_entry.value; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
 			}
@@ -124,11 +122,10 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 			{
 			    // std::cout << "calculating child h" << std::endl;
 
-				// child.h = -std::numeric_limits<int>::max();
 			    child.h = heuristic::get_heuristic_total(child);
-				// ht_entry.value = -child.h;
-				// ht_entry.depth = depth - 1;
-				// h_table.insert(child, ht_entry);
+				ht_entry.value = -child.h;
+				ht_entry.depth = depth - 1;
+				h_table.insert(child, ht_entry);
 			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
@@ -152,19 +149,18 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, child.get_next_player(player), t_table, h_table, false, timer));
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
-		if (alpha > old_alpha)
-		{
-			// 'beta cutoff'?
-		}
+		// if (alpha > old_alpha)
+		// {
+		// 	// 'beta cutoff'?
+		// }
 		if (value > old_value)
 			best_move = child.get_last_move();
 
-		if (node.get_state() == DEBUG_BOARD.get_state())
-			PRINT("**** " << best_move << "*****");
+		// if (node.get_state() == DEBUG_BOARD.get_state())
+		// 	PRINT("**** " << best_move << "*****");
 
 		if (alpha >= beta)
 		{
-			// PV[depth] = child.get_last_move();
 			TOTAL_BRANCHES_PRUNED++;
 			// if (depth == 1)
 			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
@@ -174,16 +170,15 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
 	// PRINT(tt_entry.best_move);
-	// if (t_table.lookup(node, tt_entry))
-	// 	// t_table.update(node, value);
-	// 	;
-	// else
+	if (t_table.contains(node))
+		t_table.update(node, tt_entry);
+	else
 		t_table.insert(node, tt_entry);
-		if (node.get_state() == DEBUG_BOARD.get_state())
-		{
-			t_table.lookup(node, tt_entry);
-			PRINT("*****!!!!!!!   " << tt_entry.best_move);
-		}
+		// if (node.get_state() == DEBUG_BOARD.get_state())
+		// {
+		// 	t_table.lookup(node, tt_entry);
+		// 	PRINT("*****!!!!!!!   " << tt_entry.best_move);
+		// }
 		// why does this improve performance???
 		// h_table.insert(node, tt_entry);
 
@@ -191,12 +186,12 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	// 10-01-2022 why does this increase the amount of visited nodes now??
     TableEntry h_entry;
 	
-    if (h_table.lookup(node, h_entry))
+    if (h_table.contains(node)) // apparently, updating is generally bad. but sometimes good. but sometimes bad?
 	{
 		// std::cout << value << std::endl;
 		// node.print();
 		// std::cout << h_entry.value << std::endl;
-	    // h_table.update(node, value);
+	    // h_table.update(node, tt_entry);
 		// h_table.lookup(node, h_entry);
 		// std::cout << "new value: " << h_entry.value << std::endl;
 	}
@@ -204,8 +199,8 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	{
 		// PRINT("this actually ever occurs");
 		// node.show_last_move();
-		h_entry.value = value;
-		h_table.insert(node, h_entry);
+		// h_entry.value = value;
+		// h_table.insert(node, tt_entry);
 	}
 
 	if (initial_call)

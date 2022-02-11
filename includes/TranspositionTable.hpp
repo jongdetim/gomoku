@@ -36,9 +36,11 @@ private:
 public:
     std::unordered_map<Board, TableEntry, MyHashFunction> t_table;
     // std::unordered_map<BITBOARD, TableEntry> t_table;
-    bool lookup(Board &node, TableEntry &tt_entry);
+    bool contains(Board &node);
+    bool retrieve(Board &node, TableEntry &tt_entry);
     void insert(const Board &node, TableEntry &tt_entry);
-    void update(Board &node, int value);
+    void update(Board &node, TableEntry &tt_entry);
+
     size_t size();
 };
 

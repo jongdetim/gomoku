@@ -205,7 +205,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 
 	for (int i = 0; i < depth; i++)
 	{
-		if (!t_table.lookup(node, tt_entry))
+		if (!t_table.retrieve(node, tt_entry))
 			misc::print_and_quit("can't find node in table! (Print PV)");
 		int best_move = tt_entry.best_move;
 		PRINT(best_move);

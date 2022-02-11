@@ -15,7 +15,7 @@ void    iterative_deepening_negamax(Board &board, int player)
     timer.start();
     int last_best_move;
     int depth = 1;
-    int max_depth = 6;
+    int max_depth = 8;
 
     TranspositionTable h_table;
     for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
@@ -69,7 +69,7 @@ public:
 //     board.play(gui);
 // }
 
-Board DEBUG_BOARD;
+// Board DEBUG_BOARD;
 
 void    test()
 {
@@ -90,12 +90,12 @@ void    test()
 
     // PRINT(Heuristic::get_heuristic_total(board));
 
-    DEBUG_BOARD.place(140, PLAYER1);
-    DEBUG_BOARD.place(160, PLAYER1);
-    DEBUG_BOARD.place(180, PLAYER1);
-    DEBUG_BOARD.place(120, PLAYER2);
-    DEBUG_BOARD.place(200, PLAYER2);
-    DEBUG_BOARD.place(141, PLAYER2);
+    // DEBUG_BOARD.place(140, PLAYER1);
+    // DEBUG_BOARD.place(160, PLAYER1);
+    // DEBUG_BOARD.place(180, PLAYER1);
+    // DEBUG_BOARD.place(120, PLAYER2);
+    // DEBUG_BOARD.place(200, PLAYER2);
+    // DEBUG_BOARD.place(141, PLAYER2);
 
     int player = PLAYER2;
     iterative_deepening_negamax(board, player);

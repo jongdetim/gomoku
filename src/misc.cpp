@@ -81,10 +81,11 @@ void    					misc::print_and_quit(const char *msg)
 
 void						misc::print_stats()
 {
-	PRINT("Total nodes: " << TOTAL_NODES);
-	PRINT("Total leaves: " << TOTAL_LEAVES << "\n");
+	PRINT("\nTotal nodes: " << TOTAL_NODES);
+	PRINT("Total leaves: " << TOTAL_LEAVES);
 	PRINT("Total found in table: " << FOUND_IN_TABLE);
 	PRINT("Total times branches pruned: " << TOTAL_BRANCHES_PRUNED << "\n");
+	PRINT("DEBUG COUNTER: " << DEBUG_COUNTER << "\n");
 }
 
 bool						misc::is_offside(int prev_index, int index)

@@ -10,6 +10,7 @@
 
 extern int TOTAL_NODES;
 extern int TOTAL_LEAVES;
+extern int DEBUG_COUNTER;
 extern int FOUND_IN_TABLE;
 extern int TOTAL_BRANCHES_PRUNED;
 

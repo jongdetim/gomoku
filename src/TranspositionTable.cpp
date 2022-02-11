@@ -2,7 +2,7 @@
 # include "TranspositionTable.hpp"
 
 
-bool		TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
+bool		TranspositionTable::retrieve(Board &node, TableEntry &tt_entry)
 {
 	std::unordered_map<Board, TableEntry, MyHashFunction>::iterator get;
 
@@ -12,9 +12,16 @@ bool		TranspositionTable::lookup(Board &node, TableEntry &tt_entry)
 	else
 	{
 		tt_entry = get->second;
-		// std::cout << "i've seen this state before :)))" << std::endl;
 		return true;
 	}
+}
+
+bool		TranspositionTable::contains(Board &node)
+{
+	std::unordered_map<Board, TableEntry, MyHashFunction>::iterator get;
+
+	get = t_table.find(node);
+	return !(get == t_table.end());
 }
 
 void		TranspositionTable::insert(const Board &node, TableEntry &tt_entry)
@@ -22,9 +29,9 @@ void		TranspositionTable::insert(const Board &node, TableEntry &tt_entry)
 	t_table.insert({node, tt_entry});
 }
 
-void		TranspositionTable::update(Board &node, int value)
+void		TranspositionTable::update(Board &node, TableEntry &tt_entry)
 {
-	t_table[node].value = value;
+	t_table[node] = tt_entry;
 }
 
 size_t		TranspositionTable::size()

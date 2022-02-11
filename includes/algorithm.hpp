@@ -4,7 +4,7 @@
 #include "gomoku.hpp"
 
 extern bool TIMEOUT_REACHED;
-const int TIMEOUT = 2500;
+const int TIMEOUT = 500;
 
 class Board;
 class TranspositionTable;
