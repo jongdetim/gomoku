@@ -163,11 +163,11 @@ void		GUI::check_actions(void)
 
 void		GUI::undo_action(void)
 {
+	if (GUIBOARD.has_winner())
+		this->unset_action(pause);
 	this->guiboard = this->prev;
 	this->update = true;
 	this->unset_action(undo);
-	if (GUIBOARD.has_winner())
-		this->unset_action(pause);
 }
 
 void		GUI::handle_events(void)
