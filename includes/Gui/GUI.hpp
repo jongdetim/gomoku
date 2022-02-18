@@ -97,6 +97,7 @@ typedef struct	s_mouse
 class GUI: public IGameEngine
 {
 public:
+	GUI(void);
 	GUI(IAi *ai);
 	GUI(IAi *ai, e_gui_size size);
 	~GUI();

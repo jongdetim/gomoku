@@ -320,6 +320,8 @@ void					Board::load(std::string file_name)
 
     std::ifstream file;
     file.open(file_name, std::ios::in);
+	if (file.fail())
+		throw "failed to load board state from file";
     file.seekg(0);
     file.read((char*)&board, sizeof(board));
     file.close();

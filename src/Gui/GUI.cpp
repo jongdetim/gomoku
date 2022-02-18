@@ -34,18 +34,9 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
-{
-	this->screen_height = SCREEN_HEIGHT;
-	this->screen_width = SCREEN_WIDTH;
-	this->size = SIZE;
-	this->offset = OFFSET;
-	this->interface_size = INTERFACE_SIZE;
-	this->btn_size = BUTTON_SIZE;
-	this->stats_size = STATS_SIZE;
-	this->status_size = STATUS_SIZE;
-	this->title_size = TITLE_SIZE;
-}
+GUI::GUI(void) : GUI(NULL, big) {}
+
+GUI::GUI(IAi *ai) : GUI(ai, big) {}
 
 GUI::~GUI()
 {

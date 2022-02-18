@@ -6,6 +6,9 @@
 #include "TranspositionTable.hpp"
 #include "misc.hpp"
 #include "algorithm.hpp"
+#include <boost/program_options.hpp>
+
+namespace po = boost::program_options;
 
 class RandomAi : public IAi
 {
@@ -59,53 +62,88 @@ private:
     }
 };
 
-#include <boost/program_options.hpp>
-#include <iostream>
-
-namespace po = boost::program_options;
-
-void on_age(int age)
+po::options_description get_options(void)
 {
-  std::cout << "On age: " << age << '\n';
+    po::options_description options{"Options"};
+    options.add_options()
+    ("help,h", "")
+    ("size,s", po::value<std::string>()->default_value("big"), "GUI size [ big | medium | small ]")
+    ("file,f", po::value<std::string>(), "Load board state from file");
+    return options;
 }
 
-void    set_args(int argc, char **argv)
+po::variables_map       get_args(int argc, char **argv, po::options_description &options)
 {
-//   try
-//   {
-    po::options_description desc{"Options"};
-    desc.add_options()
-      ("help,h", "")
-      ("size,s", po::value<std::string>()->default_value("big"), "GUI size")
-      ("file,f", po::value<std::string>(), "");
-
     po::variables_map vm;
-    po::store(parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+    try
+    {
+        po::store(po::parse_command_line(argc, argv, options), vm);
+        po::notify(vm);
+    }
+    catch (const po::error &e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+    return vm;
+}
 
-    if (vm.count("help"))
-      std::cout << desc << '\n';
-//     else if (vm.count("age"))
-//       std::cout << "Age*: " << vm["age"].as<int>() << '\n';
-//     else if (vm.count("pi"))
-//       std::cout << "Pi: " << vm["pi"].as<float>() << '\n';
-//   }
-//   catch (const po::error &ex)
-//   {
-//     std::cerr << ex.what() << '\n';
-//   }
+Board                   get_board(po::variables_map &vm)
+{
+    Board board;
+    std::string file;
+
+    try
+    {
+        if (vm.count("file"))
+        {
+            file = vm["file"].as<std::string>();
+            board.load(file);
+        }
+    }
+    catch (char const* &str)
+    {
+        std::cerr << str << '\n';
+        exit(1);
+    }
+    return board;
+}
+
+GUI                     get_gui(po::variables_map &vm)
+{
+    NegamaxAi nai;
+    std::string size;
+    
+    try
+    {
+        if (vm.count("size"))
+        {
+            size = vm["size"].as<std::string>();
+            if (!(size == "small" || size == "medium" || size == "big"))
+                throw po::validation_error(po::validation_error::invalid_option_value, "size");
+            return (size == "small") ? GUI(&nai, small) : (size == "medium") ? GUI(&nai, medium) : GUI(&nai, big);
+        }
+    }
+    catch (const po::error &e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+    return GUI(&nai);
 }
 
 int main(int argc, char **argv)
 {
+    po::options_description options = get_options();
+    po::variables_map vm = get_args(argc, argv, options);
 
-    set_args(argc, argv);
+    if (vm.count("help"))
+    {
+        std::cout << options << '\n';
+        exit(0);
+    }
 
-    // RandomAi rai;
-    // NegamaxAi nai;
-
-    // Board board;
-    
-    // GUI gui(&nai);
-    // board.play(gui);
+    GUI gui = get_gui(vm);
+    Board board = get_board(vm);
+    board.play(gui);
 }
