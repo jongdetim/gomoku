@@ -513,6 +513,7 @@ void		GUI::log_game_state(bool clear)
 		}
 		log << std::endl;
 	}
+	log << GUIBOARD << std::endl;
 	log << std::endl;
     log.close();
 }

@@ -24,14 +24,6 @@ class TranspositionTable;
 class IGameEngine;
 
 class TableEntry;
-// {
-// public:
-//     int						value;
-//     int						depth;
-//     int						flag;
-//     bool					game_finished;
-//     int						best_move;
-// };
 
 typedef struct					s_player
 {
@@ -64,7 +56,6 @@ public:
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
-	int						total_stones_in_play(void) const;
 	
 	int						check_captures(int player, int index);
 
@@ -74,7 +65,6 @@ public:
 	bool					check_free_threes(int move, int player) const;
 	int						check_wincondition_all_dir(int index, int player) const;
 
-	void					set_state(BITBOARD new_state);
 	int						calculate_index(int row, int col) const;
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
@@ -112,6 +102,7 @@ private:
 	int						current_player = 0;
 	int						last_move = -1;
 
+	int						total_stones_in_play(void) const;
 	int						check_wincondition_all_dir(int player) const;
 	bool					continue_game(int player);
 	bool					has_won(int player);
