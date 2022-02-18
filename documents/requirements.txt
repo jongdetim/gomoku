@@ -3,5 +3,3 @@ boost
 SDL2
 SDL2_image
 SDL2_ttf
-
-## xargs brew install < documents/requirements.txt
