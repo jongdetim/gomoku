@@ -76,9 +76,10 @@ int main(int argc, char **argv)
 {
     // RandomAi ai;
     NegamaxAi ai;
-    GUI gui(&ai, parse_arguments(argc, argv));
+    // GUI gui(&ai, parse_arguments(argc, argv));
     Board board = misc::create_random_board(0);
 
-    // board.print();
-    board.play(gui);
+    board.print();
+    board.print_values();
+    // board.play(gui);
 }

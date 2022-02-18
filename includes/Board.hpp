@@ -58,11 +58,13 @@ public:
 	void					remove(int index);
 	void					reset(void);
 	
-	int						check_captures(int player, int index);
+	void					save(std::string file_name) const;
+	void					load(std::string file_name);
 
 	std::vector<Board>		generate_children(void) const;
 	std::vector<Board>		generate_children(int player) const;
 
+	int						check_captures(int player, int index);
 	bool					check_free_threes(int move, int player) const;
 	int						check_wincondition_all_dir(int index, int player) const;
 

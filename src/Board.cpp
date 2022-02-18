@@ -4,6 +4,7 @@
 #include "heuristic.hpp"
 #include "IGameEngine.hpp"
 #include "TranspositionTable.hpp"
+#include <fstream>
 
 Board::Board(void) :
 h(0),
@@ -118,22 +119,19 @@ bool					Board::place(int index, int player)
 
 void					Board::print_values(void) const
 {
-	// PRINT("h       : " + this->h);
-	// PRINT("winner  : " + this->winner);
-	// PRINT("current : " + this->current_player);
-	// PRINT("lastMove: " + this->last_move);
-	// for (int i = 0; i < 2; i++)
-	// {
-	// 	PRINT("");
-	// 	PRINT("Player" + (i + 1));
-	// 	PRINT("lastMove: " + this->players[i].last_move);
-	// 	PRINT("captures: " + this->players[i].captures);
-	// 	PRINT("score   : " + this->players[i].score);
-	// 	// for (int j = 0; j < 8; j++)
-	// 	// 	printf("pattern" + j + ": ");
-	// 	// 	PRINT("pattern" + j + ": " + this->players[i].patterns[j]);
+	printf("%-*s: %d\n", 10, "h", this->h);
+	printf("%-*s: %d\n", 10, "winner", this->winner);
+	printf("%-*s: %s\n", 10, "current", this->current_player == PLAYER1 ? "P1" : "P2");
+	printf("%-*s: %d\n", 10, "lastMove", this->last_move);
+	
+	printf("\n");
+	printf("            P1   P2\n");
+	printf("%-*s: %-*d %d\n", 10, "lastMove", 4, this->players[0].last_move, this->players[1].last_move);
+	printf("%-*s: %-*d %d\n", 10, "captures", 4, this->players[0].captures, this->players[1].captures);
+	printf("%-*s: %-*d %d\n", 10, "score", 4, this->players[0].score, this->players[1].score);
+	for (int j = 0; j < 8; j++)
+		printf("%s%-*d: %-*d %d\n", "pattern", 3, j, 4, this->players[0].patterns[j], this->players[1].patterns[j]);
 
-	// }
 }
 
 // Add check free threes
@@ -307,6 +305,27 @@ void					Board::set_current_player(int player) { this->current_player = player; 
 int						Board::get_current_player(void) const { return this->current_player; }
 
 int						Board::get_last_player(void) const { return get_player(this->last_move); }
+
+void					Board::save(std::string file_name) const
+{
+	std::ofstream file;
+	file.open(file_name);
+	file.write((char*)this,sizeof(*this));
+	file.close();
+}
+
+void					Board::load(std::string file_name)
+{
+    Board board;
+
+    std::ifstream file;
+    file.open(file_name, std::ios::in);
+    file.seekg(0);
+    file.read((char*)&board, sizeof(board));
+    file.close();
+
+	*this = board;
+}
 
 /* PRIVATE METHODS */
 
