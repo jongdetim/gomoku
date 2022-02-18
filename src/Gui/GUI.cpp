@@ -74,7 +74,7 @@ void		GUI::play(Board *board)
 	if (!this->init("Gomoku"))
         return;
 	this->guiboard = GuiBoard(*board);
-	this->reset();
+	this->init_game();
 	this->init_stats();
 	this->gameloop();
 }
@@ -114,7 +114,6 @@ void		GUI::gameloop(void)
 {
 	int index;
 
-	this->log_game_state(true);
     while (!this->check_action(quit))
     {
 		if (this->update)
@@ -244,10 +243,8 @@ std::string	GUI::get_status_update(void)
 		return "> " + this->guiboard.current_player().name;
 }
 
-void		GUI::reset(void)
+void		GUI::init_game(void)
 {
-	GUIBOARD.reset();
-	GUIBOARD.random_player();
 	while ( (this->guiboard.players[PLAYER1].name = random_name()).length() > 14);
 	while ( (this->guiboard.players[PLAYER2].name = random_name()).length() > 14);
 	this->update = true;
@@ -255,6 +252,13 @@ void		GUI::reset(void)
 	this->prev = this->guiboard;
 	set_ai();
 	log_game_state(true);
+}
+
+void		GUI::reset(void)
+{
+	GUIBOARD.reset();
+	GUIBOARD.random_player();
+	this->init_game();
 }
 
 void		GUI::draw_stones(void)

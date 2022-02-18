@@ -48,6 +48,7 @@ public:
 	
 	void					play(IGameEngine &engine);
 	void					print(void) const;
+	void					print_values(void) const;
 	void					show_last_move(void) const;
 	void					show_move(int show_index) const;
 	bool					place(int index);

@@ -116,6 +116,26 @@ bool					Board::place(int index, int player)
 	return true;
 }
 
+void					Board::print_values(void) const
+{
+	// PRINT("h       : " + this->h);
+	// PRINT("winner  : " + this->winner);
+	// PRINT("current : " + this->current_player);
+	// PRINT("lastMove: " + this->last_move);
+	// for (int i = 0; i < 2; i++)
+	// {
+	// 	PRINT("");
+	// 	PRINT("Player" + (i + 1));
+	// 	PRINT("lastMove: " + this->players[i].last_move);
+	// 	PRINT("captures: " + this->players[i].captures);
+	// 	PRINT("score   : " + this->players[i].score);
+	// 	// for (int j = 0; j < 8; j++)
+	// 	// 	printf("pattern" + j + ": ");
+	// 	// 	PRINT("pattern" + j + ": " + this->players[i].patterns[j]);
+
+	// }
+}
+
 // Add check free threes
 bool					Board::is_valid_move(int index) const
 {

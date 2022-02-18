@@ -138,6 +138,7 @@ private:
 
 	bool					init(std::string title);
 	void					gameloop(void);
+	void					init_game(void);
 	void					check_game_state(void);
 	void					reset(void);
 	bool					mouse_on_board(int row, int col) const;
