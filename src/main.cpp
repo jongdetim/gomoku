@@ -15,14 +15,15 @@ void    iterative_deepening_negamax(Board &board, int player)
     timer.start();
     int last_best_move;
     int depth = 1;
-    int max_depth = 8;
+    int max_depth = 6;
 
     TranspositionTable h_table;
+    TranspositionTable t_table;
     for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
     {
         
         // TranspositionTable h_table;
-        TranspositionTable t_table;
+        // TranspositionTable t_table;
         try
         {
             last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
@@ -46,6 +47,12 @@ void    iterative_deepening_negamax(Board &board, int player)
         // PRINCIPAL VARIATION RETRIEVAL:
         board.print_principal_variation(player, depth, t_table);
         misc::print_stats();
+
+        TableEntry tt_entry;
+        t_table.retrieve(board, tt_entry);
+        PRINT(tt_entry.depth);
+        PRINT(tt_entry.best_move);
+        
     }    
 }
 
@@ -77,6 +84,8 @@ void    test()
 
     int index = misc::calc_index(8, 8);
     board.place(index, PLAYER1);
+    board.place(index + 1, PLAYER1);
+    board.place(index + 2, PLAYER1);
     // board.place(index - 20, PLAYER2);
     // board.place(index - 38, PLAYER1);
 

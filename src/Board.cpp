@@ -216,11 +216,11 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		std::cout << "best move is: " << best_move << std::endl;
 
 		int h = heuristic::get_heuristic_total(node);
-		for (uint8_t i = 0; i < 8; i++) // skip first index which is none
+		for (uint8_t i = 1; i < 8; i++) // skip first index which is none
 		{
 			for (int j = 0; j < 2; j++)
 			{
-				if (i > 0 && node.players[j].patterns[i] > 0)
+				if (node.players[j].patterns[i] > 0)
 				{
 					PRINT("player: " << j);
 					PRINT(PatternNames[i]);

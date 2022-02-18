@@ -89,6 +89,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 		tt_entry.flag = EXACT;
 		tt_entry.depth = depth;
 		tt_entry.game_finished = is_finished;
+		tt_entry.best_move = -1;
 		h_table.insert(node, tt_entry);
 		t_table.insert(node, tt_entry);
 		// std::cout << hashfn(node.get_state()) << std::endl;
@@ -100,9 +101,17 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	std::vector<Board> child_nodes;
 	child_nodes = node.generate_children();
 
+	TableEntry pv;
+	bool node_seen_before = false;
+	if (t_table.retrieve(node, pv) && pv.flag == EXACT)
+		node_seen_before = true;
+
+	// PV goes to the front of the queue
 	auto comp = [&](Board &a, Board &b)-> bool
 	{
-			return a.h > b.h;
+		if (node_seen_before && a.get_last_move() == pv.best_move)
+			return true;
+		return a.h > b.h;
 	};
 
 	// calculate heuristic for all the children to sort by. using lambda as comparison function to pass color param
@@ -137,9 +146,16 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 		// exit(1);
 	}
 
+	// if (t_table.retrieve(node, pv) && pv.flag == EXACT)
+	// {
+	// 	PRINT("depth: " << depth << "\nbest move: " << child_nodes[0].get_last_move());
+	// 	PRINT("PV move: " << pv.best_move);
+	// }
+
 	TOTAL_NODES += 1;
 	
-	best_move = child_nodes[0].get_last_move();
+	best_move = child_nodes[0].get_last_move(); // ?
+
 	for (Board child : child_nodes)
 	{
 		int old_value = value;
