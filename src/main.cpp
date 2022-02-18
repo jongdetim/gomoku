@@ -59,27 +59,53 @@ private:
     }
 };
 
-e_gui_size parse_arguments(int argc, char **argv)
+#include <boost/program_options.hpp>
+#include <iostream>
+
+namespace po = boost::program_options;
+
+void on_age(int age)
 {
-    if (argc == 1)
-        return big;
-    
-    std::string str(argv[1]);
-    if (str == "small")
-        return small;
-    if (str == "medium")
-        return medium;
-    return big;
+  std::cout << "On age: " << age << '\n';
+}
+
+void    set_args(int argc, char **argv)
+{
+//   try
+//   {
+    po::options_description desc{"Options"};
+    desc.add_options()
+      ("help,h", "")
+      ("size,s", po::value<std::string>()->default_value("big"), "GUI size")
+      ("file,f", po::value<std::string>(), "");
+
+    po::variables_map vm;
+    po::store(parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help"))
+      std::cout << desc << '\n';
+//     else if (vm.count("age"))
+//       std::cout << "Age*: " << vm["age"].as<int>() << '\n';
+//     else if (vm.count("pi"))
+//       std::cout << "Pi: " << vm["pi"].as<float>() << '\n';
+//   }
+//   catch (const po::error &ex)
+//   {
+//     std::cerr << ex.what() << '\n';
+//   }
 }
 
 int main(int argc, char **argv)
 {
-    // RandomAi ai;
-    NegamaxAi ai;
-    // GUI gui(&ai, parse_arguments(argc, argv));
-    Board board = misc::create_random_board(0);
 
-    board.print();
-    board.print_values();
+    set_args(argc, argv);
+
+    // RandomAi rai;
+    // NegamaxAi nai;
+
+    // Board board;
+    
+    // GUI gui(&nai);
     // board.play(gui);
 }

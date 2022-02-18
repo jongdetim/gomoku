@@ -58,8 +58,6 @@
 # define STATUS_FONT POPPINS_FONT_BOLD
 # define TITLE_FONT "resources/fonts/Title.ttf"
 
-# define LOG_PATH "log.txt"
-
 enum e_fonts
 {
 	btn_font,
@@ -169,7 +167,8 @@ private:
 	GuiPlayer				get_winner(void);
 	void					set_ai(void);
 	void					clear_log(void);
-	void					log_game_state(bool clear);
+	void					log_game_state(void);
+	void					create_log_dir(void);
 };
 
 #endif

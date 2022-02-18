@@ -121,7 +121,7 @@ void		GUI::gameloop(void)
 	
 		this->handle_events();
 		
-		if (!this->check_action(pause))
+		if (!this->check_action(pauze))
 		{
 			index = this->get_index();
 			if (GUIBOARD.is_valid_move(index))
@@ -129,7 +129,7 @@ void		GUI::gameloop(void)
 				if (!this->guiboard.current_player().ai)
 					this->prev = this->guiboard;
 				GUIBOARD.place(index);
-				this->log_game_state(false);
+				this->log_game_state();
 				this->check_game_state();
 				this->update = true;
 			}
@@ -168,7 +168,7 @@ void		GUI::check_actions(void)
 void		GUI::undo_action(void)
 {
 	if (GUIBOARD.has_winner())
-		this->unset_action(pause);
+		this->unset_action(pauze);
 	this->guiboard = this->prev;
 	this->update = true;
 	this->unset_action(undo);
@@ -228,7 +228,7 @@ int			GUI::get_player_input(void)
 void		GUI::check_game_state(void)
 {
 	if (GUIBOARD.is_game_finished())
-		this->set_action(pause);
+		this->set_action(pauze);
 	else
 		GUIBOARD.next_player();
 }
@@ -250,8 +250,8 @@ void		GUI::init_game(void)
 	this->update = true;
 	this->action = def;
 	this->prev = this->guiboard;
-	set_ai();
-	log_game_state(true);
+	this->set_ai();
+	this->clear_log();
 }
 
 void		GUI::reset(void)
@@ -476,21 +476,20 @@ void		GUI::set_ai(void)
 
 void		GUI::clear_log(void)
 {
-    std::ofstream log;
-    log = std::ofstream(LOG_PATH);
-	log << "";    
-	log.close();
+	system("rm -rf log/");
+	this->create_log_dir();
 }
 
-void		GUI::log_game_state(bool clear)
+void		GUI::create_log_dir(void) { system("mkdir log/"); }
+
+void		GUI::log_game_state(void)
 {
     std::ofstream log;
+	static int id = 1;
 
-	if (clear)
-		clear_log();
-    log = std::ofstream(LOG_PATH, std::ios::app);
+    log = std::ofstream("log/log.txt", std::ios::app);
 
-	log << "Captures P1: " << GUIBOARD.players[PLAYER1].captures << "\t\t\t\tP2: " << GUIBOARD.players[PLAYER2].captures << std::endl;
+	log << "ID[" << id << "] Captures P1: " << GUIBOARD.players[PLAYER1].captures << "\t\t\t\tP2: " << GUIBOARD.players[PLAYER2].captures << std::endl;
 	log << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
 	for (int row = 0; row < BOARD_LENGTH; row++)
 	{
@@ -517,7 +516,8 @@ void		GUI::log_game_state(bool clear)
 		}
 		log << std::endl;
 	}
-	log << GUIBOARD << std::endl;
 	log << std::endl;
     log.close();
+	GUIBOARD.save("log/" + std::to_string(id) + ".board.data");
+	id++;
 }

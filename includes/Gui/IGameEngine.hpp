@@ -8,7 +8,7 @@ enum e_action
 	def = 0,
 	restart = 1,
 	quit = (1<<1),
-	pause = (1<<2),
+	pauze = (1<<2),
 	undo = (1<<3)
 };
 
