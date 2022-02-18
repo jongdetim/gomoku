@@ -114,7 +114,7 @@ void		GUI::gameloop(void)
 {
 	int index;
 
-	this->log_board_state(); //////////////////////
+	this->log_game_state(true);
     while (!this->check_action(quit))
     {
 		if (this->update)
@@ -130,7 +130,7 @@ void		GUI::gameloop(void)
 				if (!this->guiboard.current_player().ai)
 					this->prev = this->guiboard;
 				GUIBOARD.place(index);
-				this->log_board_state(); //////////////////////
+				this->log_game_state(false);
 				this->check_game_state();
 				this->update = true;
 			}
@@ -248,12 +248,13 @@ void		GUI::reset(void)
 {
 	GUIBOARD.reset();
 	GUIBOARD.random_player();
-	while ( (this->guiboard.players[PLAYER1].name = this->random_name()).length() > 14);
-	while ( (this->guiboard.players[PLAYER2].name = this->random_name()).length() > 14);
+	while ( (this->guiboard.players[PLAYER1].name = random_name()).length() > 14);
+	while ( (this->guiboard.players[PLAYER2].name = random_name()).length() > 14);
 	this->update = true;
 	this->action = def;
 	this->prev = this->guiboard;
-	this->set_ai();
+	set_ai();
+	log_game_state(true);
 }
 
 void		GUI::draw_stones(void)
@@ -430,20 +431,11 @@ int			GUI::get_index(void)
 		return get_player_input();
 }
 
-bool		GUI::check_action(int action)
-{
-	return ((this->action & action) == action);
-}
+bool		GUI::check_action(int action) { return ((this->action & action) == action); }
 
-void		GUI::set_action(int action)
-{
-	this->action = this->action | action;
-}
+void		GUI::set_action(int action) { this->action = this->action | action; }
 
-void		GUI::unset_action(int action)
-{
-	this->action = this->action ^ action;
-}
+void		GUI::unset_action(int action) { this->action = this->action ^ action; }
 
 std::string	GUI::random_name(void)
 {
@@ -457,7 +449,7 @@ std::string	GUI::random_name(void)
         if (value.empty())
             continue;
         tokens = misc::tokenize(value, ',');
-        name += tokens[misc::random(0, tokens.size() - 1)];
+        name += tokens[misc::get_random_int_range(0, tokens.size() - 1)];
     }
     nameFileout.close();
     return name;
@@ -478,13 +470,23 @@ void		GUI::set_ai(void)
 	this->update = true;
 }
 
-void		GUI::log_board_state(void)
+void		GUI::clear_log(void)
 {
-	static bool first_time = true;
+    std::ofstream log;
+    log = std::ofstream(LOG_PATH);
+	log << "";    
+	log.close();
+}
+
+void		GUI::log_game_state(bool clear)
+{
     std::ofstream log;
 
-    log = first_time ? std::ofstream(LOG_PATH) : std::ofstream(LOG_PATH, std::ios::app); 
+	if (clear)
+		clear_log();
+    log = std::ofstream(LOG_PATH, std::ios::app);
 
+	log << "Captures P1: " << GUIBOARD.players[PLAYER1].captures << "\t\t\t\tP2: " << GUIBOARD.players[PLAYER2].captures << std::endl;
 	log << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
 	for (int row = 0; row < BOARD_LENGTH; row++)
 	{
@@ -513,5 +515,4 @@ void		GUI::log_board_state(void)
 	}
 	log << std::endl;
     log.close();
-	first_time = false;
 }

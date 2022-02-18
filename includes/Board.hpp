@@ -64,9 +64,6 @@ public:
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
-	bool					is_empty_place(int index) const;
-	bool					is_valid_move(int index) const;
-	bool					is_full(void) const;
 	int						total_stones_in_play(void) const;
 	
 	int						check_captures(int player, int index);
@@ -95,6 +92,9 @@ public:
 	int						get_last_player(void) const;
 	int						get_current_player(void) const;
 
+	bool					is_empty_place(int index) const;
+	bool					is_valid_move(int index) const;
+	bool					is_full(void) const;
 	bool					is_empty(void) const;
 	bool					has_winner(void) const;
 	bool					is_game_finished(void);
@@ -120,8 +120,9 @@ private:
 	std::bitset<BOARDSIZE>	get_moves(void) const;
 	bool					free_threes_direction(int move, int direction, int player) const;
 	bool					still_winning(int player) const;
+	void					assert_valid_index(int index) const;
 };
-// wat doet dit..?
+
 std::ostream &operator<<(std::ostream &o, Board const &i);
 
 #endif

@@ -167,7 +167,8 @@ private:
 	std::string				random_name(void);
 	GuiPlayer				get_winner(void);
 	void					set_ai(void);
-	void					log_board_state(void);
+	void					clear_log(void);
+	void					log_game_state(bool clear);
 };
 
 #endif

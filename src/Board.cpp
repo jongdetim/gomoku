@@ -52,7 +52,7 @@ void					Board::print(void) const
 		std::cout << row%10 << ": ";
 		for (int col = 0; col < BOARD_LENGTH; col++)
 		{
-			int index = (row * BOARD_LENGTH + col);
+			int index = misc::calc_index(row, col);
 			if (is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
@@ -74,7 +74,7 @@ void					Board::show_move(int show_index) const
 		std::cout << row%10 << ": ";
 		for (int col = 0; col < BOARD_LENGTH; col++)
 		{
-			int index = (row * BOARD_LENGTH + col);
+			int index = misc::calc_index(row, col);
 			if (is_empty_place(index))
 				std::cout << ". ";
 			else if (this->state[index<<1])
@@ -153,7 +153,11 @@ void					Board::remove(int index)
 	this->state[INDEX + pi] = 0;
 }
 
-bool					Board::is_empty_place(int index) const { return this->filled_pos[index] == 0; }
+bool					Board::is_empty_place(int index) const
+{
+	assert_valid_index(index);
+	return this->filled_pos[index] == 0;
+}
 
 int						Board::get_player(int index) const
 {
@@ -272,7 +276,7 @@ bool					Board::check_win_other_player(int player)
 	return false;
 }
 
-void					Board::random_player(void) { this->current_player = misc::random_int() % 2; }
+void					Board::random_player(void) { this->current_player = misc::get_random_int() % 2; }
 
 bool					Board::has_winner(void) const { return (this->winner != -1); }
 
@@ -343,7 +347,7 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 		for (int i = 0; i < 8; i++)
 		{
 			int n_index = index + DIRECTIONS[i];
-			if (is_empty_place(n_index) && !misc::is_offside(index, n_index))
+			if (!misc::is_offside(index, n_index) && is_empty_place(n_index))
 				moves[n_index] = 1;
 		}
 	}
@@ -404,6 +408,8 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 	}
 	return count == 3 && gaps < 2 && open + gaps > 2;
 }
+
+void					Board::assert_valid_index(int index) const { assert(index >= 0 && index < BOARDSIZE); }
 
 /* OPERATOR OVERLOADS: */
 

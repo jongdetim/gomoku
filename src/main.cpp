@@ -12,7 +12,7 @@ class RandomAi : public IAi
 public:
 	int	calculate(Board &board)
     {
-        return misc::random(0, (BOARDSIZE - 1));
+        return misc::get_random_int_range(0, (BOARDSIZE - 1));
     }
 };
 
