@@ -29,7 +29,6 @@ typedef struct					s_player
 {
 	int							last_move		= -1;
 	int							captures		= 0;
-	int							score			= 0;
 	uint8_t						patterns[8]		= {0};
 	bool						wincondition	= false;
 }								t_player;

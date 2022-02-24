@@ -66,7 +66,7 @@ t_pattern			heuristic::get_pattern_data(Board &board, int move, int direction, i
 	return pattern;
 }
 
-int heuristic::score_remaining_patterns(Board &board, int player)
+int heuristic::score_remaining_patterns(Board const &board, int player)
 {
     int score = 0;
 
@@ -224,6 +224,8 @@ int   heuristic::get_heuristic_total(Board &board)
     reset_pattern_arrays(board);
     std::bitset<BOARDSIZE> checked_indices[4] = {0, 0, 0, 0};
 
+    if (board.get_last_move() < 0 || board.get_last_move() >= BOARDSIZE)
+        return 0;
     // first check the patterns at last_move just to be sure it is correctly registered
     get_heuristic_single(board, board.get_last_move(), checked_indices);
     // if (board.players[player].)

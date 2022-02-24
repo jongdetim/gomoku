@@ -121,8 +121,10 @@ void		GUI::gameloop(void)
 					this->prev = this->guiboard;
 				GUIBOARD.place(index);
 				this->check_game_state();
-				this->log_game_state();
 				this->update = true;
+
+				this->log_game_state();
+				this->debug();
 			}
 		}
 
@@ -163,6 +165,9 @@ void		GUI::undo_action(void)
 	this->guiboard = this->prev;
 	this->update = true;
 	this->unset_action(undo);
+
+	this->log_game_state();
+	this->debug();
 }
 
 void		GUI::handle_events(void)
@@ -242,8 +247,10 @@ void		GUI::init_game(void)
 	this->action = def;
 	this->prev = this->guiboard;
 	this->set_ai();
+	
 	this->clear_log();
 	this->log_game_state();
+	this->debug();
 }
 
 void		GUI::reset(void)
@@ -512,4 +519,12 @@ void		GUI::log_game_state(void)
     log.close();
 	GUIBOARD.save("log/" + std::to_string(id) + ".board.data");
 	id++;
+}
+
+void		GUI::debug(void)
+{
+	system("clear");
+    GUIBOARD.h = heuristic::get_heuristic_total(GUIBOARD);
+    GUIBOARD.print_values();
+	PRINT("");
 }

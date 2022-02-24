@@ -170,6 +170,7 @@ private:
 	void					clear_log(void);
 	void					log_game_state(void);
 	void					create_log_dir(void);
+	void					debug(void);
 };
 
 #endif

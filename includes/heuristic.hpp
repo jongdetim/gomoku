@@ -37,7 +37,7 @@ namespace heuristic
 	int					get_direction(const Board &board, int move, int direction, int player);
 	void           		cutout_pattern(const Board &board, int move, int direction, int player, t_pattern &pat);
 	t_pattern			get_pattern_data(Board &board, int move, int direction, int player, std::bitset<BOARDSIZE> *checked_indices);
-	int					score_remaining_patterns(Board &board, int player);
+	int					score_remaining_patterns(Board const &board, int player);
 	int					evaluate_patterns(Board &board, int player);
 	Pattern				find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, Pattern> &map);
 	Pattern				get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices);
