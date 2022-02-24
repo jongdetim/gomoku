@@ -109,9 +109,8 @@ Board                   get_board(po::variables_map &vm)
     return board;
 }
 
-GUI                     get_gui(po::variables_map &vm)
+GUI                     get_gui(po::variables_map &vm, IAi &ai)
 {
-    NegamaxAi nai;
     std::string size;
     
     try
@@ -121,7 +120,7 @@ GUI                     get_gui(po::variables_map &vm)
             size = vm["size"].as<std::string>();
             if (!(size == "small" || size == "medium" || size == "big"))
                 throw po::validation_error(po::validation_error::invalid_option_value, "size");
-            return (size == "small") ? GUI(&nai, small) : (size == "medium") ? GUI(&nai, medium) : GUI(&nai, big);
+            return (size == "small") ? GUI(&ai, small) : (size == "medium") ? GUI(&ai, medium) : GUI(&ai, big);
         }
     }
     catch (const po::error &e)
@@ -129,10 +128,10 @@ GUI                     get_gui(po::variables_map &vm)
         std::cerr << e.what() << '\n';
         exit(1);
     }
-    return GUI(&nai);
+    return GUI(&ai);
 }
 
-int main(int argc, char **argv)
+int                     main(int argc, char **argv)
 {
     po::options_description options = get_options();
     po::variables_map vm = get_args(argc, argv, options);
@@ -143,7 +142,8 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    GUI gui = get_gui(vm);
+    NegamaxAi nai;
+    GUI gui = get_gui(vm, nai);
     Board board = get_board(vm);
     board.play(gui);
 }
