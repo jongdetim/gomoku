@@ -239,7 +239,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		std::cout << "best move is: " << best_move << std::endl;
 
 		int h = heuristic::get_heuristic_total(node);
-		for (uint8_t i = 0; i < 8; i++) // skip first index which is none
+		for (uint8_t i = 1; i < 8; i++) // skip first index which is none
 		{
 			for (int j = 0; j < 2; j++)
 			{
@@ -258,6 +258,34 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		{
 			PRINT("\n*** game finished ***\n");
 			return;
+		}
+	}
+}
+
+void					Board::print_players_patterns(void) const
+{		
+	for (uint8_t i = 1; i < 8; i++)
+	{
+		for (int j = 0; j < 2; j++)
+		{
+			if (i > 0 && this->players[j].patterns[i] > 0)
+			{
+				PRINT("player: " << j);
+				PRINT(PatternNames[i]);
+				PRINT((int)this->players[j].patterns[i]);
+			}
+		}
+	}
+}
+
+void					Board::print_player_patterns(int player) const
+{
+	PRINT("player: " << player);
+	for (uint8_t pattern = 1; pattern < 8; pattern++) // skip first index which is none
+	{
+		if (this->players[player].patterns[pattern] > 0)
+		{
+			printf("%-*s: %d\n", 8, PatternNames[pattern], (int)this->players[player].patterns[pattern]);
 		}
 	}
 }

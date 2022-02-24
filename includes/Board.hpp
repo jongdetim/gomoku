@@ -72,6 +72,8 @@ public:
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
 	void					print_principal_variation(int player, int depth, TranspositionTable &t_table);
+	void					print_player_patterns(int player) const;
+	void					print_players_patterns(void) const;
 
 	void					set_current_player(int player);
 	bool					player_on_index(int index, int player) const;

@@ -3,7 +3,7 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2), fonts{0}, textures{0}
 {
 	int height;
 
@@ -42,7 +42,7 @@ GUI::~GUI()
 {
 	for (int i = 0; i < size_font; i++)
 	{
-		if (this->textures[i])
+		if (this->fonts[i])
 			TTF_CloseFont(this->fonts[i]);
 	}
 	for (int i = 0; i < size_tex; i++)
@@ -120,8 +120,8 @@ void		GUI::gameloop(void)
 				if (!this->guiboard.current_player().ai)
 					this->prev = this->guiboard;
 				GUIBOARD.place(index);
-				this->log_game_state();
 				this->check_game_state();
+				this->log_game_state();
 				this->update = true;
 			}
 		}
@@ -243,6 +243,7 @@ void		GUI::init_game(void)
 	this->prev = this->guiboard;
 	this->set_ai();
 	this->clear_log();
+	this->log_game_state();
 }
 
 void		GUI::reset(void)
@@ -493,7 +494,7 @@ void		GUI::log_game_state(void)
 			else if (GUIBOARD.get_state()[index<<1])
 			{
 				if (GUIBOARD.get_last_move() == index)
-					log << (char)(P1_SYMBOL-32) << ' ';
+					log << 0 << ' ';
 				else
 					log << P1_SYMBOL << ' ';
 			}

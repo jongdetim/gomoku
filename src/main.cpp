@@ -145,5 +145,5 @@ int                     main(int argc, char **argv)
     NegamaxAi nai;
     GUI gui = get_gui(vm, nai);
     Board board = get_board(vm);
-    board.play(gui);
+    // board.play(gui);
 }
