@@ -73,7 +73,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 
 	// this should happen during children node ordering, and should affect evaluation h to be + infinite
 	// should also check if a player has won! currently only checks if board is completely full
-	is_finished = node.is_game_finished();
+	is_finished = node.is_game_finished(1 - player);
 
 	if (depth == 0 || is_finished)
 	{
@@ -82,7 +82,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = -heuristic::get_heuristic_total(node);
+		value = -heuristic::get_heuristic_total(node, 1 - player);
 		// PRINT(value);
 		// value = color * node.calc_heuristic();
 
@@ -103,7 +103,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	}
 	std::vector<Board> child_nodes;
 	// for (int i = 0; i < 100; i++)
-		child_nodes = node.generate_children();
+		child_nodes = node.generate_children(player);
 
 		// for (auto &it : child_nodes)
 		// 	std::cout << it.last_move << std::endl;
@@ -131,7 +131,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 			{
 			    // std::cout << "calculating child h" << std::endl;
 
-			    child.h = heuristic::get_heuristic_total(child);
+			    child.h = heuristic::get_heuristic_total(child, player);
 			    // child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
 				ht_entry.depth = depth - 1;
@@ -156,7 +156,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 
 		if (child.check_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, child.get_next_player(player), t_table, h_table, false, timer));
+		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, 1 - player, t_table, h_table, false, timer));
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
 		// 'beta cutoff'?

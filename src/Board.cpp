@@ -128,12 +128,12 @@ void					Board::print_values(void) const
 	printf("            P1   P2\n");
 	printf("%-*s: %-*d %d\n", 10, "lastMove", 4, this->players[0].last_move, this->players[1].last_move);
 	printf("%-*s: %-*d %d\n", 10, "captures", 4, this->players[0].captures, this->players[1].captures);
-	int p1score = heuristic::score_remaining_patterns(*this, PLAYER1);
-	int p2score = heuristic::score_remaining_patterns(*this, PLAYER2);
-	printf("%-*s: %-*d %d\n", 10, "score", 4, p1score, p2score);
-	p1score = this->current_player == PLAYER2 ? p1score * 1.5 : p1score;
-	p2score = this->current_player == PLAYER1 ? p2score * 1.5 : p2score;
-	printf("%-*s: %-*d %d\n\n", 10, "gameScore", 4, p1score, p2score);
+	// int p1score = heuristic::score_remaining_patterns(*this, PLAYER1);
+	// int p2score = heuristic::score_remaining_patterns(*this, PLAYER2);
+	// printf("%-*s: %-*d %d\n", 10, "score", 4, p1score, p2score);
+	// p1score = this->current_player == PLAYER1 ? p1score * 1.5 : p1score;
+	// p2score = this->current_player == PLAYER2 ? p2score * 1.5 : p2score;
+	// printf("%-*s: %-*d %d\n\n", 10, "gameScore", 4, p1score, p2score);
 	for (int j = 1; j < 8; j++)
 		printf("%-*s: %-*d %d\n", 10, PatternNames[j], 4, this->players[0].patterns[j], this->players[1].patterns[j]);
 
@@ -145,7 +145,7 @@ bool					Board::is_valid_move(int index) const
 	return (index >= 0 && index < BOARDSIZE && is_empty_place(index));
 }
 
-std::vector<Board>		Board::generate_children(void) const
+std::vector<Board>		Board::generate_children(int player) const
 {
 	Board board_copy;
     std::vector<Board> nodes;
@@ -156,7 +156,7 @@ std::vector<Board>		Board::generate_children(void) const
 		if (!moves[i])
 			continue;
 		board_copy = *this;
-		board_copy.place(i, this->get_next_player(this->get_last_player()));
+		board_copy.place(i, player);
 		nodes.push_back(board_copy);
 		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
 		// nodes.insert(nodes.begin(), board_copy);
@@ -244,7 +244,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		std::cout << "depth: " << depth << std::endl;
 		std::cout << "best move is: " << best_move << std::endl;
 
-		int h = heuristic::get_heuristic_total(node);
+		int h = heuristic::get_heuristic_total(node, player);
 		for (uint8_t i = 1; i < 8; i++) // skip first index which is none
 		{
 			for (int j = 0; j < 2; j++)

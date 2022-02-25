@@ -42,7 +42,7 @@ namespace heuristic
 	Pattern				find_subpattern(t_pattern &pat, uint8_t length, const std::map<uint8_t, Pattern> &map);
 	Pattern				get_heuristic_data(Board &board, const int &move, const int &direction, const int &player, std::bitset<BOARDSIZE> *checked_indices);
 	void				get_heuristic_single(Board &board, int move, std::bitset<BOARDSIZE> *checked_indices);
-	int					get_heuristic_total(Board &board);
+	int					get_heuristic_total(Board &board, int player);
 	void  				reset_pattern_arrays(Board &board);
 }
 

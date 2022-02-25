@@ -10,6 +10,6 @@ class Board;
 class TranspositionTable;
 class Timer;
 
-int negamax(Board node, int depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
+int negamax(Board node, int depth, int alpha, int beta, int player, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
 
 #endif

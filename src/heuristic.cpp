@@ -8,6 +8,9 @@ void               heuristic::cutout_pattern(const Board &board, int move, int d
 {
     int shift = DIRECTIONS[direction + 4];
     int pos = move - (pat.left_right[0] * shift);
+    int left = pat.left_right[0];
+    int right = pat.left_right[1];
+    int len = pat.length;
     for (int i = 0; i < pat.length; i++)
     {
         pat.pattern += board.get_player(pos) == player;
@@ -93,11 +96,11 @@ int heuristic::evaluate_patterns(Board &board, int player)
     int enemyplayer = 1 - player;
     int score = 0;
     // if (board.is_game_won()) //has to check if we have 5 pairs captured OR: 5+ in a row, enemy can't break it and can't capture 5 pairs next turn
-    if (board.players[enemyplayer].captures >= 5 ||
+    if (board.players[enemyplayer].captures >= CAPTUREWIN ||
     board.players[enemyplayer].patterns[five] >= 1)
         return -std::numeric_limits<int>::max();
-    else if (board.players[player].captures >= 5 ||
-    board.players[player].patterns[five] >= 1)    
+    else if (board.players[player].captures >= CAPTUREWIN ||
+    board.players[player].patterns[five] >= 1)
         return std::numeric_limits<int>::max();
     else if (board.players[enemyplayer].patterns[closed4] >= 1 ||
     board.players[enemyplayer].patterns[open4] >= 1)
@@ -219,12 +222,12 @@ void  heuristic::reset_pattern_arrays(Board &board)
     }
 }
 
-int   heuristic::get_heuristic_total(Board &board)
+int   heuristic::get_heuristic_total(Board &board, int player)
 {
     reset_pattern_arrays(board);
     std::bitset<BOARDSIZE> checked_indices[4] = {0, 0, 0, 0};
 
-    if (board.get_last_move() < 0 || board.get_last_move() >= BOARDSIZE)
+    if (board.is_empty()) // Heb dit toegevoegd, klopt dit? <-------- TIM
         return 0;
     // first check the patterns at last_move just to be sure it is correctly registered
     get_heuristic_single(board, board.get_last_move(), checked_indices);
@@ -234,7 +237,7 @@ int   heuristic::get_heuristic_total(Board &board)
         if (board.filled_pos[pos])
             get_heuristic_single(board, pos, checked_indices);
     }
-    return evaluate_patterns(board, board.get_last_player());
+    return evaluate_patterns(board, player);
 }
 
 int				heuristic::count_direction(const Board &board, int index, int player, int dir, int size, std::bitset<BOARDSIZE> &checked_indices)

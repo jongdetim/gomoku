@@ -60,7 +60,7 @@ public:
 	void					save(std::string file_name) const;
 	void					load(std::string file_name);
 
-	std::vector<Board>		generate_children(void) const;
+	// std::vector<Board>		generate_children(void) const;
 	std::vector<Board>		generate_children(int player) const;
 
 	int						check_captures(int player, int index);

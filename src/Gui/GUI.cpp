@@ -123,11 +123,10 @@ void		GUI::gameloop(void)
 				this->check_game_state();
 				this->update = true;
 
-				this->log_game_state();
 				this->debug();
+				this->log_game_state();
 			}
 		}
-
 		this->check_actions();
     }
 }
@@ -250,7 +249,7 @@ void		GUI::init_game(void)
 	
 	this->clear_log();
 	this->log_game_state();
-	this->debug();
+	// this->debug();
 }
 
 void		GUI::reset(void)
@@ -428,7 +427,7 @@ int			GUI::get_index(void)
 		int index = this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
 		if (index < 0 || index >= BOARDSIZE)
 			throw "Invalid index: " + std::to_string(index);
-		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
+		return index;
 	}
 	else
 		return get_player_input();
@@ -523,8 +522,8 @@ void		GUI::log_game_state(void)
 
 void		GUI::debug(void)
 {
-	system("clear");
-    GUIBOARD.h = heuristic::get_heuristic_total(GUIBOARD);
+	// system("clear");
+    GUIBOARD.h = heuristic::get_heuristic_total(GUIBOARD, GUIBOARD.get_last_player());
     GUIBOARD.print_values();
 	PRINT("");
 }

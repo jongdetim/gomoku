@@ -27,13 +27,11 @@ public:
         if (board.is_empty())
             return misc::calc_index(8,9);
 
-        board.next_player(); // Need to find a neater solution for this. Segfaults if using current_player
-        int move = this->iterative_deepening_negamax(board, board.get_next_player());
-        board.next_player(); // Need to find a neater solution for this. Segfaults if using current_player
+        int move = this->iterative_deepening_negamax(board, board.get_current_player());
         return move;
     }
 private:
-    int iterative_deepening_negamax(Board &board, int player)
+    int iterative_deepening_negamax(Board board, int player)
     {
         TIMEOUT_REACHED = false;
         int best_move = -1;
@@ -53,11 +51,17 @@ private:
                 last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
             }
             catch(const char* e)
-            {
+            {   
+                PRINT("depth: " << depth - 1);
+                // board.print_principal_variation(player, depth - 1, t_table);
+                board.place(best_move);
+                TableEntry tt_entry;
+                t_table.lookup(board, tt_entry);
+                PRINT("heuristic: " << tt_entry.value);
                 return best_move;
             }
             best_move = last_best_move;
-        }   
+        }
         return -1;
     }
 };
