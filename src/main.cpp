@@ -39,7 +39,7 @@ private:
         timer.start();
         int last_best_move;
         int depth = 1;
-        int max_depth = 7;
+        int max_depth = 100;
         
         for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
         {
@@ -62,7 +62,7 @@ private:
             }
             best_move = last_best_move;
         }
-        return -1;
+        return best_move;
     }
 };
 

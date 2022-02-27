@@ -74,7 +74,7 @@ int heuristic::score_remaining_patterns(Board const &board, int player)
     int score = 0;
 
     for (int i = 1; i <= 5; i++) //closed2, open2, closed3, open3, closed4
-        score += board.players[player].patterns[i] * SCORES[i];
+        score += board.players[player].patterns[i] * REMAINING_SCORES[i];
     if (board.players[player].captures)
         score += pow(SCALING_CAPTURE_SCORE, board.players[player].captures) + CONSTANT_CAPTURE_SCORE;
     return score;
@@ -95,33 +95,26 @@ int heuristic::evaluate_patterns(Board &board, int player)
 
     int enemyplayer = 1 - player;
     int score = 0;
-    // if (board.is_game_won()) //has to check if we have 5 pairs captured OR: 5+ in a row, enemy can't break it and can't capture 5 pairs next turn
-    if (board.players[enemyplayer].captures >= CAPTUREWIN ||
-    board.players[enemyplayer].patterns[five] >= 1)
-        return -std::numeric_limits<int>::max();
-    else if (board.players[player].captures >= CAPTUREWIN ||
-    board.players[player].patterns[five] >= 1)
-        return std::numeric_limits<int>::max();
+    if (board.players[player].patterns[five] >= 1)
+        score = WINNING_POINTS[1];
     else if (board.players[enemyplayer].patterns[closed4] >= 1 ||
     board.players[enemyplayer].patterns[open4] >= 1)
-        return -std::numeric_limits<int>::max();
+        score = -WINNING_POINTS[1];
     else if (board.players[player].patterns[open4] >= 1 ||
     board.players[player].patterns[closed4] >= 2)
-        return 1000000000;
+        score = WINNING_POINTS[2];
     else if ((board.players[enemyplayer].patterns[open3] >= 1 &&
     board.players[player].patterns[closed4] == 0) ||
     board.players[enemyplayer].patterns[open3] >= 2)
-        return -1000000000;
+        score = -WINNING_POINTS[2];
     else if (board.players[player].patterns[open3] >= 2 ||
     (board.players[player].patterns[closed4] >= 1 &&
     board.players[player].patterns[open3] >= 1))
-        return 1000000;
-    else
-    {
-        score += heuristic::score_remaining_patterns(board, player);
-        score -= 1.5 * heuristic::score_remaining_patterns(board, enemyplayer);
-        return score;
-    }
+        score = WINNING_POINTS[3];
+
+    score += heuristic::score_remaining_patterns(board, player);
+    score -= 1.5 * heuristic::score_remaining_patterns(board, enemyplayer);
+    return score;
     // we need a good way to check opponent capture options eg. can they break our 5 in a row?
     // one approach is to keep track of half-open two's (XOO.), but this won't tell us if our FIVE can be broken, of if multiple captures with 1 move are possible
     

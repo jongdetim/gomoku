@@ -75,6 +75,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	// should also check if a player has won! currently only checks if board is completely full
 	is_finished = node.is_game_finished(1 - player);
 
+
 	if (depth == 0 || is_finished)
 	{
 		TOTAL_LEAVES += 1;
@@ -82,7 +83,17 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		value = -heuristic::get_heuristic_total(node, 1 - player);
+		if (is_finished)
+		{
+			if (node.winner == player)
+				value = WINNING_POINTS[0] + depth;
+			else if (node.winner == 1 - player)
+				value = -(WINNING_POINTS[0] + depth);
+			else
+				value = 0;
+		}
+		else
+			value = -heuristic::get_heuristic_total(node, 1 - player);
 		// PRINT(value);
 		// value = color * node.calc_heuristic();
 
@@ -154,7 +165,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	{
 		int old_value = value;
 
-		if (child.check_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
+		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
 		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, 1 - player, t_table, h_table, false, timer));
 		int old_alpha = alpha;
@@ -202,6 +213,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 		// 	print_and_quit("no best move found. something seriously wrong");
 		// PRINT("HERE!!!!!!!!!!!!!");
 		// PRINT(best_move);
+		// if (best_move == -1)
 		return best_move;
 	}
 	return value;

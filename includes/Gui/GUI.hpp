@@ -171,6 +171,7 @@ private:
 	void					log_game_state(void);
 	void					create_log_dir(void);
 	void					debug(void);
+	bool					is_valid_move(int index);
 };
 
 #endif

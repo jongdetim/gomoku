@@ -15,7 +15,6 @@
 
 # define INDEX (index << 1)
 
-# define PLAYERS this->players
 # define PLAYER this->players[this->current]
 # define P1_SYMBOL 'o'
 # define P2_SYMBOL 'x'
@@ -44,6 +43,7 @@ public:
 	std::bitset<BOARDSIZE>	filled_pos;
 	t_player				players[2];
 	int						winner;
+	bool					last_move_was_capture = false;
 	
 	void					play(IGameEngine &engine);
 	void					print(void) const;
@@ -64,8 +64,9 @@ public:
 	std::vector<Board>		generate_children(int player) const;
 
 	int						check_captures(int player, int index);
-	bool					check_free_threes(int move, int player) const;
+	bool					is_free_threes(int move, int player) const;
 	int						check_wincondition_all_dir(int index, int player) const;
+	bool					is_capture(int player, int index) const;
 
 	int						calculate_index(int row, int col) const;
 	int						calc_heuristic(void);
@@ -115,7 +116,6 @@ private:
 	std::bitset<BOARDSIZE>	get_moves(void) const;
 	bool					free_threes_direction(int move, int direction, int player) const;
 	bool					still_winning(int player) const;
-	void					assert_valid_index(int index) const;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

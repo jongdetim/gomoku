@@ -115,7 +115,7 @@ void		GUI::gameloop(void)
 		if (!this->check_action(pauze))
 		{
 			index = this->get_index();
-			if (GUIBOARD.is_valid_move(index))
+			if (this->is_valid_move(index))
 			{
 				if (!this->guiboard.current_player().ai)
 					this->prev = this->guiboard;
@@ -129,6 +129,13 @@ void		GUI::gameloop(void)
 		}
 		this->check_actions();
     }
+}
+
+bool		GUI::is_valid_move(int index)
+{
+	int player = GUIBOARD.get_current_player();
+	GUIBOARD.last_move_was_capture = GUIBOARD.is_capture(player, index);
+	return (GUIBOARD.is_valid_move(index) && !GUIBOARD.is_free_threes(index, player));
 }
 
 void		GUI::update_renderer(void)
@@ -425,8 +432,7 @@ int			GUI::get_index(void)
 	if (this->guiboard.current_player().ai)
 	{
 		int index = this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
-		if (index < 0 || index >= BOARDSIZE)
-			throw "Invalid index: " + std::to_string(index);
+		assert(index >= 0 && index < BOARDSIZE);
 		return index;
 	}
 	else
