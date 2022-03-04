@@ -51,12 +51,13 @@
 # define POPPINS_FONT_SEMIBOLD "resources/fonts/Poppins/SemiBold.otf"
 # define POPPINS_FONT_MED "resources/fonts/Poppins/Medium.otf"
 
-
 # define BTN_FONT ALLER_FONT
 # define STATS_FONT SANS_FONT
 # define STATS_NAME_FONT SANS_FONT_BOLD
 # define STATUS_FONT POPPINS_FONT_BOLD
 # define TITLE_FONT "resources/fonts/Title.ttf"
+
+# define FPS 40
 
 enum e_fonts
 {
@@ -119,7 +120,6 @@ private:
 	
 	SDL_Window				*window;
 	SDL_Renderer			*renderer;
-	SDL_Event				event;
 
 	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];
@@ -134,6 +134,7 @@ private:
 
 	bool					update;
 	int						action;
+	int						ticks;
 
 	bool					init(std::string title);
 	void					gameloop(void);
@@ -172,6 +173,7 @@ private:
 	void					create_log_dir(void);
 	void					debug(void);
 	bool					is_valid_move(int index);
+	void					wait_fps(int fps) const;
 };
 
 #endif

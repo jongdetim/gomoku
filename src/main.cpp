@@ -52,12 +52,12 @@ private:
             }
             catch(const char* e)
             {   
-                PRINT("depth: " << depth - 1);
+                // PRINT("depth: " << depth - 1);
                 // board.print_principal_variation(player, depth - 1, t_table);
                 board.place(best_move);
                 TableEntry tt_entry;
                 t_table.lookup(board, tt_entry);
-                PRINT("heuristic: " << tt_entry.value);
+                // PRINT("heuristic: " << tt_entry.value);
                 return best_move;
             }
             best_move = last_best_move;

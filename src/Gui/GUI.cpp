@@ -3,7 +3,7 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2), fonts{0}, textures{0}
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2), fonts{0}, textures{0}, ticks(0)
 {
 	int height;
 
@@ -107,6 +107,8 @@ void		GUI::gameloop(void)
 
     while (!this->check_action(quit))
     {
+		this->ticks = SDL_GetTicks();
+		
 		if (this->update)
 			this->update_renderer();
 	
@@ -123,11 +125,17 @@ void		GUI::gameloop(void)
 				this->check_game_state();
 				this->update = true;
 
-				this->debug();
+				// this->debug();
 				this->log_game_state();
 			}
 		}
 		this->check_actions();
+		this->wait_fps(FPS);
+
+		// Uint32 end = SDL_GetTicks();
+		// float secondsElapsed = (end - this->ticks) / 1000.0f;
+		// PRINT("Seconds: " << secondsElapsed);
+
     }
 }
 
@@ -173,17 +181,16 @@ void		GUI::undo_action(void)
 	this->unset_action(undo);
 
 	this->log_game_state();
-	this->debug();
+	// this->debug();
 }
 
 void		GUI::handle_events(void)
 {
-	// SDL_PollEvent(&this->event); //--> Use when always want updating, like active animations when no user input
-	SDL_WaitEvent(&this->event);
+	SDL_Event event;
+	SDL_PollEvent(&event);
 	SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);   
-	this->mouse.click = false;
 
-	switch (this->event.type)
+	switch (event.type)
 	{
 		case SDL_QUIT:
 			this->set_action(quit);
@@ -213,7 +220,10 @@ void		GUI::handle_events(void)
 			for (auto &btn : this->buttons)
 			{
 				if (btn.is_active())
+				{
 					this->set_action(btn.get_action());
+					this->mouse.click = false;
+				}
 			}
 			break;
 		}
@@ -223,7 +233,10 @@ void		GUI::handle_events(void)
 int			GUI::get_player_input(void)
 {
 	if (this->mouse.click && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
+	{
+		this->mouse.click = false;
 		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
+	}
 	return -1;
 }
 
@@ -528,8 +541,17 @@ void		GUI::log_game_state(void)
 
 void		GUI::debug(void)
 {
-	// system("clear");
-    GUIBOARD.h = heuristic::get_heuristic_total(GUIBOARD, GUIBOARD.get_last_player());
+	system("clear");
+	if (GUIBOARD.get_last_move() != -1)
+    	GUIBOARD.h = heuristic::get_heuristic_total(GUIBOARD, GUIBOARD.get_last_player());
     GUIBOARD.print_values();
 	PRINT("");
+}
+
+void		GUI::wait_fps(int fps) const
+{
+	int ms = 1000.0f / fps + .5;
+	int delay = ms - (SDL_GetTicks() - this->ticks);
+	if (delay > 0)
+		SDL_Delay(delay);
 }
