@@ -57,7 +57,7 @@
 # define STATUS_FONT POPPINS_FONT_BOLD
 # define TITLE_FONT "resources/fonts/Title.ttf"
 
-# define FPS 40
+# define FPS 20
 
 enum e_fonts
 {
@@ -163,7 +163,7 @@ private:
 	void					set_action(int action);
 	void					unset_action(int action);
 	std::string				get_status_update(void);
-	void					check_actions(void);
+	void					check_button_actions(void);
 	void					undo_action(void);
 	std::string				random_name(void);
 	GuiPlayer				get_winner(void);

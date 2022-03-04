@@ -108,9 +108,6 @@ void		GUI::gameloop(void)
     while (!this->check_action(quit))
     {
 		this->ticks = SDL_GetTicks();
-		
-		if (this->update)
-			this->update_renderer();
 	
 		this->handle_events();
 		
@@ -123,19 +120,21 @@ void		GUI::gameloop(void)
 					this->prev = this->guiboard;
 				GUIBOARD.place(index);
 				this->check_game_state();
-				this->update = true;
 
 				// this->debug();
 				this->log_game_state();
 			}
 		}
-		this->check_actions();
+		this->check_button_actions();
+
+		if (this->update)
+			this->update_renderer();
+
 		this->wait_fps(FPS);
 
 		// Uint32 end = SDL_GetTicks();
 		// float secondsElapsed = (end - this->ticks) / 1000.0f;
 		// PRINT("Seconds: " << secondsElapsed);
-
     }
 }
 
@@ -164,7 +163,7 @@ void		GUI::update_renderer(void)
 	this->update = false;
 }
 
-void		GUI::check_actions(void)
+void		GUI::check_button_actions(void)
 {
 	if (this->check_action(restart))
 		this->reset();
@@ -214,7 +213,7 @@ void		GUI::handle_events(void)
 			}
 			break;
 		}
-		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONDOWN:
 		{
 			this->mouse.click = true;
 			for (auto &btn : this->buttons)
@@ -225,6 +224,7 @@ void		GUI::handle_events(void)
 					this->mouse.click = false;
 				}
 			}
+			SDL_FlushEvent(SDL_MOUSEBUTTONUP);
 			break;
 		}
 	}
@@ -246,6 +246,7 @@ void		GUI::check_game_state(void)
 		this->set_action(pauze);
 	else
 		GUIBOARD.next_player();
+	this->update = true;
 }
 
 std::string	GUI::get_status_update(void)
