@@ -3,7 +3,7 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2), fonts{0}, textures{0}, ticks(0)
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), players_playing(2), fonts{0}, textures{0}, ticks(0)
 {
 	int height;
 
@@ -60,14 +60,21 @@ GUI::~GUI()
 	SDL_Quit();
 }
 
-void		GUI::play(Board *board)
+void		GUI::play(Board &board)
 {
 	if (!this->init("Gomoku"))
         return;
-	this->guiboard = GuiBoard(*board);
+	this->guiboard = GuiBoard(board);
 	this->init_game();
 	this->init_stats();
 	this->gameloop();
+}
+
+void		GUI::replay(std::string &board_path)
+{
+	int id = std::atoi(board_path.c_str());
+	board_path = std::to_string(id) + ".board.data";
+
 }
 
 /* Private Methods */
@@ -125,17 +132,45 @@ void		GUI::gameloop(void)
 				this->log_game_state();
 			}
 		}
+
+		this->check_buttons_clicked();
 		this->check_button_actions();
 
 		if (this->update)
 			this->update_renderer();
 
 		this->wait_fps(FPS);
-
-		// Uint32 end = SDL_GetTicks();
-		// float secondsElapsed = (end - this->ticks) / 1000.0f;
-		// PRINT("Seconds: " << secondsElapsed);
     }
+}
+
+void		GUI::handle_events(void)
+{
+	SDL_Event event;
+	SDL_PollEvent(&event);
+
+	switch (event.type)
+	{
+		case SDL_QUIT:
+			this->set_action(quit);
+			break;
+		case SDL_KEYDOWN:
+		{
+			this->key_press(event.key.keysym.sym);
+			break;
+		}
+		case SDL_MOUSEMOTION:
+		{
+			SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);
+			this->check_buttons_hover();
+			break;
+		}
+		case SDL_MOUSEBUTTONDOWN:
+		{
+			this->mouse.clicked = true;
+			SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
+			break;
+		}
+	}
 }
 
 bool		GUI::is_valid_move(int index)
@@ -163,6 +198,30 @@ void		GUI::update_renderer(void)
 	this->update = false;
 }
 
+void		GUI::check_buttons_hover(void)
+{
+	for (auto &btn : this->buttons)
+	{
+		if (btn.on_button(this->mouse.pos.x, this->mouse.pos.y))
+			this->update = true;
+	}
+}
+
+void		GUI::check_buttons_clicked(void)
+{
+	if (!this->mouse.clicked)
+		return;
+	for (auto &btn : this->buttons)
+	{
+		if (btn.is_active())
+		{
+			this->set_action(btn.get_action());
+			this->mouse.clicked = false;
+			break;
+		}
+	}
+}
+
 void		GUI::check_button_actions(void)
 {
 	if (this->check_action(restart))
@@ -183,58 +242,11 @@ void		GUI::undo_action(void)
 	// this->debug();
 }
 
-void		GUI::handle_events(void)
-{
-	SDL_Event event;
-	SDL_PollEvent(&event);
-	SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);   
-
-	switch (event.type)
-	{
-		case SDL_QUIT:
-			this->set_action(quit);
-			break;
-		case SDL_KEYUP:
-		{
-			switch (event.key.keysym.sym)
-			{
-				case SDLK_0: this->players_playing = 0; this->set_ai(); break;
-				case SDLK_1: this->players_playing = 1; this->set_ai(); break;
-				case SDLK_2: this->players_playing = 2; this->set_ai(); break;
-			}
-			break;
-		}
-		case SDL_MOUSEMOTION:
-		{
-			for (auto &btn : this->buttons)
-			{
-				if (btn.on_button(this->mouse.pos.x, this->mouse.pos.y))
-					this->update = true;
-			}
-			break;
-		}
-		case SDL_MOUSEBUTTONDOWN:
-		{
-			this->mouse.click = true;
-			for (auto &btn : this->buttons)
-			{
-				if (btn.is_active())
-				{
-					this->set_action(btn.get_action());
-					this->mouse.click = false;
-				}
-			}
-			SDL_FlushEvent(SDL_MOUSEBUTTONUP);
-			break;
-		}
-	}
-}
-
 int			GUI::get_player_input(void)
 {
-	if (this->mouse.click && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
+	if (this->mouse.clicked && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
 	{
-		this->mouse.click = false;
+		this->mouse.clicked = false;
 		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
 	}
 	return -1;
@@ -334,6 +346,16 @@ void		GUI::highlight_5inarow(void)
 void		GUI::set_texture(SDL_Texture *texture, SDL_Rect rect)
 {
 	SDL_RenderCopy(this->renderer, texture, NULL, &rect);
+}
+
+void		GUI::key_press(int key)
+{
+	switch (key)
+	{
+		case SDLK_0: this->players_playing = 0; this->set_ai(); break;
+		case SDLK_1: this->players_playing = 1; this->set_ai(); break;
+		case SDLK_2: this->players_playing = 2; this->set_ai(); break;
+	}
 }
 
 inline bool GUI::mouse_on_board(int x, int y) const { return (y < this->screen_height && x < this->screen_height); }
@@ -498,7 +520,7 @@ void		GUI::clear_log(void)
 	this->create_log_dir();
 }
 
-void		GUI::create_log_dir(void) { system("mkdir log/"); }
+void		GUI::create_log_dir(void) { mkdir("log", 0777); }
 
 void		GUI::log_game_state(void)
 {
@@ -555,4 +577,8 @@ void		GUI::wait_fps(int fps) const
 	int delay = ms - (SDL_GetTicks() - this->ticks);
 	if (delay > 0)
 		SDL_Delay(delay);
+
+	// Uint32 end = SDL_GetTicks();
+	// float secondsElapsed = (end - this->ticks) / 1000.0f;
+	// PRINT("Seconds: " << secondsElapsed);
 }

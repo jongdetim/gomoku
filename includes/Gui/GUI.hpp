@@ -3,6 +3,7 @@
 
 # include <SDL.h>
 # include <SDL_ttf.h>
+# include <sys/stat.h>
 # include "IGameEngine.hpp"
 # include "Board.hpp"
 # include "Button.hpp"
@@ -92,7 +93,7 @@ enum e_gui_size
 typedef struct	s_mouse
 {
 	t_point		pos;
-	bool 		click;
+	bool 		clicked;
 }				t_mouse;
 
 class GUI: public IGameEngine
@@ -103,7 +104,8 @@ public:
 	GUI(IAi *ai, e_gui_size size);
 	~GUI();
 
-	void					play(Board *board);
+	void					play(Board &board);
+	void					replay(std::string &board_path);
 
 private:
 	GuiBoard				guiboard;
@@ -164,6 +166,8 @@ private:
 	void					unset_action(int action);
 	std::string				get_status_update(void);
 	void					check_button_actions(void);
+	void					check_buttons_hover(void);
+	void					check_buttons_clicked(void);
 	void					undo_action(void);
 	std::string				random_name(void);
 	GuiPlayer				get_winner(void);
@@ -174,6 +178,7 @@ private:
 	void					debug(void);
 	bool					is_valid_move(int index);
 	void					wait_fps(int fps) const;
+	void					key_press(int key);
 };
 
 #endif

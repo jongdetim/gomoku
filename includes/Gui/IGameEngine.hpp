@@ -19,7 +19,7 @@ class IGameEngine
 public:
 	IGameEngine(IAi *ai) : ai(ai) {}
 
-	virtual void	play(Board *board) = 0;
+	virtual void	play(Board &board) = 0;
 	virtual void	reset(void) = 0;
 	virtual void	gameloop(void) = 0;
 

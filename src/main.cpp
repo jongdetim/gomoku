@@ -78,5 +78,5 @@ int                     main(int argc, char **argv)
     NegamaxAi nai;
     GUI gui = argument_parser::get_gui(vm, nai);
     Board board = argument_parser::get_board(vm);
-    board.play(gui);
+    gui.play(board);
 }

@@ -306,8 +306,6 @@ int						Board::get_next_player(void) const { return get_next_player(this->curre
 
 int						Board::get_next_player(int player) const { return (1 - player); }
 
-void					Board::play(IGameEngine &engine) { engine.play(this); }
-
 bool					Board::is_game_finished(void) { return is_game_finished(this->current_player); }
 
 bool					Board::is_game_finished(int player)

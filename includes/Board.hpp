@@ -45,7 +45,6 @@ public:
 	int						winner;
 	bool					last_move_was_capture = false;
 	
-	void					play(IGameEngine &engine);
 	void					print(void) const;
 	void					print_values(void) const;
 	void					show_last_move(void) const;
