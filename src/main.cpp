@@ -7,61 +7,61 @@
 #include "misc.hpp"
 #include "algorithm.hpp"
 
-void    iterative_deepening_negamax(Board &board, int player)
-{
-    TIMEOUT_REACHED = false;
-    int best_move = -1;
-    Timer timer;
-    timer.start();
-    int last_best_move;
-    int depth = 1;
-    int max_depth = 6;
+// void    iterative_deepening_negamax(Board &board, int player)
+// {
+//     TIMEOUT_REACHED = false;
+//     int best_move = -1;
+//     Timer timer;
+//     timer.start();
+//     int last_best_move;
+//     int depth = 1;
+//     int max_depth = 6;
 
-    TranspositionTable h_table;
-    TranspositionTable t_table;
-    for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
-    {
+//     TranspositionTable h_table;
+//     TranspositionTable t_table;
+//     for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
+//     {
         
-        // TranspositionTable h_table;
-        // TranspositionTable t_table;
-        try
-        {
-            last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
-        }
-        catch(const char* e)
-        {
-            TIMEOUT_REACHED = true;
-            PRINT("timeout reached during depth: " << depth << ".\nusing previous depth search results:");
-            depth -= 1;
-            PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
-            misc::print_stats();
-            return;
-        }
-        best_move = last_best_move;
-        PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
-        // PRINT(last_best_move);
+//         // TranspositionTable h_table;
+//         // TranspositionTable t_table;
+//         try
+//         {
+//             last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+//         }
+//         catch(const char* e)
+//         {
+//             TIMEOUT_REACHED = true;
+//             PRINT("timeout reached during depth: " << depth << ".\nusing previous depth search results:");
+//             depth -= 1;
+//             PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
+//             misc::print_stats();
+//             return;
+//         }
+//         best_move = last_best_move;
+//         PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
+//         // PRINT(last_best_move);
 
-        Board node = board;
-        node.place(best_move, player);
-        node.show_last_move();
-        // PRINCIPAL VARIATION RETRIEVAL:
-        board.print_principal_variation(player, depth, t_table);
-        misc::print_stats();
+//         Board node = board;
+//         node.place(best_move, player);
+//         node.show_last_move();
+//         // PRINCIPAL VARIATION RETRIEVAL:
+//         board.print_principal_variation(player, depth, t_table);
+//         misc::print_stats();
 
-        TableEntry tt_entry;
-        t_table.retrieve(board, tt_entry);
-        PRINT(tt_entry.depth);
-        PRINT(tt_entry.best_move);
+//         TableEntry tt_entry;
+//         t_table.retrieve(board, tt_entry);
+//         PRINT(tt_entry.depth);
+//         PRINT(tt_entry.best_move);
         
-    }    
-}
+//     }    
+// }
 
 class RandomAi : public IAi
 {
 public:
 	int	calculate(Board &board)
     {
-        return misc::random(0, (BOARDSIZE - 1));
+        return misc::get_random_int_range(0, (BOARDSIZE - 1));
     }
 };
 
@@ -127,39 +127,69 @@ void    test()
     // {
     //     // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
     //     // board = create_random_board(1);
-
-    //     // get the pattern
-    //     // Pattern result = get_heuristic_data(board, board.get_last_move(), 0, board.get_last_player());
-    //     // board.show_last_move();
-    //     // get_heuristic_single(board, board.get_last_move());
-        
-        // int move = board.get_last_move();
-        // board.remove(move);
-        // board.place(move + 20, 1);
-        // board.show_last_move();
-        // PRINT(board.get_last_player());
-        // PRINT(get_heuristic_total(board));
-    //     // if (board.heuristic.patterns[0] < 4)
-    //     // {  
-    //     //     // board.show_last_move();
-    //     //     // PRINT(PatternNames[result]);
-    //     // }
-    // }
-
-    // see if some sub-pattern is inside the cutout pattern
-    // t_pattern sub;
-    // sub.pattern = 0b00000001;
-    // sub.length = 3;
     
-    // if (board.is_game_won())
-    //     std::cout << "Won!!!" << std::endl;
-    // else
-    //     std::cout << "Not Won :(" << std::endl;
+class NegamaxAi : public IAi
+{
+public:
+	int	calculate(Board &board)
+    {
+        if (board.is_empty())
+            return misc::calc_index(8,9);
 
+        board.next_player(); // Need to find a neater solution for this. Segfaults if using current_player
+        int move = this->iterative_deepening_negamax(board, board.get_next_player());
+        board.next_player(); // Need to find a neater solution for this. Segfaults if using current_player
+        return move;
+    }
+private:
+    int iterative_deepening_negamax(Board &board, int player)
+    {
+        TIMEOUT_REACHED = false;
+        int best_move = -1;
+        Timer timer;
+        timer.start();
+        int last_best_move;
+        int depth = 1;
+        int max_depth = 7;
+        
+        for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
+        {
+            
+            TranspositionTable h_table;
+            TranspositionTable t_table;
+            try
+            {
+                last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+            }
+            catch(const char* e)
+            {
+                return best_move;
+            }
+            best_move = last_best_move;
+        }   
+        return -1;
+    }
+};
+
+e_gui_size parse_arguments(int argc, char **argv)
+{
+    if (argc == 1)
+        return big;
+    
+    std::string str(argv[1]);
+    if (str == "small")
+        return small;
+    if (str == "medium")
+        return medium;
+    return big;
 }
 
-int     main()
+int main(int argc, char **argv)
 {
-    test();
-    return 0;
+    // RandomAi ai;
+    NegamaxAi ai;
+    GUI gui(&ai, parse_arguments(argc, argv));
+    Board board;
+
+    board.play(gui);
 }

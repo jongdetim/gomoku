@@ -29,7 +29,7 @@ double						Timer::elapsedSeconds()
 	return elapsedMilliseconds() / 1000.0;
 }
 
-int							misc::random_int(void)
+int							misc::get_random_int(void)
 {
    static bool first = true;
    if (first) 
@@ -40,7 +40,7 @@ int							misc::random_int(void)
    return rand();
 }
 
-int							misc::random(int min, int max, int seed)
+int							misc::get_random_int_range(int min, int max, int seed)
 {
    static bool first = true;
    if (first) 
@@ -51,7 +51,7 @@ int							misc::random(int min, int max, int seed)
    return min + rand() % (( max + 1 ) - min);
 }
 
-int							misc::random(int min, int max)
+int							misc::get_random_int_range(int min, int max)
 {
    static bool first = true;
    if (first) 
@@ -68,7 +68,7 @@ int							misc::get_row(int index) { return (index / BOARD_LENGTH); }
 
 int							misc::calc_index(int row, int col)
 {
-	if (row < 0 || row >= 19 || col < 0 || col >= 19)
+	if (row < 0 || row >= BOARD_LENGTH || col < 0 || col >= BOARD_LENGTH)
 		return -1;
 	return (row * BOARD_LENGTH + col);
 }
@@ -93,7 +93,7 @@ bool						misc::is_offside(int prev_index, int index)
 	int row = get_row(index), col = get_col(index);
 	int prev_row = get_row(prev_index), prev_col = get_col(prev_index);
 
-	return ((abs(prev_row - row) > 1) || (abs(prev_col - col) > 1) || index < 0 || index >= BOARDSIZE);
+	return (index < 0 || index >= BOARDSIZE || (abs(prev_row - row) > 1) || (abs(prev_col - col) > 1));
 }
 
 void						misc::create_star(Board &board, int index, int size, int player_index)

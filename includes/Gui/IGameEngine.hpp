@@ -9,8 +9,7 @@ enum e_action
 	restart = 1,
 	quit = (1<<1),
 	pause = (1<<2),
-	undo = (1<<3),
-	add_player = (1<<4)
+	undo = (1<<3)
 };
 
 class Board;
@@ -21,8 +20,8 @@ public:
 	IGameEngine(IAi *ai) : ai(ai) {}
 
 	virtual void	play(Board *board) = 0;
-	virtual void	reset(Board &board) = 0;
-	virtual void	gameloop(Board &board) = 0;
+	virtual void	reset(void) = 0;
+	virtual void	gameloop(void) = 0;
 
 	IAi				*ai;
 };

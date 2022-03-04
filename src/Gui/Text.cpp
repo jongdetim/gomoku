@@ -22,10 +22,12 @@ void		Text::update(std::string text, TTF_Font *font)
 
 void		Text::render(void)
 {
-	int texW, texH;
-
-	SDL_QueryTexture(this->texture, NULL, NULL, &texW, &texH);
-	SDL_Rect rect = { this->pos.x, this->pos.y, texW, texH };
+	SDL_QueryTexture(this->texture, NULL, NULL, &this->size.x, &this->size.y);
+	SDL_Rect rect = { this->pos.x, this->pos.y, this->size.x, this->size.y };
 
 	SDL_RenderCopy(this->renderer, this->texture, NULL, &rect);
 }
+
+t_point		Text::get_pos(void) const { return this->pos; }
+
+t_point		Text::get_size(void) const  { return this->size; }

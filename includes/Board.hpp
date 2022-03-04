@@ -2,7 +2,6 @@
 # define BOARD_HPP
 
 #include "gomoku.hpp"
-#include "Player.hpp"
 
 # define BLACK "\033[0;30m"
 # define RED "\033[0;31m"
@@ -25,14 +24,15 @@ class TranspositionTable;
 class IGameEngine;
 
 class TableEntry;
-// {
-// public:
-//     int						value;
-//     int						depth;
-//     int						flag;
-//     bool					game_finished;
-//     int						best_move;
-// };
+
+typedef struct					s_player
+{
+	int							last_move		= -1;
+	int							captures		= 0;
+	int							score			= 0;
+	uint8_t						patterns[8]		= {0};
+	bool						wincondition	= false;
+}								t_player;
 
 class	Board
 {
@@ -56,10 +56,6 @@ public:
 	void					remove(int row, int col);
 	void					remove(int index);
 	void					reset(void);
-	bool					is_empty_place(int index) const;
-	bool					is_valid_move(int index) const;
-	bool					is_full(void) const;
-	int						total_stones_in_play(void) const;
 	
 	int						check_captures(int player, int index);
 
@@ -67,8 +63,8 @@ public:
 	std::vector<Board>		generate_children(int player) const;
 
 	bool					check_free_threes(int move, int player) const;
+	int						check_wincondition_all_dir(int index, int player) const;
 
-	void					set_state(BITBOARD new_state);
 	int						calculate_index(int row, int col) const;
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
@@ -84,8 +80,12 @@ public:
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	int						get_last_player(void) const;
-	int						get_current_player(void);
+	int						get_current_player(void) const;
 
+	bool					is_empty_place(int index) const;
+	bool					is_valid_move(int index) const;
+	bool					is_full(void) const;
+	bool					is_empty(void) const;
 	bool					has_winner(void) const;
 	bool					is_game_finished(void);
 	bool					is_game_finished(int player);
@@ -102,7 +102,7 @@ private:
 	int						current_player = 0;
 	int						last_move = -1;
 
-	int						check_wincondition_all_dir(int index, int player) const;
+	int						total_stones_in_play(void) const;
 	int						check_wincondition_all_dir(int player) const;
 	bool					continue_game(int player);
 	bool					has_won(int player);
@@ -111,8 +111,9 @@ private:
 	std::bitset<BOARDSIZE>	get_moves(void) const;
 	bool					free_threes_direction(int move, int direction, int player) const;
 	bool					still_winning(int player) const;
+	void					assert_valid_index(int index) const;
 };
-// wat doet dit..?
+
 std::ostream &operator<<(std::ostream &o, Board const &i);
 
 #endif
