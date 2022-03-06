@@ -47,6 +47,19 @@ Board                   argument_parser::get_board(po::variables_map &vm)
     return board;
 }
 
+std::string             argument_parser::get_file(po::variables_map &vm)
+{
+    try
+    {
+        return vm["file"].as<std::string>();
+    }
+    catch (char const* &str)
+    {
+        std::cerr << str << '\n';
+        exit(1);
+    }
+}
+
 GUI                     argument_parser::get_gui(po::variables_map &vm, IAi &ai)
 {
     std::string size;

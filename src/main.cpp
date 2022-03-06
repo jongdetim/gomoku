@@ -77,6 +77,18 @@ int                     main(int argc, char **argv)
 
     NegamaxAi nai;
     GUI gui = argument_parser::get_gui(vm, nai);
-    Board board = argument_parser::get_board(vm);
-    gui.play(board);
+    if (vm.count("file"))
+    {
+        try
+        {
+            gui.replay(argument_parser::get_file(vm));
+        }
+        catch(const char *e)
+        {
+            std::cerr << e << '\n';
+            exit(1);
+        }
+    }
+    else
+        gui.play(Board());
 }

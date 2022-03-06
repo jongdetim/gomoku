@@ -37,26 +37,16 @@
 
 # define SANS_FONT "resources/fonts/OpenSans/Regular.ttf"
 # define SANS_FONT_BOLD "resources/fonts/OpenSans/Bold.ttf"
-# define SANS_FONT_XTRABOLD "resources/fonts/OpenSans/ExtraBold.ttf"
-# define SANS_FONT_SEMIBOLD "resources/fonts/OpenSans/SemiBold.ttf"
-
-# define SCPRO_FONT "resources/fonts/SourceCodePro/Regular.ttf"
-
 # define ALLER_FONT "resources/fonts/Aller/Regular.ttf"
-# define ALLER_FONT_BOLD "resources/fonts/Aller/Bold.ttf"
-# define ALLER_FONT_DISPLAY "resources/fonts/Aller/Display.ttf"
-
-# define POPPINS_FONT "resources/fonts/Poppins/Regular.otf"
 # define POPPINS_FONT_BOLD "resources/fonts/Poppins/Bold.otf"
-# define POPPINS_FONT_XTRABOLD "resources/fonts/Poppins/ExtraBold.otf"
-# define POPPINS_FONT_SEMIBOLD "resources/fonts/Poppins/SemiBold.otf"
-# define POPPINS_FONT_MED "resources/fonts/Poppins/Medium.otf"
 
 # define BTN_FONT ALLER_FONT
 # define STATS_FONT SANS_FONT
 # define STATS_NAME_FONT SANS_FONT_BOLD
 # define STATUS_FONT POPPINS_FONT_BOLD
 # define TITLE_FONT "resources/fonts/Title.ttf"
+
+# define BOARD_DATA_FILE_EXT ".board.data"
 
 # define FPS 20
 
@@ -104,8 +94,8 @@ public:
 	GUI(IAi *ai, e_gui_size size);
 	~GUI();
 
-	void					play(Board &board);
-	void					replay(std::string &board_path);
+	void					play(Board board);
+	void					replay(std::string board_data_path);
 
 private:
 	GuiBoard				guiboard;
@@ -132,11 +122,20 @@ private:
 	Text					status;
 	t_mouse					mouse;
 	GuiBoard				prev;
-	short					players_playing;
 
 	bool					update;
 	int						action;
 	int						ticks;
+
+	/* Replay */
+	bool					replay_mode;
+	int						starting_id;
+	int						current_id;
+	std::string				dir;
+
+	std::string 			get_board_path(int id) const;
+	void		 			load_board_from_id(int id);
+	/* Replay */
 
 	bool					init(std::string title);
 	void					gameloop(void);
@@ -165,13 +164,13 @@ private:
 	void					set_action(int action);
 	void					unset_action(int action);
 	std::string				get_status_update(void);
-	void					check_button_actions(void);
+	void					check_buttons_action(void);
 	void					check_buttons_hover(void);
 	void					check_buttons_clicked(void);
 	void					undo_action(void);
 	std::string				random_name(void);
 	GuiPlayer				get_winner(void);
-	void					set_ai(void);
+	void					set_ai(int players);
 	void					clear_log(void);
 	void					log_game_state(void);
 	void					create_log_dir(void);

@@ -3,7 +3,7 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), players_playing(2), fonts{0}, textures{0}, ticks(0)
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
 {
 	int height;
 
@@ -60,7 +60,7 @@ GUI::~GUI()
 	SDL_Quit();
 }
 
-void		GUI::play(Board &board)
+void		GUI::play(Board board)
 {
 	if (!this->init("Gomoku"))
         return;
@@ -70,11 +70,21 @@ void		GUI::play(Board &board)
 	this->gameloop();
 }
 
-void		GUI::replay(std::string &board_path)
+void		GUI::replay(std::string board_data_path)
 {
-	int id = std::atoi(board_path.c_str());
-	board_path = std::to_string(id) + ".board.data";
-
+	int index;
+	Board board;
+	std::string file_name;
+	
+	index = board_data_path.find_last_of("/") + 1;
+	this->replay_mode = true;
+	this->dir = board_data_path.substr(0, index);
+	file_name = board_data_path.substr(index, board_data_path.length());
+	if (!isdigit(file_name[0]))
+		throw "incorrect file name id";
+	this->current_id = this->starting_id = atoi(file_name.c_str());
+	board.load(board_data_path);
+	this->play(board);
 }
 
 /* Private Methods */
@@ -133,8 +143,9 @@ void		GUI::gameloop(void)
 			}
 		}
 
+		this->check_buttons_hover();
 		this->check_buttons_clicked();
-		this->check_button_actions();
+		this->check_buttons_action();
 
 		if (this->update)
 			this->update_renderer();
@@ -147,6 +158,7 @@ void		GUI::handle_events(void)
 {
 	SDL_Event event;
 	SDL_PollEvent(&event);
+	this->mouse.clicked = false;
 
 	switch (event.type)
 	{
@@ -161,7 +173,6 @@ void		GUI::handle_events(void)
 		case SDL_MOUSEMOTION:
 		{
 			SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);
-			this->check_buttons_hover();
 			break;
 		}
 		case SDL_MOUSEBUTTONDOWN:
@@ -171,6 +182,24 @@ void		GUI::handle_events(void)
 			break;
 		}
 	}
+}
+
+std::string GUI::get_board_path(int id) const { return this->dir + std::to_string(id) + (std::string)BOARD_DATA_FILE_EXT; }
+
+void		GUI::load_board_from_id(int id)
+{
+	std::string board_path = this->get_board_path(id);
+	try
+	{
+		GUIBOARD.load(board_path);
+		this->current_id = id;
+		this->update = true;
+		if (GUIBOARD.has_winner())
+			this->set_action(pauze);
+		else if (this->check_action(pauze))
+			this->unset_action(pauze);
+	}
+	catch(const char *e) {}
 }
 
 bool		GUI::is_valid_move(int index)
@@ -216,13 +245,12 @@ void		GUI::check_buttons_clicked(void)
 		if (btn.is_active())
 		{
 			this->set_action(btn.get_action());
-			this->mouse.clicked = false;
 			break;
 		}
 	}
 }
 
-void		GUI::check_button_actions(void)
+void		GUI::check_buttons_action(void)
 {
 	if (this->check_action(restart))
 		this->reset();
@@ -245,10 +273,7 @@ void		GUI::undo_action(void)
 int			GUI::get_player_input(void)
 {
 	if (this->mouse.clicked && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
-	{
-		this->mouse.clicked = false;
 		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
-	}
 	return -1;
 }
 
@@ -278,7 +303,7 @@ void		GUI::init_game(void)
 	this->update = true;
 	this->action = def;
 	this->prev = this->guiboard;
-	this->set_ai();
+	this->set_ai(2);
 	
 	this->clear_log();
 	this->log_game_state();
@@ -287,9 +312,18 @@ void		GUI::init_game(void)
 
 void		GUI::reset(void)
 {
-	GUIBOARD.reset();
-	GUIBOARD.random_player();
-	this->init_game();
+	if (this->replay_mode)
+	{
+		this->load_board_from_id(this->starting_id);
+		this->action = def;
+		this->set_ai(2);
+	}
+	else
+	{
+		GUIBOARD.reset();
+		GUIBOARD.random_player();
+		this->init_game();
+	}
 }
 
 void		GUI::draw_stones(void)
@@ -352,9 +386,20 @@ void		GUI::key_press(int key)
 {
 	switch (key)
 	{
-		case SDLK_0: this->players_playing = 0; this->set_ai(); break;
-		case SDLK_1: this->players_playing = 1; this->set_ai(); break;
-		case SDLK_2: this->players_playing = 2; this->set_ai(); break;
+		case SDLK_0: this->set_ai(0); break;
+		case SDLK_1: this->set_ai(1); break;
+		case SDLK_2: this->set_ai(2); break;
+		case SDLK_LEFT:
+		case SDLK_RIGHT:
+		{
+			if (this->replay_mode)
+			{
+				int id = key == SDLK_RIGHT ? this->current_id + 1 : this->current_id - 1;
+				this->load_board_from_id(id);
+				this->set_ai(2);
+			}
+			break;
+		}
 	}
 }
 
@@ -501,11 +546,11 @@ std::string	GUI::random_name(void)
 
 GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
 
-void		GUI::set_ai(void)
+void		GUI::set_ai(int players)
 {
 	int i = 0;
 
-	for (; i < this->players_playing; i++)
+	for (; i < players; i++)
 		this->guiboard.players[i].ai = NULL;
 
 	for (; i < 2; i++)
@@ -558,7 +603,7 @@ void		GUI::log_game_state(void)
 	}
 	log << std::endl;
     log.close();
-	GUIBOARD.save("log/" + std::to_string(id) + ".board.data");
+	GUIBOARD.save("log/" + std::to_string(id) + BOARD_DATA_FILE_EXT);
 	id++;
 }
 
