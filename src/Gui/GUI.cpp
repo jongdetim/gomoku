@@ -143,9 +143,12 @@ void		GUI::gameloop(void)
 			}
 		}
 
-		this->check_buttons_hover();
-		this->check_buttons_clicked();
-		this->check_buttons_action();
+		if (this->mouse.clicked)
+		{
+			this->check_text_clicked();
+			this->check_buttons_clicked();
+			this->check_buttons_action();
+		}
 
 		if (this->update)
 			this->update_renderer();
@@ -173,6 +176,7 @@ void		GUI::handle_events(void)
 		case SDL_MOUSEMOTION:
 		{
 			SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);
+			this->check_buttons_hover();
 			break;
 		}
 		case SDL_MOUSEBUTTONDOWN:
@@ -258,6 +262,20 @@ void		GUI::check_buttons_action(void)
 		this->undo_action();
 }
 
+void		GUI::check_text_clicked(void)
+{
+	if (!this->mouse.clicked)
+		return;
+	for (int i = 0; i < 2; i++)
+	{
+		if (this->stats[i].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
+		{
+			this->set_ai(i);
+			break;
+		}
+	}
+}
+
 void		GUI::undo_action(void)
 {
 	if (GUIBOARD.has_winner())
@@ -300,10 +318,10 @@ void		GUI::init_game(void)
 {
 	while ( (this->guiboard.players[PLAYER1].name = random_name()).length() > 14);
 	while ( (this->guiboard.players[PLAYER2].name = random_name()).length() > 14);
-	this->update = true;
-	this->action = def;
+	this->reset_ai();
 	this->prev = this->guiboard;
-	this->set_ai(2);
+	this->action = def;
+	this->update = true;
 	
 	this->clear_log();
 	this->log_game_state();
@@ -316,7 +334,7 @@ void		GUI::reset(void)
 	{
 		this->load_board_from_id(this->starting_id);
 		this->action = def;
-		this->set_ai(2);
+		this->reset_ai();
 	}
 	else
 	{
@@ -386,9 +404,6 @@ void		GUI::key_press(int key)
 {
 	switch (key)
 	{
-		case SDLK_0: this->set_ai(0); break;
-		case SDLK_1: this->set_ai(1); break;
-		case SDLK_2: this->set_ai(2); break;
 		case SDLK_LEFT:
 		case SDLK_RIGHT:
 		{
@@ -396,7 +411,7 @@ void		GUI::key_press(int key)
 			{
 				int id = key == SDLK_RIGHT ? this->current_id + 1 : this->current_id - 1;
 				this->load_board_from_id(id);
-				this->set_ai(2);
+				this->reset_ai();
 			}
 			break;
 		}
@@ -546,16 +561,18 @@ std::string	GUI::random_name(void)
 
 GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
 
-void		GUI::set_ai(int players)
+void		GUI::reset_ai(void)
 {
-	int i = 0;
-
-	for (; i < players; i++)
+	for (int i = 0; i < 2; i++)
 		this->guiboard.players[i].ai = NULL;
+}
 
-	for (; i < 2; i++)
-		this->guiboard.players[i].ai = this->ai;
-	
+void		GUI::set_ai(int player)
+{
+	if (this->guiboard.players[player].ai)
+		this->guiboard.players[player].ai = NULL;
+	else
+		this->guiboard.players[player].ai = this->ai;
 	this->update = true;
 }
 

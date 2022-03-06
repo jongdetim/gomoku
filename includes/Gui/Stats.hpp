@@ -28,12 +28,14 @@ public:
 	void				update(GuiPlayer &player);
 	void				render(void);
 	void				init(void);
-	t_point				get_position(int index) const;
-	t_point				get_size(int index) const;
+	t_point				get_position(e_stats index) const;
+	t_point				get_size(e_stats index) const;
+	bool				on_text(int x, int y, e_stats index) const;
+	
 private:
 
-	SDL_Renderer		*renderer;
 	std::vector<Text>	texts;
+	SDL_Renderer		*renderer;
 	t_point				pos;
 	TTF_Font			*font;
 	TTF_Font			*name_font;

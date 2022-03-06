@@ -17,6 +17,7 @@ public:
 	void			render(void);
 	t_point			get_pos(void) const;
 	t_point			get_size(void) const;
+	bool			on_text(int x, int y) const;
 private:
 	SDL_Renderer	*renderer;
 	SDL_Texture		*texture;

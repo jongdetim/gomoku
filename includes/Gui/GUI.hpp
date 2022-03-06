@@ -167,10 +167,12 @@ private:
 	void					check_buttons_action(void);
 	void					check_buttons_hover(void);
 	void					check_buttons_clicked(void);
+	void					check_text_clicked(void);
 	void					undo_action(void);
 	std::string				random_name(void);
 	GuiPlayer				get_winner(void);
-	void					set_ai(int players);
+	void					set_ai(int player);
+	void					reset_ai(void);
 	void					clear_log(void);
 	void					log_game_state(void);
 	void					create_log_dir(void);
