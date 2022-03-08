@@ -159,7 +159,7 @@ private:
             TranspositionTable t_table;
             try
             {
-                last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+                last_best_move = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
             }
             catch(const char* e)
             {

@@ -31,7 +31,15 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int     	negamax(Board node, int depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
+int			branch_narrowing(int depth)
+{
+	if (depth > 4)
+		return 3;
+	else
+		return NARROWING[depth];
+}
+
+int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
 {
 	TableEntry tt_entry;
 	int alpha_orig = alpha;
@@ -156,13 +164,16 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 	
 	best_move = child_nodes[0].get_last_move(); // ?
 
+	int counter = 0;
 	for (Board child : child_nodes)
 	{
+		if (counter > branch_narrowing(initial_depth - depth))
+			break;
 		int old_value = value;
 
 		if (child.check_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, child.get_next_player(player), t_table, h_table, false, timer));
+		value = std::max(value, -negamax(child, depth - 1, initial_depth, -beta, -alpha, child.get_next_player(player), t_table, h_table, false, timer));
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
 		// if (alpha > old_alpha)
@@ -182,6 +193,7 @@ int     	negamax(Board node, int depth, int alpha, int beta, int player, Transpo
 			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
 			break;
 		}
+		counter++;
 	}
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
 	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
