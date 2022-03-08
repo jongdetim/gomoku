@@ -11,6 +11,7 @@ int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
 int DEBUG_COUNTER = 0;
 bool TIMEOUT_REACHED = false;
+// int NARROWING[5] = {30, 20, 15, 10, 5};
 
 inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, TranspositionTable &t_table)
 {
@@ -31,7 +32,7 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int			branch_narrowing(int depth)
+int	branch_narrowing(int depth)
 {
 	if (depth > 4)
 		return 3;
@@ -115,7 +116,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		node_seen_before = true;
 
 	// PV goes to the front of the queue
-	auto comp = [&](Board &a, Board &b)-> bool
+	auto comp = [node_seen_before, pv](Board &a, Board &b)-> bool
 	{
 		if (node_seen_before && a.get_last_move() == pv.best_move)
 			return true;
@@ -167,7 +168,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	int counter = 0;
 	for (Board child : child_nodes)
 	{
-		if (counter > branch_narrowing(initial_depth - depth))
+		if (counter >= branch_narrowing(initial_depth - depth))
 			break;
 		int old_value = value;
 

@@ -424,7 +424,7 @@ int			GUI::get_index(void)
 	{
 		int index = this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
 		if (index < 0 || index >= BOARDSIZE)
-			throw "Invalid index: " + std::to_string(index);
+			PRINT("GUI: Invalid index: " + std::to_string(index));
 		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
 	}
 	else

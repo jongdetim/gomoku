@@ -15,7 +15,7 @@
 //     timer.start();
 //     int last_best_move;
 //     int depth = 1;
-//     int max_depth = 6;
+//     int max_depth = 10;
 
 //     TranspositionTable h_table;
 //     TranspositionTable t_table;
@@ -26,7 +26,7 @@
 //         // TranspositionTable t_table;
 //         try
 //         {
-//             last_best_move = negamax(board, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+//             last_best_move = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
 //         }
 //         catch(const char* e)
 //         {
@@ -56,27 +56,14 @@
 //     }    
 // }
 
-class RandomAi : public IAi
-{
-public:
-	int	calculate(Board &board)
-    {
-        return misc::get_random_int_range(0, (BOARDSIZE - 1));
-    }
-};
-
-// int main()
+// class RandomAi : public IAi
 // {
-//     // PrimitiveGui gui(NULL);
-//     RandomAi ai;
-//     GUI gui(&ai, medium);
-
-//     Board board;
-    
-//     board.play(gui);
-// }
-
-// Board DEBUG_BOARD;
+// public:
+// 	int	calculate(Board &board)
+//     {
+//         return misc::get_random_int_range(0, (BOARDSIZE - 1));
+//     }
+// };
 
 void    test()
 {
@@ -84,8 +71,8 @@ void    test()
 
     int index = misc::calc_index(8, 8);
     board.place(index, PLAYER1);
-    board.place(index + 1, PLAYER1);
-    board.place(index + 2, PLAYER1);
+    // board.place(index + 1, PLAYER1);
+    // board.place(index + 2, PLAYER1);
     // board.place(index - 20, PLAYER2);
     // board.place(index - 38, PLAYER1);
 
@@ -107,7 +94,7 @@ void    test()
     // DEBUG_BOARD.place(141, PLAYER2);
 
     int player = PLAYER2;
-    iterative_deepening_negamax(board, player);
+    // iterative_deepening_negamax(board, player);
     // board.place(index - 21, PLAYER2);
     // board.place(index + 2, PLAYER1);
     // #include "heuristic.hpp" 
@@ -127,6 +114,7 @@ void    test()
     // {
     //     // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
     //     // board = create_random_board(1);
+}
     
 class NegamaxAi : public IAi
 {
@@ -134,7 +122,7 @@ public:
 	int	calculate(Board &board)
     {
         if (board.is_empty())
-            return misc::calc_index(8,9);
+            return misc::calc_index(9,9);
 
         board.next_player(); // Need to find a neater solution for this. Segfaults if using current_player
         int move = this->iterative_deepening_negamax(board, board.get_next_player());
@@ -163,6 +151,7 @@ private:
             }
             catch(const char* e)
             {
+                PRINT(e);
                 return best_move;
             }
             best_move = last_best_move;
@@ -192,4 +181,6 @@ int main(int argc, char **argv)
     Board board;
 
     board.play(gui);
+    // test();
+    return 0;
 }

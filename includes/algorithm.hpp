@@ -5,7 +5,7 @@
 
 extern bool TIMEOUT_REACHED;
 const int TIMEOUT = 500;
-const int NARROWING[] = {30, 20, 15, 10, 5};
+const int NARROWING[5] = {30, 20, 15, 10, 5};
 
 class Board;
 class TranspositionTable;
