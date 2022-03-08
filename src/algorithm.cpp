@@ -150,14 +150,9 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 			{
 			    // std::cout << "calculating child h" << std::endl;
 
-<<<<<<< HEAD
-			    child.h = heuristic::get_heuristic_total(child);
-				ht_entry.value = -child.h;
-=======
 			    child.h = heuristic::get_heuristic_total(child, player);
 			    // child.h = -color * node.calc_heuristic(child);
 				ht_entry.value = child.h;
->>>>>>> gui
 				ht_entry.depth = depth - 1;
 				h_table.insert(child, ht_entry);
 			}
@@ -184,17 +179,13 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	int counter = 0;
 	for (Board child : child_nodes)
 	{
-		if (counter >= branch_narrowing(initial_depth - depth))
-			break;
+		// if (counter >= branch_narrowing(initial_depth - depth))
+		// 	break;
 		int old_value = value;
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-<<<<<<< HEAD
-		value = std::max(value, -negamax(child, depth - 1, initial_depth, -beta, -alpha, child.get_next_player(player), t_table, h_table, false, timer));
-=======
-		value = std::max(value, -negamax(child, depth - 1, -beta, -alpha, 1 - player, t_table, h_table, false, timer));
->>>>>>> gui
+		value = std::max(value, -negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, false, timer));
 		int old_alpha = alpha;
 		alpha = std::max(alpha, value);
 		// if (alpha > old_alpha)

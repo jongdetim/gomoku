@@ -154,7 +154,7 @@ private:
                 // board.print_principal_variation(player, depth - 1, t_table);
                 board.place(best_move);
                 TableEntry tt_entry;
-                t_table.lookup(board, tt_entry);
+                t_table.retrieve(board, tt_entry);
                 // PRINT("heuristic: " << tt_entry.value);
                 return best_move;
             }

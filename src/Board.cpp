@@ -332,7 +332,7 @@ bool					Board::check_win_other_player(int player)
 
 void					Board::random_player(void) { this->current_player = misc::get_random_int() % 2; }
 
-inline bool				Board::has_winner(void) const { return (this->winner != -1); }
+bool					Board::has_winner(void) const { return (this->winner != -1); }
 
 bool					Board::player_on_index(int index, int player) const { return this->state[INDEX + player]; }
 
@@ -475,7 +475,7 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 				count++;
 			else if (get_player(pos) == get_next_player(player))
 				break;
-			else if (!(misc::is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
+			else if (open == 0 && !(misc::is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
 				gaps++;
 			else
 			{

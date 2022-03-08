@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 #include "misc.hpp"
 #include "heuristic.hpp"
+# include "Board.hpp"
 
 GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
 {
@@ -528,14 +529,8 @@ int			GUI::get_index(void)
 	if (this->guiboard.current_player().ai)
 	{
 		int index = this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
-<<<<<<< HEAD
-		if (index < 0 || index >= BOARDSIZE)
-			PRINT("GUI: Invalid index: " + std::to_string(index));
-		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
-=======
 		assert(index >= 0 && index < BOARDSIZE);
 		return index;
->>>>>>> gui
 	}
 	else
 		return get_player_input();
