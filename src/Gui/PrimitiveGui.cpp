@@ -4,9 +4,9 @@
 
 PrimitiveGui::PrimitiveGui(IAi *ai) : IGameEngine(ai) {}
 
-void						PrimitiveGui::play(Board *board)
+void						PrimitiveGui::play(Board board)
 {
-	this->guiboard = GuiBoard(*board);
+	this->guiboard = GuiBoard(board);
 	this->guiboard.players[PLAYER1].name = "P1";
 	this->guiboard.players[PLAYER2].name = "P2";
 	this->guiboard.players[PLAYER2].ai = this->ai;

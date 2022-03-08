@@ -15,7 +15,6 @@
 
 # define INDEX (index << 1)
 
-# define PLAYERS this->players
 # define PLAYER this->players[this->current]
 # define P1_SYMBOL 'o'
 # define P2_SYMBOL 'x'
@@ -29,7 +28,6 @@ typedef struct					s_player
 {
 	int							last_move		= -1;
 	int							captures		= 0;
-	int							score			= 0;
 	uint8_t						patterns[8]		= {0};
 	bool						wincondition	= false;
 }								t_player;
@@ -45,9 +43,10 @@ public:
 	std::bitset<BOARDSIZE>	filled_pos;
 	t_player				players[2];
 	int						winner;
+	bool					last_move_was_capture = false;
 	
-	void					play(IGameEngine &engine);
 	void					print(void) const;
+	void					print_values(void) const;
 	void					show_last_move(void) const;
 	void					show_move(int show_index) const;
 	bool					place(int index);
@@ -57,18 +56,23 @@ public:
 	void					remove(int index);
 	void					reset(void);
 	
-	int						check_captures(int player, int index);
+	void					save(std::string file_name) const;
+	void					load(std::string file_name);
 
-	std::vector<Board>		generate_children(void) const;
+	// std::vector<Board>		generate_children(void) const;
 	std::vector<Board>		generate_children(int player) const;
 
-	bool					check_free_threes(int move, int player) const;
+	int						check_captures(int player, int index);
+	bool					is_free_threes(int move, int player) const;
 	int						check_wincondition_all_dir(int index, int player) const;
+	bool					is_capture(int player, int index) const;
 
 	int						calculate_index(int row, int col) const;
 	int						calc_heuristic(void);
 	int						calc_heuristic(Board &node);
 	void					print_principal_variation(int player, int depth, TranspositionTable &t_table);
+	void					print_player_patterns(int player) const;
+	void					print_players_patterns(void) const;
 
 	void					set_current_player(int player);
 	bool					player_on_index(int index, int player) const;
@@ -111,7 +115,6 @@ private:
 	std::bitset<BOARDSIZE>	get_moves(void) const;
 	bool					free_threes_direction(int move, int direction, int player) const;
 	bool					still_winning(int player) const;
-	void					assert_valid_index(int index) const;
 };
 
 std::ostream &operator<<(std::ostream &o, Board const &i);

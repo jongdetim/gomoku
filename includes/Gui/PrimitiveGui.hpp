@@ -10,7 +10,7 @@ class PrimitiveGui : public IGameEngine
 public:
 	PrimitiveGui(IAi *ai);
 	
-	void	play(Board *board);
+	void	play(Board board);
 
 private:
 	short						action;

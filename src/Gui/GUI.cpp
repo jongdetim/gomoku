@@ -3,7 +3,7 @@
 #include "misc.hpp"
 #include "heuristic.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
+GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
 {
 	int height;
 
@@ -34,24 +34,15 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.click=false
 	this->title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
 }
 
-GUI::GUI(IAi *ai) : IGameEngine(ai), mouse(t_mouse{.click=false}), players_playing(2)
-{
-	this->screen_height = SCREEN_HEIGHT;
-	this->screen_width = SCREEN_WIDTH;
-	this->size = SIZE;
-	this->offset = OFFSET;
-	this->interface_size = INTERFACE_SIZE;
-	this->btn_size = BUTTON_SIZE;
-	this->stats_size = STATS_SIZE;
-	this->status_size = STATUS_SIZE;
-	this->title_size = TITLE_SIZE;
-}
+GUI::GUI(void) : GUI(NULL, big) {}
+
+GUI::GUI(IAi *ai) : GUI(ai, big) {}
 
 GUI::~GUI()
 {
 	for (int i = 0; i < size_font; i++)
 	{
-		if (this->textures[i])
+		if (this->fonts[i])
 			TTF_CloseFont(this->fonts[i]);
 	}
 	for (int i = 0; i < size_tex; i++)
@@ -69,14 +60,31 @@ GUI::~GUI()
 	SDL_Quit();
 }
 
-void		GUI::play(Board *board)
+void		GUI::play(Board board)
 {
 	if (!this->init("Gomoku"))
         return;
-	this->guiboard = GuiBoard(*board);
-	this->reset();
+	this->guiboard = GuiBoard(board);
+	this->init_game();
 	this->init_stats();
 	this->gameloop();
+}
+
+void		GUI::replay(std::string board_data_path)
+{
+	int index;
+	Board board;
+	std::string file_name;
+	
+	index = board_data_path.find_last_of("/") + 1;
+	this->replay_mode = true;
+	this->dir = board_data_path.substr(0, index);
+	file_name = board_data_path.substr(index, board_data_path.length());
+	if (!isdigit(file_name[0]))
+		throw "incorrect file name id";
+	this->current_id = this->starting_id = atoi(file_name.c_str());
+	board.load(board_data_path);
+	this->play(board);
 }
 
 /* Private Methods */
@@ -114,30 +122,95 @@ void		GUI::gameloop(void)
 {
 	int index;
 
-	this->log_game_state(true);
     while (!this->check_action(quit))
     {
-		if (this->update)
-			this->update_renderer();
+		this->ticks = SDL_GetTicks();
 	
 		this->handle_events();
 		
-		if (!this->check_action(pause))
+		if (!this->check_action(pauze))
 		{
 			index = this->get_index();
-			if (GUIBOARD.is_valid_move(index))
+			if (this->is_valid_move(index))
 			{
 				if (!this->guiboard.current_player().ai)
 					this->prev = this->guiboard;
 				GUIBOARD.place(index);
-				this->log_game_state(false);
 				this->check_game_state();
-				this->update = true;
+
+				// this->debug();
+				this->log_game_state();
 			}
 		}
 
-		this->check_actions();
+		if (this->mouse.clicked)
+		{
+			this->check_text_clicked();
+			this->check_buttons_clicked();
+			this->check_buttons_action();
+		}
+
+		if (this->update)
+			this->update_renderer();
+
+		this->wait_fps(FPS);
     }
+}
+
+void		GUI::handle_events(void)
+{
+	SDL_Event event;
+	SDL_PollEvent(&event);
+	this->mouse.clicked = false;
+
+	switch (event.type)
+	{
+		case SDL_QUIT:
+			this->set_action(quit);
+			break;
+		case SDL_KEYDOWN:
+		{
+			this->key_press(event.key.keysym.sym);
+			break;
+		}
+		case SDL_MOUSEMOTION:
+		{
+			SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);
+			this->check_buttons_hover();
+			break;
+		}
+		case SDL_MOUSEBUTTONDOWN:
+		{
+			this->mouse.clicked = true;
+			SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
+			break;
+		}
+	}
+}
+
+std::string GUI::get_board_path(int id) const { return this->dir + std::to_string(id) + (std::string)BOARD_DATA_FILE_EXT; }
+
+void		GUI::load_board_from_id(int id)
+{
+	std::string board_path = this->get_board_path(id);
+	try
+	{
+		GUIBOARD.load(board_path);
+		this->current_id = id;
+		this->update = true;
+		if (GUIBOARD.has_winner())
+			this->set_action(pauze);
+		else if (this->check_action(pauze))
+			this->unset_action(pauze);
+	}
+	catch(const char *e) {}
+}
+
+bool		GUI::is_valid_move(int index)
+{
+	int player = GUIBOARD.get_current_player();
+	GUIBOARD.last_move_was_capture = GUIBOARD.is_capture(player, index);
+	return (GUIBOARD.is_valid_move(index) && !GUIBOARD.is_free_threes(index, player));
 }
 
 void		GUI::update_renderer(void)
@@ -158,7 +231,30 @@ void		GUI::update_renderer(void)
 	this->update = false;
 }
 
-void		GUI::check_actions(void)
+void		GUI::check_buttons_hover(void)
+{
+	for (auto &btn : this->buttons)
+	{
+		if (btn.on_button(this->mouse.pos.x, this->mouse.pos.y))
+			this->update = true;
+	}
+}
+
+void		GUI::check_buttons_clicked(void)
+{
+	if (!this->mouse.clicked)
+		return;
+	for (auto &btn : this->buttons)
+	{
+		if (btn.is_active())
+		{
+			this->set_action(btn.get_action());
+			break;
+		}
+	}
+}
+
+void		GUI::check_buttons_action(void)
 {
 	if (this->check_action(restart))
 		this->reset();
@@ -166,62 +262,35 @@ void		GUI::check_actions(void)
 		this->undo_action();
 }
 
-void		GUI::undo_action(void)
+void		GUI::check_text_clicked(void)
 {
-	if (GUIBOARD.has_winner())
-		this->unset_action(pause);
-	this->guiboard = this->prev;
-	this->update = true;
-	this->unset_action(undo);
-}
-
-void		GUI::handle_events(void)
-{
-	// SDL_PollEvent(&this->event); //--> Use when always want updating, like active animations when no user input
-	SDL_WaitEvent(&this->event);
-	SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);   
-	this->mouse.click = false;
-
-	switch (this->event.type)
+	if (!this->mouse.clicked)
+		return;
+	for (int i = 0; i < 2; i++)
 	{
-		case SDL_QUIT:
-			this->set_action(quit);
-			break;
-		case SDL_KEYUP:
+		if (this->stats[i].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
 		{
-			switch (event.key.keysym.sym)
-			{
-				case SDLK_0: this->players_playing = 0; this->set_ai(); break;
-				case SDLK_1: this->players_playing = 1; this->set_ai(); break;
-				case SDLK_2: this->players_playing = 2; this->set_ai(); break;
-			}
-			break;
-		}
-		case SDL_MOUSEMOTION:
-		{
-			for (auto &btn : this->buttons)
-			{
-				if (btn.on_button(this->mouse.pos.x, this->mouse.pos.y))
-					this->update = true;
-			}
-			break;
-		}
-		case SDL_MOUSEBUTTONUP:
-		{
-			this->mouse.click = true;
-			for (auto &btn : this->buttons)
-			{
-				if (btn.is_active())
-					this->set_action(btn.get_action());
-			}
+			this->set_ai(i);
 			break;
 		}
 	}
 }
 
+void		GUI::undo_action(void)
+{
+	if (GUIBOARD.has_winner())
+		this->unset_action(pauze);
+	this->guiboard = this->prev;
+	this->update = true;
+	this->unset_action(undo);
+
+	this->log_game_state();
+	// this->debug();
+}
+
 int			GUI::get_player_input(void)
 {
-	if (this->mouse.click && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
+	if (this->mouse.clicked && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
 		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
 	return -1;
 }
@@ -229,9 +298,10 @@ int			GUI::get_player_input(void)
 void		GUI::check_game_state(void)
 {
 	if (GUIBOARD.is_game_finished())
-		this->set_action(pause);
+		this->set_action(pauze);
 	else
 		GUIBOARD.next_player();
+	this->update = true;
 }
 
 std::string	GUI::get_status_update(void)
@@ -244,17 +314,34 @@ std::string	GUI::get_status_update(void)
 		return "> " + this->guiboard.current_player().name;
 }
 
-void		GUI::reset(void)
+void		GUI::init_game(void)
 {
-	GUIBOARD.reset();
-	GUIBOARD.random_player();
 	while ( (this->guiboard.players[PLAYER1].name = random_name()).length() > 14);
 	while ( (this->guiboard.players[PLAYER2].name = random_name()).length() > 14);
-	this->update = true;
-	this->action = def;
+	this->reset_ai();
 	this->prev = this->guiboard;
-	set_ai();
-	log_game_state(true);
+	this->action = def;
+	this->update = true;
+	
+	this->clear_log();
+	this->log_game_state();
+	// this->debug();
+}
+
+void		GUI::reset(void)
+{
+	if (this->replay_mode)
+	{
+		this->load_board_from_id(this->starting_id);
+		this->action = def;
+		this->reset_ai();
+	}
+	else
+	{
+		GUIBOARD.reset();
+		GUIBOARD.random_player();
+		this->init_game();
+	}
 }
 
 void		GUI::draw_stones(void)
@@ -311,6 +398,24 @@ void		GUI::highlight_5inarow(void)
 void		GUI::set_texture(SDL_Texture *texture, SDL_Rect rect)
 {
 	SDL_RenderCopy(this->renderer, texture, NULL, &rect);
+}
+
+void		GUI::key_press(int key)
+{
+	switch (key)
+	{
+		case SDLK_LEFT:
+		case SDLK_RIGHT:
+		{
+			if (this->replay_mode)
+			{
+				int id = key == SDLK_RIGHT ? this->current_id + 1 : this->current_id - 1;
+				this->load_board_from_id(id);
+				this->reset_ai();
+			}
+			break;
+		}
+	}
 }
 
 inline bool GUI::mouse_on_board(int x, int y) const { return (y < this->screen_height && x < this->screen_height); }
@@ -423,9 +528,14 @@ int			GUI::get_index(void)
 	if (this->guiboard.current_player().ai)
 	{
 		int index = this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
+<<<<<<< HEAD
 		if (index < 0 || index >= BOARDSIZE)
 			PRINT("GUI: Invalid index: " + std::to_string(index));
 		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
+=======
+		assert(index >= 0 && index < BOARDSIZE);
+		return index;
+>>>>>>> gui
 	}
 	else
 		return get_player_input();
@@ -457,36 +567,37 @@ std::string	GUI::random_name(void)
 
 GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
 
-void		GUI::set_ai(void)
+void		GUI::reset_ai(void)
 {
-	int i = 0;
-
-	for (; i < this->players_playing; i++)
+	for (int i = 0; i < 2; i++)
 		this->guiboard.players[i].ai = NULL;
+}
 
-	for (; i < 2; i++)
-		this->guiboard.players[i].ai = this->ai;
-	
+void		GUI::set_ai(int player)
+{
+	if (this->guiboard.players[player].ai)
+		this->guiboard.players[player].ai = NULL;
+	else
+		this->guiboard.players[player].ai = this->ai;
 	this->update = true;
 }
 
 void		GUI::clear_log(void)
 {
-    std::ofstream log;
-    log = std::ofstream(LOG_PATH);
-	log << "";    
-	log.close();
+	system("rm -rf log/");
+	this->create_log_dir();
 }
 
-void		GUI::log_game_state(bool clear)
+void		GUI::create_log_dir(void) { mkdir("log", 0777); }
+
+void		GUI::log_game_state(void)
 {
     std::ofstream log;
+	static int id = 1;
 
-	if (clear)
-		clear_log();
-    log = std::ofstream(LOG_PATH, std::ios::app);
+    log = std::ofstream("log/log.txt", std::ios::app);
 
-	log << "Captures P1: " << GUIBOARD.players[PLAYER1].captures << "\t\t\t\tP2: " << GUIBOARD.players[PLAYER2].captures << std::endl;
+	log << "ID[" << id << "] Captures P1: " << GUIBOARD.players[PLAYER1].captures << "\t\t\t\tP2: " << GUIBOARD.players[PLAYER2].captures << std::endl;
 	log << "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8" << std::endl;
 	for (int row = 0; row < BOARD_LENGTH; row++)
 	{
@@ -499,7 +610,7 @@ void		GUI::log_game_state(bool clear)
 			else if (GUIBOARD.get_state()[index<<1])
 			{
 				if (GUIBOARD.get_last_move() == index)
-					log << (char)(P1_SYMBOL-32) << ' ';
+					log << 0 << ' ';
 				else
 					log << P1_SYMBOL << ' ';
 			}
@@ -513,7 +624,29 @@ void		GUI::log_game_state(bool clear)
 		}
 		log << std::endl;
 	}
-	log << GUIBOARD << std::endl;
 	log << std::endl;
     log.close();
+	GUIBOARD.save("log/" + std::to_string(id) + BOARD_DATA_FILE_EXT);
+	id++;
+}
+
+void		GUI::debug(void)
+{
+	system("clear");
+	if (GUIBOARD.get_last_move() != -1)
+    	GUIBOARD.h = heuristic::get_heuristic_total(GUIBOARD, GUIBOARD.get_last_player());
+    GUIBOARD.print_values();
+	PRINT("");
+}
+
+void		GUI::wait_fps(int fps) const
+{
+	int ms = 1000.0f / fps + .5;
+	int delay = ms - (SDL_GetTicks() - this->ticks);
+	if (delay > 0)
+		SDL_Delay(delay);
+
+	// Uint32 end = SDL_GetTicks();
+	// float secondsElapsed = (end - this->ticks) / 1000.0f;
+	// PRINT("Seconds: " << secondsElapsed);
 }

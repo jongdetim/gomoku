@@ -29,6 +29,8 @@ void		Stats::render(void)
 }
 
 
-t_point		Stats::get_position(int index) const { return this->texts[index].get_pos(); }
+t_point		Stats::get_position(e_stats index) const { return this->texts[index].get_pos(); }
 
-t_point		Stats::get_size(int index) const  { return this->texts[index].get_size(); }
+t_point		Stats::get_size(e_stats index) const  { return this->texts[index].get_size(); }
+
+bool		Stats::on_text(int x, int y, e_stats index) const { return this->texts[index].on_text(x, y); }
