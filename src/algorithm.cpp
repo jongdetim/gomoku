@@ -34,7 +34,7 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 
 int	branch_narrowing(int depth)
 {
-	if (depth > 4)
+	if (depth > 5)
 		return 3;
 	else
 		return NARROWING[depth];
@@ -179,8 +179,8 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	int counter = 0;
 	for (Board child : child_nodes)
 	{
-		// if (counter >= branch_narrowing(initial_depth - depth))
-		// 	break;
+		if (counter >= branch_narrowing(initial_depth - depth))
+			break;
 		int old_value = value;
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?

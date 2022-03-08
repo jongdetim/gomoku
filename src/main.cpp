@@ -150,8 +150,9 @@ private:
             }
             catch(const char* e)
             {   
-                // PRINT("depth: " << depth - 1);
+                PRINT("depth: " << depth - 1);
                 // board.print_principal_variation(player, depth - 1, t_table);
+                PRINT("timeout reached during depth: " << depth << ".\nusing previous depth search results:");
                 board.place(best_move);
                 TableEntry tt_entry;
                 t_table.retrieve(board, tt_entry);
