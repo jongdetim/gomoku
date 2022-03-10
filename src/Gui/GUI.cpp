@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 #include "misc.hpp"
 #include "heuristic.hpp"
+# include "Board.hpp"
 
 GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
 {

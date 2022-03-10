@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-add_definitions("-g") # -Ofast -Wall -Werror -Wextra 
+add_definitions("-g -Ofast") #-Wall -Werror -Wextra 
 
 file(GLOB_RECURSE gomoku_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(${PROJECT_NAME} ${gomoku_SOURCES})

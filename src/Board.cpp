@@ -249,7 +249,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 
 	for (int i = 0; i < depth; i++)
 	{
-		if (!t_table.lookup(node, tt_entry))
+		if (!t_table.retrieve(node, tt_entry))
 			misc::print_and_quit("can't find node in table! (Print PV)");
 		int best_move = tt_entry.best_move;
 		PRINT(best_move);
@@ -264,7 +264,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		{
 			for (int j = 0; j < 2; j++)
 			{
-				if (i > 0 && node.players[j].patterns[i] > 0)
+				if (node.players[j].patterns[i] > 0)
 				{
 					PRINT("player: " << j);
 					PRINT(PatternNames[i]);
@@ -332,7 +332,7 @@ bool					Board::check_win_other_player(int player)
 
 void					Board::random_player(void) { this->current_player = misc::get_random_int() % 2; }
 
-inline bool				Board::has_winner(void) const { return (this->winner != -1); }
+bool					Board::has_winner(void) const { return (this->winner != -1); }
 
 bool					Board::player_on_index(int index, int player) const { return this->state[INDEX + player]; }
 
@@ -475,7 +475,7 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 				count++;
 			else if (get_player(pos) == get_next_player(player))
 				break;
-			else if (!(misc::is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
+			else if (open == 0 && !(misc::is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
 				gaps++;
 			else
 			{
