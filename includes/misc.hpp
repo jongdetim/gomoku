@@ -19,6 +19,8 @@ class Board;
 class Timer
 {
 public:
+	int elapsed_ms = 0;
+
     void start();
     void stop();
     int elapsedMilliseconds();

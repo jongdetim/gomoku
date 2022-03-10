@@ -2,9 +2,10 @@
 #include <SDL_image.h>
 #include "misc.hpp"
 #include "heuristic.hpp"
-# include "Board.hpp"
+#include "algorithm.hpp"
+#include "Board.hpp"
 
-GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
+GUI::GUI(NegamaxAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
 {
 	int height;
 
@@ -37,7 +38,7 @@ GUI::GUI(IAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=fal
 
 GUI::GUI(void) : GUI(NULL, big) {}
 
-GUI::GUI(IAi *ai) : GUI(ai, big) {}
+GUI::GUI(NegamaxAi *ai) : GUI(ai, big) {}
 
 GUI::~GUI()
 {
@@ -317,18 +318,21 @@ void		GUI::render_buttons(void)
 
 void		GUI::show_stats(void)
 {
-	this->stats[PLAYER1].update(this->guiboard.players[PLAYER1]);
-	this->stats[PLAYER2].update(this->guiboard.players[PLAYER2]);
+	this->player_stats[PLAYER1].update(this->guiboard.players[PLAYER1]);
+	this->player_stats[PLAYER2].update(this->guiboard.players[PLAYER2]);
 	
-	this->stats[PLAYER1].render();
-	this->stats[PLAYER2].render();
+	this->player_stats[PLAYER1].render();
+	this->player_stats[PLAYER2].render();
 
 	for (int player = 0; player < 2; player++)
 	{
-		t_point pos = this->stats[player].get_position(captures_text);
+		t_point pos = this->player_stats[player].get_position(captures_text);
 		SDL_Texture *texture = player == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
 		this->set_texture(texture, SDL_Rect{ pos.x , pos.y + this->config.size, (this->config.size>>1), (this->config.size>>1)});
 	}
+
+	this->ai_stats.render();
+
 }
 
 /* Init methods */
@@ -356,11 +360,14 @@ void		GUI::load_fonts(void)
 
 void		GUI::init_stats(void)
 {
-	this->stats[PLAYER1] = Stats(this->renderer, t_point {this->config.screen_height, (int)this->config.offset + (this->config.size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
-	this->stats[PLAYER2] = Stats(this->renderer, t_point {this->config.screen_height + (this->config.interface_size >> 1), (int)this->config.offset + (this->config.size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
+	this->player_stats[PLAYER1] = PlayerStats(this->renderer, t_point {this->config.screen_height, (int)this->config.offset + (this->config.size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
+	this->player_stats[PLAYER2] = PlayerStats(this->renderer, t_point {this->config.screen_height + (this->config.interface_size >> 1), (int)this->config.offset + (this->config.size << 2)}, this->fonts[stats_font], this->fonts[stats_name_font]);
 
-	this->stats[PLAYER1].init();
-	this->stats[PLAYER2].init();
+	this->player_stats[PLAYER1].init();
+	this->player_stats[PLAYER2].init();
+
+	this->ai_stats = AiStats(this->renderer, SDL_Rect {this->config.screen_height, (this->config.size * 9) , (int)(this->config.interface_size - this->config.offset), this->config.size * 8}, this->fonts[stats_font]);
+	this->ai_stats.init();
 }
 
 /* Button methods */
@@ -462,7 +469,7 @@ void		GUI::check_ai_clicked(void)
 		return;
 	for (int i = 0; i < 2; i++)
 	{
-		if (this->stats[i].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
+		if (this->player_stats[i].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
 		{
 			this->set_ai(i);
 			break;
@@ -523,7 +530,7 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 int			GUI::get_index(void)
 {
 	if (this->guiboard.current_player().ai)
-		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
+		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board(), this->ai_stats.stats);
 	else
 		return get_player_input();
 }

@@ -39,7 +39,7 @@ std::string             argument_parser::get_file(po::variables_map &vm)
     }
 }
 
-GUI                     argument_parser::get_gui(po::variables_map &vm, IAi &ai)
+GUI                     argument_parser::get_gui(po::variables_map &vm, NegamaxAi &ai)
 {
     std::string size;
     

@@ -11,8 +11,24 @@ class Board;
 class TranspositionTable;
 class Timer;
 
-int negamax(Board node, int depth, int initial_depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
+typedef struct	s_aistats
+{
+	int			depth;
+	int			duration;
+	int			nodes_visited;
+	int			score;
+}				t_aistats;
 
-extern Board DEBUG_BOARD;
+class NegamaxAi
+{
+public:
+	int	calculate(Board &board, t_aistats &aistats);
+
+private:
+    int iterative_deepening_negamax(Board board, int player, t_aistats &aistats);
+};
+
+int		negamax(Board node, int depth, int initial_depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
+void	set_aistats(t_aistats &aistats, int depth, int heuristic, int duration);
 
 #endif

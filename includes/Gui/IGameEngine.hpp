@@ -1,7 +1,7 @@
 #ifndef IGAMEENGINE_HPP
 # define IGAMEENGINE_HPP
 
-# include "IAi.hpp"
+class NegamaxAi;
 
 enum e_action 
 {
@@ -17,13 +17,13 @@ class Board;
 class IGameEngine
 {
 public:
-	IGameEngine(IAi *ai) : ai(ai) {}
+	IGameEngine(NegamaxAi *ai) : ai(ai) {}
 
 	virtual void	play(Board board) = 0;
 	virtual void	reset(void) = 0;
 	virtual void	gameloop(void) = 0;
 
-	IAi				*ai;
+	NegamaxAi		*ai;
 };
 
 #endif

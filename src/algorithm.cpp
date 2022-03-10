@@ -9,9 +9,71 @@ int TOTAL_LEAVES = 0;
 int TOTAL_NODES = 0;
 int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
-int DEBUG_COUNTER = 0;
 bool TIMEOUT_REACHED = false;
-// int NARROWING[5] = {30, 20, 15, 10, 5};
+
+int			NegamaxAi::calculate(Board &board, t_aistats &aistats)
+{
+	if (board.is_empty())
+		return misc::calc_index(9,9);
+
+	int move = this->iterative_deepening_negamax(board, board.get_current_player(), aistats);
+	return move;
+}
+
+int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats &aistats)
+{
+	TOTAL_LEAVES = 0;
+	TOTAL_NODES = 0;
+	FOUND_IN_TABLE = 0;
+	TOTAL_BRANCHES_PRUNED = 0;
+	TIMEOUT_REACHED = false;
+	int best_move = -1;
+	Timer timer;
+	int last_best_move;
+	int depth = 1;
+	int max_depth = 100;
+	TranspositionTable last_t_table;
+	
+	timer.start();
+
+	for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
+	{
+		
+		TranspositionTable h_table;
+		TranspositionTable t_table;
+		try
+		{
+			last_best_move = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+		}
+		catch(const char* e)
+		{   
+			// PRINT("depth: " << depth - 1);
+			// board.print_principal_variation(player, depth - 1, t_table);
+			// PRINT("timeout reached during depth: " << depth << ".\nusing previous depth search results:");
+			
+			// PRINT("heuristic: " << tt_entry.value);
+			// PRINT(timer.elapsed_ms);
+			// return best_move;
+			depth--;
+			break;
+		}
+		best_move = last_best_move;
+		last_t_table = t_table;
+	}
+	board.place(best_move);
+	TableEntry tt_entry;
+	last_t_table.retrieve(board, tt_entry);
+	set_aistats(aistats, depth, tt_entry.value, timer.elapsed_ms);
+	return best_move;
+}
+
+void		set_aistats(t_aistats &aistats, int depth, int heuristic, int duration)
+{
+	aistats.depth = depth;
+	aistats.duration = duration;
+	aistats.score = heuristic;
+	aistats.nodes_visited = TOTAL_NODES;
+}
 
 inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, TranspositionTable &t_table)
 {
@@ -32,7 +94,7 @@ void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int b
 	tt_entry.game_finished = is_finished;
 }
 
-int	branch_narrowing(int depth)
+int			branch_narrowing(int depth)
 {
 	if (depth > 5)
 		return 3;
@@ -49,7 +111,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	int best_move = -1;
 
 	// check if timeout occured
-	if (timer.elapsedMilliseconds() > TIMEOUT)
+	if (timer.elapsedMilliseconds() >= TIMEOUT)
 		throw "time limit reached";
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
@@ -142,7 +204,6 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 			TableEntry ht_entry;
 			if (h_table.retrieve(child, ht_entry))
 			{
-				DEBUG_COUNTER++;
 				// std::cout << "already seen this child node" << std::endl;
 				child.h = -ht_entry.value; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
 			}

@@ -3,6 +3,7 @@
 
 void						Timer::start()
 {
+	this->elapsed_ms = 0;
 	m_StartTime = std::chrono::steady_clock::now();
 	m_bRunning = true;
 }
@@ -20,8 +21,8 @@ int							Timer::elapsedMilliseconds()
 	if(m_bRunning)
 		endTime = std::chrono::steady_clock::now();
 	else
-		endTime = m_EndTime;
-	return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
+		endTime = m_EndTime; 
+	return this->elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
 }
 
 double						Timer::elapsedSeconds()
@@ -85,7 +86,6 @@ void						misc::print_stats()
 	PRINT("Total leaves: " << TOTAL_LEAVES);
 	PRINT("Total found in table: " << FOUND_IN_TABLE);
 	PRINT("Total times branches pruned: " << TOTAL_BRANCHES_PRUNED << "\n");
-	PRINT("DEBUG COUNTER: " << DEBUG_COUNTER << "\n");
 }
 
 bool						misc::is_offside(int prev_index, int index)

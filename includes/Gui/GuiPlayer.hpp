@@ -2,8 +2,9 @@
 # define PLAYER_HPP
 
 # include "gomoku.hpp"
-# include "IAi.hpp"
 # include "Board.hpp"
+
+class NegamaxAi;
 
 class GuiPlayer
 {
@@ -13,7 +14,7 @@ public:
 	GuiPlayer(t_player &player);
 
 	std::string					name;
-	IAi							*ai;
+	NegamaxAi					*ai;
 
 	void						print(void) const;
 	bool						wincondition(void) const;

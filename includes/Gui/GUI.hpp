@@ -7,7 +7,8 @@
 # include "IGameEngine.hpp"
 # include "Board.hpp"
 # include "Button.hpp"
-# include "Stats.hpp"
+# include "PlayerStats.hpp"
+# include "AiStats.hpp"
 # include "GuiBoard.hpp"
 
 # include <fstream>
@@ -49,6 +50,8 @@
 # define BOARD_DATA_FILE_EXT ".board.data"
 
 # define FPS 20
+
+class	NegamaxAi;
 
 enum e_fonts
 {
@@ -110,8 +113,8 @@ class GUI: public IGameEngine
 {
 public:
 	GUI(void);
-	GUI(IAi *ai);
-	GUI(IAi *ai, e_gui_size size);
+	GUI(NegamaxAi *ai);
+	GUI(NegamaxAi *ai, e_gui_size size);
 	~GUI();
 
 	void					play(Board board);
@@ -128,7 +131,8 @@ private:
 
 	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];
-	Stats					stats[2];
+	PlayerStats				player_stats[2];
+	AiStats					ai_stats;
 	std::vector<Button>		buttons;
 	Text					title;
 	Text					status;
