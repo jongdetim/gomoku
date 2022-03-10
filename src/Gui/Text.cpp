@@ -15,7 +15,7 @@ void		Text::update(std::string text, TTF_Font *font)
 	if (this->texture)
 		SDL_DestroyTexture(this->texture);
 
-	SDL_Surface *surface = TTF_RenderText_Solid(font, text.c_str(), SDL_Color{0,0,0,255});
+	SDL_Surface *surface = TTF_RenderText_Blended(font, text.c_str(), SDL_Color{0,0,0,255});
 	this->texture = SDL_CreateTextureFromSurface(this->renderer, surface);
 	SDL_FreeSurface(surface);
 }

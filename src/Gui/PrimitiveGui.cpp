@@ -43,7 +43,6 @@ void						PrimitiveGui::gameloop(void)
 void						PrimitiveGui::reset(void)
 {
 	GUIBOARD.reset();
-	GUIBOARD.random_player();
 	this->action = def;
 }
 

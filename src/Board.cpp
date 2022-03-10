@@ -11,9 +11,9 @@ h(0),
 state(0),
 filled_pos(0),
 winner(-1),
-current_player(0),
-last_move(-1)
-// last_move_was_capture(false)
+current_player(PLAYER2),
+last_move(-1),
+last_move_was_capture(false)
 {}
 
 Board::Board(const Board &rhs)
@@ -38,7 +38,7 @@ void					Board::reset(void)
 	this->filled_pos.reset();
 	this->last_move = -1;
 	this->winner = -1;
-	this->current_player = 0;
+	this->current_player = PLAYER2;
 	this->players[PLAYER1] = t_player{};
 	this->players[PLAYER2] = t_player{};
 	this->last_move_was_capture = false;
@@ -330,11 +330,9 @@ bool					Board::check_win_other_player(int player)
 	return false;
 }
 
-void					Board::random_player(void) { this->current_player = misc::get_random_int() % 2; }
-
 bool					Board::has_winner(void) const { return (this->winner != -1); }
 
-bool					Board::player_on_index(int index, int player) const { return this->state[INDEX + player]; }
+bool					Board::is_player_on_index(int index, int player) const { return this->state[INDEX + player]; }
 
 void					Board::set_current_player(int player) { this->current_player = player; }
 
@@ -438,9 +436,9 @@ bool					Board::can_capture(int player, int index, int dir) const
 		if (misc::is_offside(index, index + dir))
 			break ;
 		index += dir;
-		if (i == 3 && player_on_index(index, player))
+		if (i == 3 && is_player_on_index(index, player))
 			return true;
-		else if (!player_on_index(index, get_next_player(player)))
+		else if (!is_player_on_index(index, get_next_player(player)))
 			break ;
 	}
 	return false;

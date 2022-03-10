@@ -143,6 +143,7 @@ private:
 
 	bool					init(std::string title);
 	void					gameloop(void);
+	void					place_stone(void);
 	void					init_game(void);
 	void					reset(void);
 
@@ -166,6 +167,7 @@ private:
 	void					init_stats(void);
 
 	/* Button methods */
+	void					check_buttons(void);
 	void					set_buttons(void);
 	void					check_buttons_hover(void);
 	void					check_buttons_clicked(void);
@@ -183,7 +185,7 @@ private:
 	int						calc_board_placement(int x, int y) const;
 	int						get_index(void);
 	int						get_player_input(void);
-	void					check_text_clicked(void);
+	void					check_ai_clicked(void);
 	void					set_ai(int player);
 	void					reset_ai(void);
 	bool					is_valid_move(int index);

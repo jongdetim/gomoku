@@ -43,7 +43,7 @@ public:
 	std::bitset<BOARDSIZE>	filled_pos;
 	t_player				players[2];
 	int						winner;
-	bool					last_move_was_capture = false;
+	bool					last_move_was_capture;
 	
 	void					print(void) const;
 	void					print_values(void) const;
@@ -59,7 +59,6 @@ public:
 	void					save(std::string file_name) const;
 	void					load(std::string file_name);
 
-	// std::vector<Board>		generate_children(void) const;
 	std::vector<Board>		generate_children(int player) const;
 
 	int						check_captures(int player, int index);
@@ -75,17 +74,16 @@ public:
 	void					print_players_patterns(void) const;
 
 	void					set_current_player(int player);
-	bool					player_on_index(int index, int player) const;
 	void					next_player(void);
 	int						get_next_player(int player) const;
 	int						get_next_player(void) const;
-	void					random_player(void);
 	int						get_player(int index) const;
 	BITBOARD				get_state(void) const;
 	int						get_last_move(void) const;
 	int						get_last_player(void) const;
 	int						get_current_player(void) const;
 
+	bool					is_player_on_index(int index, int player) const;
 	bool					is_empty_place(int index) const;
 	bool					is_valid_move(int index) const;
 	bool					is_full(void) const;
@@ -103,8 +101,8 @@ public:
 
 private:
 	BITBOARD				state;
-	int						current_player = 0;
-	int						last_move = -1;
+	int						current_player;
+	int						last_move;
 
 	int						total_stones_in_play(void) const;
 	int						check_wincondition_all_dir(int player) const;

@@ -115,35 +115,22 @@ bool		GUI::init(std::string title)
 
 void		GUI::gameloop(void)
 {
-	int index;
-
     while (!this->check_action(quit))
     {
+		// if (this->check_action(pauze))
+		// 	PRINT("PAUZE");
+		// else
+		// 	PRINT("DEFAULT");
+
 		this->ticks = SDL_GetTicks();
 	
 		this->handle_events();
 		
 		if (!this->check_action(pauze))
-		{
-			index = this->get_index();
-			if (this->is_valid_move(index))
-			{
-				if (!this->guiboard.current_player().ai)
-					this->prev = this->guiboard;
-				GUIBOARD.place(index);
-				this->check_game_state();
+			this->place_stone();
 
-				// this->debug();
-				this->log_game_state();
-			}
-		}
-
-		if (this->mouse.clicked)
-		{
-			this->check_text_clicked();
-			this->check_buttons_clicked();
-			this->check_buttons_action();
-		}
+		this->check_buttons();
+		this->check_ai_clicked();
 
 		if (this->update)
 			this->update_renderer();
@@ -152,14 +139,32 @@ void		GUI::gameloop(void)
     }
 }
 
+void		GUI::place_stone(void)
+{
+	int index = this->get_index();
+
+	if (this->is_valid_move(index))
+	{
+		if (!this->guiboard.current_player().ai)
+			this->prev = this->guiboard;
+		GUIBOARD.place(index);
+		this->check_game_state();
+
+		// this->debug();
+		this->log_game_state();
+	}
+}
+
 void		GUI::init_game(void)
 {
 	while ( (this->guiboard.players[PLAYER1].name = random_name()).length() > 14);
 	while ( (this->guiboard.players[PLAYER2].name = random_name()).length() > 14);
-	this->reset_ai();
+
 	this->prev = this->guiboard;
-	this->action = def;
 	this->update = true;
+
+	this->action = GUIBOARD.has_winner() ? pauze : def;
+	this->reset_ai();
 	
 	this->clear_log();
 	this->log_game_state();
@@ -169,17 +174,10 @@ void		GUI::init_game(void)
 void		GUI::reset(void)
 {
 	if (this->replay_mode)
-	{
 		this->load_board_from_id(this->replay_settings.starting_id);
-		this->action = def;
-		this->reset_ai();
-	}
 	else
-	{
 		GUIBOARD.reset();
-		GUIBOARD.random_player();
-		this->init_game();
-	}
+	this->init_game();
 }
 
 /* Event methods */
@@ -187,8 +185,12 @@ void		GUI::reset(void)
 void		GUI::handle_events(void)
 {
 	SDL_Event event;
-	SDL_PollEvent(&event);
+
 	this->mouse.clicked = false;
+	SDL_FlushEvent(SDL_MOUSEMOTION);
+
+	SDL_PollEvent(&event);
+	SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);
 
 	switch (event.type)
 	{
@@ -198,13 +200,8 @@ void		GUI::handle_events(void)
 		case SDL_KEYDOWN:
 			this->key_press(event.key.keysym.sym);
 			break;
-		case SDL_MOUSEMOTION:
-			SDL_GetMouseState(&this->mouse.pos.x, &this->mouse.pos.y);
-			this->check_buttons_hover();
-			break;
 		case SDL_MOUSEBUTTONDOWN:
 			this->mouse.clicked = true;
-			SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
 			break;
 	}
 }
@@ -215,7 +212,6 @@ void		GUI::key_press(int key)
 	{
 		case SDLK_LEFT:
 		case SDLK_RIGHT:
-		{
 			if (this->replay_mode)
 			{
 				int id = key == SDLK_RIGHT ? this->replay_settings.current_id + 1 : this->replay_settings.current_id - 1;
@@ -223,7 +219,6 @@ void		GUI::key_press(int key)
 				this->reset_ai();
 			}
 			break;
-		}
 		case SDLK_ESCAPE:
 			this->set_action(quit);
 			break;
@@ -370,6 +365,13 @@ void		GUI::init_stats(void)
 
 /* Button methods */
 
+void		GUI::check_buttons(void)
+{
+	this->check_buttons_hover();
+	this->check_buttons_clicked();
+	this->check_buttons_action();
+}
+
 void		GUI::set_buttons(void)
 {
 	int btn_w = 0;
@@ -428,15 +430,18 @@ bool		GUI::check_action(int action) { return ((this->action & action) == action)
 
 void		GUI::set_action(int action) { this->action = this->action | action; }
 
-void		GUI::unset_action(int action) { this->action = this->action ^ action; }
+void		GUI::unset_action(int action) { this->action = this->action & ~(action); }
 
 void		GUI::undo_action(void)
 {
-	if (GUIBOARD.has_winner())
-		this->unset_action(pauze);
+	if (this->replay_mode)
+		this->reset();
+
 	this->guiboard = this->prev;
-	this->update = true;
+	if (!GUIBOARD.has_winner())
+		this->unset_action(pauze);
 	this->unset_action(undo);
+	this->update = true;
 
 	this->log_game_state();
 	// this->debug();
@@ -451,7 +456,7 @@ bool		GUI::is_valid_move(int index)
 	return (GUIBOARD.is_valid_move(index) && !GUIBOARD.is_free_threes(index, player));
 }
 
-void		GUI::check_text_clicked(void)
+void		GUI::check_ai_clicked(void)
 {
 	if (!this->mouse.clicked)
 		return;
@@ -518,11 +523,7 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 int			GUI::get_index(void)
 {
 	if (this->guiboard.current_player().ai)
-	{
-		int index = this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
-		assert(index >= 0 && index < BOARDSIZE);
-		return index;
-	}
+		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board());
 	else
 		return get_player_input();
 }
