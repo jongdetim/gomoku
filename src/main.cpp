@@ -77,7 +77,7 @@ int                     main(int argc, char **argv)
 
     NegamaxAi nai;
     GUI gui = argument_parser::get_gui(vm, nai);
-    if (vm.count("file"))
+    if (vm.count("replay"))
     {
         try
         {

@@ -86,6 +86,26 @@ typedef struct	s_mouse
 	bool 		clicked;
 }				t_mouse;
 
+typedef struct	s_config
+{
+	int			screen_height;
+	int			screen_width;
+	int			size;
+	int			interface_size;
+	int			btn_size;
+	int			stats_size;
+	int			status_size;
+	int			title_size;
+	double		offset;
+}				t_config;
+
+typedef struct	s_replay
+{
+	int			starting_id;
+	int			current_id;
+	std::string	dir;
+}				t_replay;
+
 class GUI: public IGameEngine
 {
 public:
@@ -99,87 +119,94 @@ public:
 
 private:
 	GuiBoard				guiboard;
+	GuiBoard				prev;
 
-	int						screen_height;
-	int						screen_width;
-	int						size;
-	int						interface_size;
-	double					offset;
-	int						btn_size;
-	int						stats_size;
-	int						status_size;
-	int						title_size;
-	
 	SDL_Window				*window;
 	SDL_Renderer			*renderer;
+
+	t_config				config;
 
 	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];
 	Stats					stats[2];
-
 	std::vector<Button>		buttons;
 	Text					title;
 	Text					status;
-	t_mouse					mouse;
-	GuiBoard				prev;
 
 	bool					update;
 	int						action;
-	int						ticks;
+	Uint32					ticks;
+	t_mouse					mouse;
 
-	/* Replay */
 	bool					replay_mode;
-	int						starting_id;
-	int						current_id;
-	std::string				dir;
-
-	std::string 			get_board_path(int id) const;
-	void		 			load_board_from_id(int id);
-	/* Replay */
+	t_replay				replay_settings;
 
 	bool					init(std::string title);
 	void					gameloop(void);
 	void					init_game(void);
-	void					check_game_state(void);
 	void					reset(void);
-	bool					mouse_on_board(int row, int col) const;
+
+	/* Event methods */
+	void					handle_events(void);
+	void					key_press(int key);
+
+	/* Render methods */
+	void					update_renderer(void);
 	void					clear_render(void);
 	void					set_texture(SDL_Texture *texture, SDL_Rect rect);
-	void					draw_stones(void);
 	void					highlight_5inarow(void);
 	void					highlight_last_move(int row, int col);
-	void					update_renderer(void);
-	void					handle_events(void);
-	int						calc_board_placement(int x, int y) const;
-	SDL_Texture				*load_texture(std::string img_path);
+	void					draw_stones(void);
+	void					render_buttons(void);
+	void					show_stats(void);
+
+	/* Init methods */
 	void					load_textures(void);
 	void					load_fonts(void);
-	void					set_buttons(void);
-	void					render_buttons(void);
 	void					init_stats(void);
-	void					show_stats(void);
-	int						get_index(void);
-	int						get_player_input(void);
+
+	/* Button methods */
+	void					set_buttons(void);
+	void					check_buttons_hover(void);
+	void					check_buttons_clicked(void);
+	void					check_buttons_action(void);
+
+	/* GameAction methods */
 	bool					check_action(int action);
 	void					set_action(int action);
 	void					unset_action(int action);
-	std::string				get_status_update(void);
-	void					check_buttons_action(void);
-	void					check_buttons_hover(void);
-	void					check_buttons_clicked(void);
-	void					check_text_clicked(void);
 	void					undo_action(void);
-	std::string				random_name(void);
-	GuiPlayer				get_winner(void);
+
+	/* Helper methods */
+	void					check_game_state(void);
+	bool					mouse_on_board(int row, int col) const;
+	int						calc_board_placement(int x, int y) const;
+	int						get_index(void);
+	int						get_player_input(void);
+	void					check_text_clicked(void);
 	void					set_ai(int player);
 	void					reset_ai(void);
-	void					clear_log(void);
-	void					log_game_state(void);
-	void					create_log_dir(void);
-	void					debug(void);
 	bool					is_valid_move(int index);
 	void					wait_fps(int fps) const;
-	void					key_press(int key);
+	GuiPlayer				get_winner(void);
+	std::string				random_name(void);
+	std::string				get_status_update(void);
+	SDL_Texture				*load_texture(std::string img_path);
+
+	/* Replay methods */
+	void					set_replay_settings(std::string board_data_path);
+	std::string 			get_board_path(int id) const;
+	void		 			load_board_from_id(int id);
+
+	/* Log methods */
+	void					clear_log(void);
+	void					create_log_dir(void);
+	void					log_game_state(void);
+
+	/* Debug methods */
+	void					debug(void);
+	void					print_duration(void) const;
+	void					print_duration(Uint32 start, Uint32 end) const;
 };
 
 #endif

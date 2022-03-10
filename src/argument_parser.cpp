@@ -6,7 +6,7 @@ po::options_description argument_parser::get_options(void)
     options.add_options()
     ("help,h", "")
     ("size,s", po::value<std::string>()->default_value("big"), "GUI size [ big | medium | small ]")
-    ("file,f", po::value<std::string>(), "Load board state from file");
+    ("replay,r", po::value<std::string>(), "Replay game from file [ <id>.board.data ]");
     return options;
 }
 
@@ -26,32 +26,11 @@ po::variables_map       argument_parser::get_args(int argc, char **argv, po::opt
     return vm;
 }
 
-Board                   argument_parser::get_board(po::variables_map &vm)
-{
-    Board board;
-    std::string file;
-
-    try
-    {
-        if (vm.count("file"))
-        {
-            file = vm["file"].as<std::string>();
-            board.load(file);
-        }
-    }
-    catch (char const* &str)
-    {
-        std::cerr << str << '\n';
-        exit(1);
-    }
-    return board;
-}
-
 std::string             argument_parser::get_file(po::variables_map &vm)
 {
     try
     {
-        return vm["file"].as<std::string>();
+        return vm["replay"].as<std::string>();
     }
     catch (char const* &str)
     {
