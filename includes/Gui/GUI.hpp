@@ -29,7 +29,7 @@
 # define NAMES "resources/names.txt"
 
 # define BOARD_PATH "resources/textures/board.png"
-# define P1_PATH "resources/textures/circle_white.png"
+# define P1_PATH "resources/textures/circle_white_3.png"
 # define P2_PATH "resources/textures/circle_black.png"
 # define P1_SELECT "resources/textures/select_black.png"
 # define P2_SELECT "resources/textures/select_white.png"

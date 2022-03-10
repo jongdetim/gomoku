@@ -49,7 +49,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	int best_move = -1;
 
 	// check if timeout occured
-	if (timer.elapsedMilliseconds() > TIMEOUT)
+	if (timer.elapsedMilliseconds() >= TIMEOUT)
 		throw "time limit reached";
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
