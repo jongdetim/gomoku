@@ -90,11 +90,11 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		if (is_finished)
 		{
 			if (node.winner == player)
-				value = WINNING_POINTS[0] + depth;
+				value = WINNING_POINTS[0] - (initial_depth - depth);
 			else if (node.winner == 1 - player)
-				value = -(WINNING_POINTS[0] + depth);
+				value = -(WINNING_POINTS[0] - (initial_depth - depth));
 			else
-				value = 0;
+				value = 0; //board is full
 		}
 		else
 			value = -heuristic::get_heuristic_total(node, 1 - player);
@@ -179,8 +179,8 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	int counter = 0;
 	for (Board child : child_nodes)
 	{
-		if (counter >= branch_narrowing(initial_depth - depth))
-			break;
+		// if (counter >= branch_narrowing(initial_depth - depth))
+		// 	break;
 		int old_value = value;
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?

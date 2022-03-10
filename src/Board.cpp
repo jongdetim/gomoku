@@ -469,12 +469,10 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 		for (int i = 0; i < 4; i++)
 		{
 			pos += shift;
-			if (misc::is_offside(pos - shift, pos))
+			if (misc::is_offside(pos - shift, pos) || get_player(pos) == get_next_player(player))
 				break;
-			if (get_player(pos) == player)
+			else if (get_player(pos) == player)
 				count++;
-			else if (get_player(pos) == get_next_player(player))
-				break;
 			else if (open == 0 && !(misc::is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
 				gaps++;
 			else
@@ -484,6 +482,8 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 					break;
 			}
 		}
+		if (open == 0)
+			return false;
 		total_open += open;
 	}
 	return count == 3 && gaps < 2 && total_open + gaps > 2;

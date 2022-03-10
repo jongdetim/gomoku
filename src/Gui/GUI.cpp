@@ -416,6 +416,9 @@ void		GUI::key_press(int key)
 			}
 			break;
 		}
+		case SDLK_ESCAPE:
+			this->set_action(quit);
+			break;
 	}
 }
 

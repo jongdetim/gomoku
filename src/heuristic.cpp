@@ -114,6 +114,7 @@ int heuristic::evaluate_patterns(Board &board, int player)
 
     score += heuristic::score_remaining_patterns(board, player);
     score -= 1.5 * heuristic::score_remaining_patterns(board, enemyplayer);
+    // PRINT(score);
     return score;
     // we need a good way to check opponent capture options eg. can they break our 5 in a row?
     // one approach is to keep track of half-open two's (XOO.), but this won't tell us if our FIVE can be broken, of if multiple captures with 1 move are possible

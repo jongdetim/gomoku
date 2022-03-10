@@ -134,11 +134,12 @@ private:
         TIMEOUT_REACHED = false;
         int best_move = -1;
         Timer timer;
-        timer.start();
         int last_best_move;
         int depth = 1;
         int max_depth = 100;
-        
+
+        timer.start();
+        TranspositionTable last_t_table;
         for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
         {
             
@@ -155,11 +156,12 @@ private:
                 PRINT("timeout reached during depth: " << depth << ".\nusing previous depth search results:");
                 board.place(best_move);
                 TableEntry tt_entry;
-                t_table.retrieve(board, tt_entry);
-                // PRINT("heuristic: " << tt_entry.value);
+                last_t_table.retrieve(board, tt_entry);
+                PRINT("heuristic: " << tt_entry.value);
                 return best_move;
             }
             best_move = last_best_move;
+            last_t_table = t_table;
         }
         return best_move;
     }
