@@ -4,7 +4,7 @@
 #include "gomoku.hpp"
 
 extern bool TIMEOUT_REACHED;
-const int TIMEOUT = 500;
+const int TIMEOUT = 5500;
 const int NARROWING[6] = {30, 30, 15, 15, 8, 8};
 
 class Board;

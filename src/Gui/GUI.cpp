@@ -101,6 +101,7 @@ bool		GUI::init(std::string title)
 	TTF_Init();
 
 	SDL_CreateWindowAndRenderer(this->screen_width, this->screen_height, SDL_WINDOW_SHOWN, &this->window, &this->renderer);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	if (window == NULL) {
         SDL_Log("Unable to create window: %s", SDL_GetError());
@@ -116,7 +117,6 @@ bool		GUI::init(std::string title)
 	this->title = Text(this->renderer, t_point {this->screen_height, (int)this->offset});
 	this->title.update("* GOMOKU *", this->fonts[title_font]);
 
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 	return true;
 }
 
