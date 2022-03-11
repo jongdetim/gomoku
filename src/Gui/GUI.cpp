@@ -567,6 +567,7 @@ void		GUI::reset_ai(void)
 {
 	for (int i = 0; i < 2; i++)
 		this->guiboard.players[i].ai = NULL;
+	this->ai_stats.stats = {0};	
 }
 
 void		GUI::set_ai(int player)
