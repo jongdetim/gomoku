@@ -56,6 +56,7 @@ class	NegamaxAi;
 enum e_fonts
 {
 	btn_font,
+	aistats_font,
 	stats_font,
 	stats_name_font,
 	status_font,
@@ -184,6 +185,7 @@ private:
 	void					undo_action(void);
 
 	/* Helper methods */
+	void					update_texts(void);
 	void					check_game_state(void);
 	bool					mouse_on_board(int row, int col) const;
 	int						calc_board_placement(int x, int y) const;

@@ -96,6 +96,7 @@ bool		GUI::init(std::string title)
 	TTF_Init();
 
 	SDL_CreateWindowAndRenderer(this->config.screen_width, this->config.screen_height, SDL_WINDOW_SHOWN, &this->window, &this->renderer);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 
 	if (window == NULL) {
         SDL_Log("Unable to create window: %s", SDL_GetError());
@@ -118,10 +119,6 @@ void		GUI::gameloop(void)
 {
     while (!this->check_action(quit))
     {
-		// if (this->check_action(pauze))
-		// 	PRINT("PAUZE");
-		// else
-		// 	PRINT("DEFAULT");
 
 		this->ticks = SDL_GetTicks();
 	
@@ -151,7 +148,6 @@ void		GUI::place_stone(void)
 		GUIBOARD.place(index);
 		this->check_game_state();
 
-		// this->debug();
 		this->log_game_state();
 	}
 }
@@ -166,10 +162,11 @@ void		GUI::init_game(void)
 
 	this->action = GUIBOARD.has_winner() ? pauze : def;
 	this->reset_ai();
+	this->ai_stats.stats = {0};
 	
 	this->clear_log();
 	this->log_game_state();
-	// this->debug();
+	
 }
 
 void		GUI::reset(void)
@@ -236,7 +233,8 @@ void		GUI::update_renderer(void)
 	this->draw_stones();
 	this->render_buttons();
 
-	this->status.update(this->get_status_update(), this->fonts[status_font]); // Find better place for this
+	this->update_texts();
+
 	this->status.render();
 	this->title.render();
 
@@ -317,10 +315,7 @@ void		GUI::render_buttons(void)
 }
 
 void		GUI::show_stats(void)
-{
-	this->player_stats[PLAYER1].update(this->guiboard.players[PLAYER1]);
-	this->player_stats[PLAYER2].update(this->guiboard.players[PLAYER2]);
-	
+{	
 	this->player_stats[PLAYER1].render();
 	this->player_stats[PLAYER2].render();
 
@@ -331,8 +326,7 @@ void		GUI::show_stats(void)
 		this->set_texture(texture, SDL_Rect{ pos.x , pos.y + this->config.size, (this->config.size>>1), (this->config.size>>1)});
 	}
 
-	this->ai_stats.render();
-
+	this->ai_stats.render(this->ai_stats.stats);
 }
 
 /* Init methods */
@@ -351,7 +345,9 @@ void		GUI::load_fonts(void)
 {
 	this->fonts[btn_font] = TTF_OpenFont(BTN_FONT, this->config.btn_size);
 
-	this->fonts[stats_font]= TTF_OpenFont(STATS_FONT, this->config.stats_size);
+	this->fonts[aistats_font] = TTF_OpenFont(STATS_FONT, this->config.stats_size * 1.4);
+
+	this->fonts[stats_font] = TTF_OpenFont(STATS_FONT, this->config.stats_size);
 	this->fonts[stats_name_font] = TTF_OpenFont(STATS_NAME_FONT, this->config.stats_size);
 	
 	this->fonts[status_font] = TTF_OpenFont(STATUS_FONT, this->config.status_size);
@@ -366,8 +362,8 @@ void		GUI::init_stats(void)
 	this->player_stats[PLAYER1].init();
 	this->player_stats[PLAYER2].init();
 
-	this->ai_stats = AiStats(this->renderer, SDL_Rect {this->config.screen_height, (this->config.size * 9) , (int)(this->config.interface_size - this->config.offset), this->config.size * 8}, this->fonts[stats_font]);
-	this->ai_stats.init();
+	this->ai_stats = AiStats(this->renderer, SDL_Rect {this->config.screen_height, (this->config.size * 10) , (int)(this->config.interface_size - this->config.offset), this->config.size * 6}, this->fonts[aistats_font]);
+	this->ai_stats.init((int)this->config.offset);
 }
 
 /* Button methods */
@@ -448,13 +444,23 @@ void		GUI::undo_action(void)
 	if (!GUIBOARD.has_winner())
 		this->unset_action(pauze);
 	this->unset_action(undo);
+	this->ai_stats.stats = {0};
+
 	this->update = true;
 
 	this->log_game_state();
-	// this->debug();
+	
 }
 
 /* Helper methods */
+
+void		GUI::update_texts(void)
+{
+	this->status.update(this->get_status_update(), this->fonts[status_font]);
+
+	this->player_stats[PLAYER1].update(this->guiboard.players[PLAYER1]);
+	this->player_stats[PLAYER2].update(this->guiboard.players[PLAYER2]);
+}
 
 bool		GUI::is_valid_move(int index)
 {
@@ -472,6 +478,7 @@ void		GUI::check_ai_clicked(void)
 		if (this->player_stats[i].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
 		{
 			this->set_ai(i);
+			this->ai_stats.stats = {0};
 			break;
 		}
 	}
@@ -533,6 +540,7 @@ int			GUI::get_index(void)
 		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board(), this->ai_stats.stats);
 	else
 		return get_player_input();
+
 }
 
 std::string	GUI::random_name(void)

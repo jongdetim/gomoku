@@ -11,15 +11,15 @@ renderer(renderer), pos(pos), font(font), name_font(name_font)
 void		PlayerStats::init(void)
 {
 	for (int i = 0; i < size_playertexts; i++)
-		this->texts.push_back(Text(this->renderer, t_point {this->pos.x, this->pos.y + (i * this->textH)}));
+		this->texts[i] = Text(this->renderer, t_point {this->pos.x, this->pos.y + (i * this->textH)});
 }
 
 void		PlayerStats::update(GuiPlayer &player)
 {
 	this->texts[name_text].update(player.name, this->name_font);
 	this->texts[empty_text].update("-", this->font);
-	this->texts[player_text].update((player.ai ? "computer " : "player       "), this->font);
-	this->texts[captures_text].update("captures   " + std::to_string(player.captures()), this->font);
+	this->texts[player_text].update((player.ai ? "computer" : "player "), this->font);
+	this->texts[captures_text].update("captures  " + std::to_string(player.captures()), this->font);
 }
 
 void		PlayerStats::render(void)

@@ -63,7 +63,7 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 	board.place(best_move);
 	TableEntry tt_entry;
 	last_t_table.retrieve(board, tt_entry);
-	set_aistats(aistats, depth, tt_entry.value, timer.elapsed_ms);
+	set_aistats(aistats, depth, -tt_entry.value, timer.elapsed_ms);
 	return best_move;
 }
 
@@ -113,6 +113,8 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	// check if timeout occured
 	if (timer.elapsedMilliseconds() >= TIMEOUT)
 		throw "time limit reached";
+
+	TOTAL_NODES += 1;
 
 	// (* Transposition Table Lookup; node is the lookup key for tt_entry *)
 	if (tt_lookup_is_valid(node, tt_entry, depth, t_table))
@@ -233,7 +235,6 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	// 	PRINT("PV move: " << pv.best_move);
 	// }
 
-	TOTAL_NODES += 1;
 	
 	best_move = child_nodes[0].get_last_move(); // ?
 

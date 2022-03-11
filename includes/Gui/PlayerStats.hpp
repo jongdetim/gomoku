@@ -31,7 +31,7 @@ public:
 	
 private:
 
-	std::vector<Text>	texts;
+	Text				texts[size_playertexts];
 	SDL_Renderer		*renderer;
 	t_point				pos;
 	TTF_Font			*font;
