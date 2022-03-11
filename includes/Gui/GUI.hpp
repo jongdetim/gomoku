@@ -3,16 +3,13 @@
 
 # include <SDL.h>
 # include <SDL_ttf.h>
-# include <sys/stat.h>
 # include "IGameEngine.hpp"
 # include "Board.hpp"
 # include "Button.hpp"
 # include "PlayerStats.hpp"
 # include "AiStats.hpp"
 # include "GuiBoard.hpp"
-
-# include <fstream>
-# include <iostream>
+#include <future>
 
 # define OFFSET 31
 # define SIZE 50
@@ -129,7 +126,8 @@ private:
 	SDL_Renderer			*renderer;
 
 	t_config				config;
-
+	std::future<int>		task;
+	
 	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];
 	PlayerStats				player_stats[2];
@@ -185,12 +183,13 @@ private:
 	void					undo_action(void);
 
 	/* Helper methods */
+	bool					ai_playing(void) const;
 	void					update_texts(void);
 	void					check_game_state(void);
 	bool					mouse_on_board(int row, int col) const;
 	int						calc_board_placement(int x, int y) const;
-	int						get_index(void);
 	int						get_player_input(void);
+	int						get_ai_input(void);
 	void					check_ai_clicked(void);
 	void					set_ai(int player);
 	void					reset_ai(void);

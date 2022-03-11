@@ -22,10 +22,10 @@ typedef struct	s_aistats
 class NegamaxAi
 {
 public:
-	int	calculate(Board &board, t_aistats &aistats);
+	int	calculate(Board board);//, t_aistats &aistats);
 
 private:
-    int iterative_deepening_negamax(Board board, int player, t_aistats &aistats);
+    int iterative_deepening_negamax(Board board, int player);//, t_aistats &aistats);
 };
 
 int		negamax(Board node, int depth, int initial_depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);

@@ -1,9 +1,14 @@
+#include <chrono>
+#include <thread>
 #include "GUI.hpp"
 #include <SDL_image.h>
 #include "misc.hpp"
 #include "heuristic.hpp"
 #include "algorithm.hpp"
 #include "Board.hpp"
+#include <fstream>
+#include <iostream>
+#include <sys/stat.h>
 
 GUI::GUI(NegamaxAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
 {
@@ -119,7 +124,6 @@ void		GUI::gameloop(void)
 {
     while (!this->check_action(quit))
     {
-
 		this->ticks = SDL_GetTicks();
 	
 		this->handle_events();
@@ -139,7 +143,12 @@ void		GUI::gameloop(void)
 
 void		GUI::place_stone(void)
 {
-	int index = this->get_index();
+	int index;
+
+	if (this->ai_playing())
+		index = this->get_ai_input();
+	else
+		index = get_player_input();
 
 	if (this->is_valid_move(index))
 	{
@@ -454,6 +463,25 @@ void		GUI::undo_action(void)
 
 /* Helper methods */
 
+int			GUI::get_ai_input(void)
+{
+	if (!this->task.valid())
+		this->task = std::async(std::launch::async, &NegamaxAi::calculate, this->guiboard.current_player().ai, this->guiboard.get_board());
+
+	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		// if (GUIBOARD.is_empty())
+		// {
+		// 	this->task.get();
+		// 	return misc::calc_index(9,9);
+		// }
+		return this->task.get();
+	}
+
+	return -1;
+}
+
+
 void		GUI::update_texts(void)
 {
 	this->status.update(this->get_status_update(), this->fonts[status_font]);
@@ -534,14 +562,7 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 	return texture;
 }
 
-int			GUI::get_index(void)
-{
-	if (this->guiboard.current_player().ai)
-		return this->guiboard.current_player().ai->calculate(this->guiboard.get_board(), this->ai_stats.stats);
-	else
-		return get_player_input();
-
-}
+bool		GUI::ai_playing(void) const { return this->guiboard.current_player().ai; }
 
 std::string	GUI::random_name(void)
 {
