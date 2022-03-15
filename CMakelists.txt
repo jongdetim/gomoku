@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.10.2)
-# set(CMAKE_VERBOSE_MAKEFILE ON)
+
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
 # Fix behavior of CMAKE_CXX_STANDARD when targeting macOS.
 # if (POLICY CMP0025)
 # cmake_policy(SET CMP0025 NEW)
@@ -16,7 +21,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-add_definitions("-g -Ofast") #-Wall -Werror -Wextra 
+add_definitions("-g -Ofast") #-Wall -Werror -Wextra -libstd=c++17
 
 file(GLOB_RECURSE gomoku_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(${PROJECT_NAME} ${gomoku_SOURCES})
