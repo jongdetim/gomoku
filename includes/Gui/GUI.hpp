@@ -184,7 +184,7 @@ private:
 	void					undo_action(void);
 
 	/* Helper methods */
-	bool					ai_playing(void) const;
+	bool					current_is_ai(void) const;
 	void					update_texts(void);
 	void					check_game_state(void);
 	bool					mouse_on_board(int row, int col) const;

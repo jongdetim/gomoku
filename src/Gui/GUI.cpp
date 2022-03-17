@@ -145,7 +145,7 @@ void		GUI::place_stone(void)
 {
 	int index;
 
-	if (this->ai_playing())
+	if (this->current_is_ai())
 		index = this->get_ai_input();
 	else
 		index = this->get_player_input();
@@ -423,7 +423,8 @@ void		GUI::check_buttons_clicked(void)
 		if (btn.is_active())
 		{
 			this->set_action(btn.get_action());
-			this->button_pressed = true;
+			if (this->current_is_ai())
+				this->button_pressed = true;
 			break;
 		}
 	}
@@ -509,6 +510,8 @@ void		GUI::check_ai_clicked(void)
 	{
 		if (this->player_stats[i].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
 		{
+			if (this->current_is_ai())
+				this->button_pressed = true;
 			this->set_ai(i);
 			this->ai_stats.stats = {0};
 			break;
@@ -566,7 +569,7 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 	return texture;
 }
 
-bool		GUI::ai_playing(void) const { return this->guiboard.current_player().ai; }
+bool		GUI::current_is_ai(void) const { return this->guiboard.current_player().ai; }
 
 std::string	GUI::random_name(void)
 {
