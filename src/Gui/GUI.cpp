@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sys/stat.h>
 
-GUI::GUI(NegamaxAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false)
+GUI::GUI(NegamaxAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false), button_pressed(false)
 {
 	int height;
 
@@ -148,7 +148,7 @@ void		GUI::place_stone(void)
 	if (this->ai_playing())
 		index = this->get_ai_input();
 	else
-		index = get_player_input();
+		index = this->get_player_input();
 
 	if (this->is_valid_move(index))
 	{
@@ -423,6 +423,7 @@ void		GUI::check_buttons_clicked(void)
 		if (btn.is_active())
 		{
 			this->set_action(btn.get_action());
+			this->button_pressed = true;
 			break;
 		}
 	}
@@ -470,15 +471,18 @@ int			GUI::get_ai_input(void)
 
 	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
-		// if (GUIBOARD.is_empty())
-		// {
-		// 	this->task.get();
-		// 	return misc::calc_index(9,9);
-		// }
-		return this->task.get();
+		if (this->button_pressed)
+			this->reset_task();
+		else
+			return this->task.get();
 	}
-
 	return -1;
+}
+
+void		GUI::reset_task(void)
+{
+	this->task.get();
+	this->button_pressed = false;
 }
 
 

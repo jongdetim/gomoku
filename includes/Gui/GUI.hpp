@@ -136,6 +136,7 @@ private:
 	Text					title;
 	Text					status;
 
+	bool					button_pressed;
 	bool					update;
 	int						action;
 	Uint32					ticks;
@@ -195,6 +196,7 @@ private:
 	void					reset_ai(void);
 	bool					is_valid_move(int index);
 	void					wait_fps(int fps) const;
+	void					reset_task(void);
 	GuiPlayer				get_winner(void);
 	std::string				random_name(void);
 	std::string				get_status_update(void);
