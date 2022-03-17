@@ -12,6 +12,7 @@ enum e_playerstats
 	empty_text,
 	player_text,
 	captures_text,
+	stones_text,
 	/* ----- */
 	size_playertexts
 };
@@ -25,7 +26,7 @@ public:
 	void				update(GuiPlayer &player);
 	void				render(void);
 	void				init(void);
-	t_point				get_position(e_playerstats index) const;
+	t_point				get_position(int index) const;
 	t_point				get_size(e_playerstats index) const;
 	bool				on_text(int x, int y, e_playerstats index) const;
 	

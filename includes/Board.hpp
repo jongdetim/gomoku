@@ -30,6 +30,7 @@ typedef struct					s_player
 	int							captures		= 0;
 	uint8_t						patterns[8]		= {0};
 	bool						wincondition	= false;
+	int							stones			= 0;
 }								t_player;
 
 class	Board

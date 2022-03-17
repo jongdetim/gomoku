@@ -330,7 +330,7 @@ void		GUI::show_stats(void)
 
 	for (int player = 0; player < 2; player++)
 	{
-		t_point pos = this->player_stats[player].get_position(captures_text);
+		t_point pos = this->player_stats[player].get_position(size_playertexts - 1);
 		SDL_Texture *texture = player == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
 		this->set_texture(texture, SDL_Rect{ pos.x , pos.y + this->config.size, (this->config.size>>1), (this->config.size>>1)});
 	}

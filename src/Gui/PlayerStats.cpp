@@ -20,6 +20,7 @@ void		PlayerStats::update(GuiPlayer &player)
 	this->texts[empty_text].update("-", this->font);
 	this->texts[player_text].update((player.ai ? "computer" : "player "), this->font);
 	this->texts[captures_text].update("captures  " + std::to_string(player.captures()), this->font);
+	this->texts[stones_text].update("stones  " + std::to_string(player.stones()), this->font);
 }
 
 void		PlayerStats::render(void)
@@ -29,7 +30,7 @@ void		PlayerStats::render(void)
 }
 
 
-t_point		PlayerStats::get_position(e_playerstats index) const { return this->texts[index].get_pos(); }
+t_point		PlayerStats::get_position(int index) const { return this->texts[index].get_pos(); }
 
 t_point		PlayerStats::get_size(e_playerstats index) const  { return this->texts[index].get_size(); }
 

@@ -117,6 +117,7 @@ bool					Board::place(int index, int player)
 
 	this->state[INDEX + player] = 1;
 	this->players[player].captures += check_captures(player, index);
+	this->players[player].stones++;
 	return true;
 }
 
@@ -173,10 +174,12 @@ void					Board::remove(int index)
 {
 	if (is_empty_place(index))
 		return ;
-	int pi = get_player(index);
+
+	int p = get_player(index);
 
 	this->filled_pos[index] = 0;
-	this->state[INDEX + pi] = 0;
+	this->state[INDEX + p] = 0;
+	this->players[p].stones--;
 }
 
 bool					Board::is_empty_place(int index) const
