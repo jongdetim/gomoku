@@ -11,16 +11,18 @@ int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
 bool TIMEOUT_REACHED = false;
 
-int			NegamaxAi::calculate(Board board)//, t_aistats &aistats)
+t_aistats	NegamaxAi::calculate(Board board)
 {
-	if (board.is_empty())
-		return misc::calc_index(9,9);
+	t_aistats stats = {0};
 
-	int move = this->iterative_deepening_negamax(board, board.get_current_player());//, aistats);
-	return move;
+	if (board.is_empty())
+		stats.move = misc::calc_index(9,9);
+	else
+		stats.move = this->iterative_deepening_negamax(board, board.get_current_player(), stats);
+	return stats;
 }
 
-int			NegamaxAi::iterative_deepening_negamax(Board board, int player)//, t_aistats &aistats)
+int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats &aistats)
 {
 	TOTAL_LEAVES = 0;
 	TOTAL_NODES = 0;
@@ -63,7 +65,7 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player)//, t_aista
 	board.place(best_move);
 	TableEntry tt_entry;
 	last_t_table.retrieve(board, tt_entry);
-	// set_aistats(aistats, depth, -tt_entry.value, timer.elapsed_ms);
+	set_aistats(aistats, depth, -tt_entry.value, timer.elapsed_ms);
 	return best_move;
 }
 

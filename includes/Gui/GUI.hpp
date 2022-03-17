@@ -126,7 +126,7 @@ private:
 	SDL_Renderer			*renderer;
 
 	t_config				config;
-	std::future<int>		task;
+	std::future<t_aistats>	task;
 	
 	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];

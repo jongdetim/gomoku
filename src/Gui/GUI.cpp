@@ -474,7 +474,7 @@ int			GUI::get_ai_input(void)
 		if (this->button_pressed)
 			this->reset_task();
 		else
-			return this->task.get();
+			return (this->ai_stats.stats = this->task.get()).move;
 	}
 	return -1;
 }
