@@ -649,6 +649,8 @@ std::string GUI::get_board_path(int id) const { return this->replay_settings.dir
 
 void		GUI::clear_log(void)
 {
+	if (this->replay_mode)
+		return;
 	system("rm -rf log/");
 	this->create_log_dir();
 }
@@ -659,6 +661,9 @@ void		GUI::log_game_state(void)
 {
     std::ofstream log;
 	static int id = 1;
+
+	if (this->replay_mode)
+		return;
 
     log = std::ofstream("log/log.txt", std::ios::app);
 
