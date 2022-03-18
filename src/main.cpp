@@ -174,11 +174,20 @@ void    test()
     //     // ooooo.o.o. -> 000.0.0. would be solved by using 16 bits. what would be the performance impact?
     //     // board = create_random_board(1);
 }
-    
 
+void init_zobrist_map()
+{
+    std::random_device rd;
+    std::mt19937_64 gen(rd()); //Using the 64-bit Mersenne Twister 19937 generator
+    std::uniform_int_distribution<unsigned long long> distrib;
+
+    for (int i = 0; i < MASKSIZE; i++)
+		Board::zobrist_map[i] = distrib(gen);
+}
 
 int                     main(int argc, char **argv)
 {
+    init_zobrist_map();
     // po::options_description options = argument_parser::get_options();
     // po::variables_map vm = argument_parser::get_args(argc, argv, options);
 

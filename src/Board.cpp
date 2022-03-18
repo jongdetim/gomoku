@@ -6,6 +6,8 @@
 #include "TranspositionTable.hpp"
 #include <fstream>
 
+uint64_t			Board::zobrist_map[MASKSIZE];
+
 Board::Board(void) :
 h(0),
 state(0),
@@ -27,7 +29,9 @@ Board::Board(const Board &rhs)
 	this->current_player = rhs.current_player;
 	this->last_move = rhs.last_move;
 	this->last_move_was_capture = rhs.last_move_was_capture;
+	this->zobrist_hash = rhs.zobrist_hash;
 }
+
 
 Board::~Board() {}
 
@@ -42,6 +46,7 @@ void					Board::reset(void)
 	this->players[PLAYER1] = t_player{};
 	this->players[PLAYER2] = t_player{};
 	this->last_move_was_capture = false;
+	this->zobrist_hash = 0;
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -114,6 +119,7 @@ bool					Board::place(int index, int player)
 	
 	this->filled_pos[index] = 1;
 	this->last_move = this->players[player].last_move = index;
+	this->update_hash(index, player);
 
 	this->state[INDEX + player] = 1;
 	this->players[player].captures += check_captures(player, index);
@@ -148,6 +154,11 @@ bool					Board::is_valid_move(int index) const
 	return (index >= 0 && index < BOARDSIZE && is_empty_place(index));
 }
 
+void					Board::update_hash(int index, int player)
+{
+	this->zobrist_hash ^= zobrist_map[INDEX + player];
+}
+
 std::vector<Board>		Board::generate_children(int player) const
 {
 	Board board_copy;
@@ -177,6 +188,7 @@ void					Board::remove(int index)
 
 	this->filled_pos[index] = 0;
 	this->state[INDEX + pi] = 0;
+	update_hash(index, pi);
 }
 
 bool					Board::is_empty_place(int index) const
@@ -272,6 +284,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 				}
 			}
 		}
+		// PRINT(node.zobrist_hash);
 		std::cout << "heuristic value is: " << h << std::endl;
 		best_move = tt_entry.best_move;
 		player = 1 - player;
@@ -502,6 +515,7 @@ Board					&Board::operator=(Board const &rhs)
 	this->current_player = rhs.current_player;
 	this->last_move = rhs.last_move;
 	this->last_move_was_capture = rhs.last_move_was_capture;
+	this->zobrist_hash = rhs.zobrist_hash;
 
 	return *this;
 }

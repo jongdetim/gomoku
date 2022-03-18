@@ -1,7 +1,6 @@
 # include "Board.hpp"
 # include "TranspositionTable.hpp"
 
-
 bool		TranspositionTable::retrieve(Board &node, TableEntry &tt_entry)
 {
 	std::unordered_map<Board, TableEntry, MyHashFunction>::iterator get;
@@ -41,7 +40,8 @@ size_t		TranspositionTable::size()
 
 size_t MyHashFunction::operator()(const Board &Key) const
 {
-	return default_hash(Key.get_state());
+	// return default_hash(Key.get_state());
+	return Key.zobrist_hash;
 }
 
 uint64_t MyHashFunction::hash(BITBOARD board) const
@@ -119,7 +119,7 @@ uint64_t MyHashFunction::default_hash(BITBOARD board) const
     return dhash(board);
 }
 
-uint64_t MyHashFunction::dumb_hash(BITBOARD board) const
-{
-    return 0;
-}
+// uint64_t MyHashFunction::zobrist_hash(BITBOARD board) const
+// {
+//     return 0;
+// }

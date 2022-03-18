@@ -193,6 +193,8 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	int counter = 0;
 	for (Board child : child_nodes)
 	{
+		// child.show_last_move();
+		// PRINT(child.zobrist_hash);
 		// if (counter >= branch_narrowing(initial_depth - depth))
 		// 	break;
 		int old_value = value;

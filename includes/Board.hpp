@@ -101,6 +101,10 @@ public:
 	bool					operator==(int const rhs) const;
 	bool					operator!=(int const rhs) const;
 
+	void					update_hash(int index, int player);
+	static uint64_t			zobrist_map[MASKSIZE];
+	uint64_t				zobrist_hash;
+
 private:
 	BITBOARD				state;
 	int						current_player = 0;
