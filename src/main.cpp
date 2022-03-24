@@ -207,7 +207,7 @@ int                     main(int argc, char **argv)
     }
     else
         gui.play(Board());
-        
+    
     // test();
     return 0;
 }

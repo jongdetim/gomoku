@@ -132,7 +132,6 @@ void		GUI::gameloop(void)
 			this->place_stone();
 
 		this->check_buttons();
-		this->check_text_hover();
 		this->check_ai_clicked();
 
 		if (this->update)
@@ -479,6 +478,27 @@ void		GUI::check_text_hover(void)
 	}
 }
 
+void		GUI::check_ai_clicked(void)
+{
+	this->check_text_hover();
+
+	if (!this->mouse.clicked)
+		return;
+	
+	for (int player = 0; player < 2; player++)
+	{
+		if (this->player_stats[player].is_active(player_text))
+		{
+			if (player == GUIBOARD.get_current_player() && this->current_is_ai())
+				this->button_pressed = true;
+			this->set_ai(player);
+			this->ai_stats.stats = {0};
+			this->update = true;
+			break;
+		}
+	}
+}
+
 int			GUI::get_ai_input(void)
 {
 	if (!this->task.valid())
@@ -505,24 +525,6 @@ bool		GUI::is_valid_move(int index)
 	int player = GUIBOARD.get_current_player();
 	GUIBOARD.last_move_was_capture = GUIBOARD.is_capture(player, index);
 	return (GUIBOARD.is_valid_move(index) && !GUIBOARD.is_free_threes(index, player));
-}
-
-void		GUI::check_ai_clicked(void)
-{
-	if (!this->mouse.clicked)
-		return;
-	for (int i = 0; i < 2; i++)
-	{
-		if (this->player_stats[i].is_active(player_text))
-		{
-			if (this->current_is_ai())
-				this->button_pressed = true;
-			this->set_ai(i);
-			this->ai_stats.stats = {0};
-			this->update = true;
-			break;
-		}
-	}
 }
 
 int			GUI::get_player_input(void)
