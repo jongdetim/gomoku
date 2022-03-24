@@ -631,7 +631,7 @@ void		GUI::set_replay_settings(std::string board_data_path)
 	this->replay_settings.dir = board_data_path.substr(0, index);
 	file_name = board_data_path.substr(index, board_data_path.length());
 	if (!isdigit(file_name[0]))
-		throw "incorrect file name id";
+		throw "--replay: incorrect file name.";
 	this->replay_settings.current_id = this->replay_settings.starting_id = atoi(file_name.c_str());
 }
 

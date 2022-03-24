@@ -184,34 +184,30 @@ void init_zobrist_map()
 int                     main(int argc, char **argv)
 {
     NegamaxAi nai;
+    argparse::ArgumentParser program("Gomoku");
 
-    po::options_description options = argument_parser::get_options();
-    po::variables_map vm = argument_parser::get_args(argc, argv, options);
-    
-    if (vm.count("help"))
-    {
-        std::cout << options << '\n';
-        exit(0);
-    }
+    argument_parser::set_options(program);
+    argument_parser::parse_args(program, argc, argv);
 
     init_zobrist_map();
-    
-    GUI gui = argument_parser::get_gui(vm, nai);
-    
-    if (vm.count("replay"))
+
+    GUI gui = argument_parser::get_gui(program, nai);    
+    if (program.is_used("--replay"))
     {
         try
         {
-            gui.replay(argument_parser::get_file(vm));
+            gui.replay(program.get<std::string>("--replay"));
         }
         catch(const char *e)
         {
-            std::cerr << e << '\n';
-            exit(1);
+            std::cerr << e << std::endl;;
+            std::cerr << program;
+            std::exit(1);
         }
     }
     else
         gui.play(Board());
+        
     // test();
     return 0;
 }

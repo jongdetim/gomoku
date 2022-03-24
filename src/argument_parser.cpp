@@ -1,62 +1,51 @@
 #include "argument_parser.hpp"
 
-po::options_description argument_parser::get_options(void)
+void                    argument_parser::set_options(argparse::ArgumentParser &program)
 {
-    po::options_description options{"Options"};
-    options.add_options()
-    ("help,h", "")
-    ("size,s", po::value<std::string>()->default_value("big"), "GUI size [ big | medium | small ]")
-    ("replay,r", po::value<std::string>(), "Replay game from file [ <id>.board.data ]");
-    return options;
+    program.add_argument("--size", "-s")
+    .default_value("big")
+    .required()
+    .help("GUI size (big|medium|small)");
+
+    program.add_argument("--replay", "-r")
+    .help("Replay game from file [filename format: (id).board.data]");
 }
 
-po::variables_map       argument_parser::get_args(int argc, char **argv, po::options_description &options)
-{
-    po::variables_map vm;
-    try
-    {
-        po::store(po::parse_command_line(argc, argv, options), vm);
-        po::notify(vm);
-    }
-    catch (const po::error &e)
-    {
-        std::cerr << e.what() << '\n';
-        exit(1);
-    }
-    return vm;
-}
-
-std::string             argument_parser::get_file(po::variables_map &vm)
+void					argument_parser::parse_args(argparse::ArgumentParser &program, int argc, char **argv)
 {
     try
     {
-        return vm["replay"].as<std::string>();
+        program.parse_args(argc, argv);
+        
+        if (program.is_used("--size"))
+        {
+            auto size = program.get<std::string>("--size");
+            if (size != "small" || size != "medium" || size != "big")
+                throw "--size: no acceptable value provided.";
+        }
+    }
+    catch (const std::runtime_error& err)
+    {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        std::exit(1);
     }
     catch (char const* &str)
     {
         std::cerr << str << '\n';
+        std::cerr << program;
         exit(1);
     }
 }
 
-GUI                     argument_parser::get_gui(po::variables_map &vm, NegamaxAi &ai)
+GUI                     argument_parser::get_gui(argparse::ArgumentParser &program, NegamaxAi &ai)
 {
     std::string size;
     
-    try
+    if (program.is_used("--size"))
     {
-        if (vm.count("size"))
-        {
-            size = vm["size"].as<std::string>();
-            if (!(size == "small" || size == "medium" || size == "big"))
-                throw po::validation_error(po::validation_error::invalid_option_value, "size");
-            return (size == "small") ? GUI(&ai, small) : (size == "medium") ? GUI(&ai, medium) : GUI(&ai, big);
-        }
-    }
-    catch (const po::error &e)
-    {
-        std::cerr << e.what() << '\n';
-        exit(1);
+        auto size = program.get<std::string>("--size");
+        return (size == "small") ? GUI(&ai, small) : (size == "medium") ? GUI(&ai, medium) : GUI(&ai, big);
     }
     return GUI(&ai);
 }
