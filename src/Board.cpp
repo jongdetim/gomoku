@@ -6,6 +6,8 @@
 #include "TranspositionTable.hpp"
 #include <fstream>
 
+uint64_t			Board::zobrist_map[MASKSIZE];
+
 Board::Board(void) :
 h(0),
 state(0),
@@ -27,7 +29,9 @@ Board::Board(const Board &rhs)
 	this->current_player = rhs.current_player;
 	this->last_move = rhs.last_move;
 	this->last_move_was_capture = rhs.last_move_was_capture;
+	this->zobrist_hash = rhs.zobrist_hash;
 }
+
 
 Board::~Board() {}
 
@@ -42,6 +46,7 @@ void					Board::reset(void)
 	this->players[PLAYER1] = t_player{};
 	this->players[PLAYER2] = t_player{};
 	this->last_move_was_capture = false;
+	this->zobrist_hash = 0;
 }
 
 BITBOARD				Board::get_state(void) const { return this->state; }
@@ -114,6 +119,7 @@ bool					Board::place(int index, int player)
 	
 	this->filled_pos[index] = 1;
 	this->last_move = this->players[player].last_move = index;
+	this->update_hash(index, player);
 
 	this->state[INDEX + player] = 1;
 	this->players[player].captures += check_captures(player, index);
@@ -149,6 +155,11 @@ bool					Board::is_valid_move(int index) const
 	return (index >= 0 && index < BOARDSIZE && is_empty_place(index));
 }
 
+void					Board::update_hash(int index, int player)
+{
+	this->zobrist_hash ^= zobrist_map[INDEX + player];
+}
+
 std::vector<Board>		Board::generate_children(int player) const
 {
 	Board board_copy;
@@ -180,6 +191,7 @@ void					Board::remove(int index)
 	this->filled_pos[index] = 0;
 	this->state[INDEX + p] = 0;
 	this->players[p].stones--;
+	update_hash(index, p);
 }
 
 bool					Board::is_empty_place(int index) const
@@ -275,6 +287,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 				}
 			}
 		}
+		// PRINT(node.zobrist_hash);
 		std::cout << "heuristic value is: " << h << std::endl;
 		best_move = tt_entry.best_move;
 		player = 1 - player;
@@ -470,12 +483,10 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 		for (int i = 0; i < 4; i++)
 		{
 			pos += shift;
-			if (misc::is_offside(pos - shift, pos))
+			if (misc::is_offside(pos - shift, pos) || get_player(pos) == get_next_player(player))
 				break;
-			if (get_player(pos) == player)
+			else if (get_player(pos) == player)
 				count++;
-			else if (get_player(pos) == get_next_player(player))
-				break;
 			else if (open == 0 && !(misc::is_offside(pos, pos + shift)) && get_player(pos + shift) == player)
 				gaps++;
 			else
@@ -485,6 +496,8 @@ bool					Board::free_threes_direction(int move, int direction, int player) const
 					break;
 			}
 		}
+		if (open == 0)
+			return false;
 		total_open += open;
 	}
 	return count == 3 && gaps < 2 && total_open + gaps > 2;
@@ -503,6 +516,7 @@ Board					&Board::operator=(Board const &rhs)
 	this->current_player = rhs.current_player;
 	this->last_move = rhs.last_move;
 	this->last_move_was_capture = rhs.last_move_was_capture;
+	this->zobrist_hash = rhs.zobrist_hash;
 
 	return *this;
 }

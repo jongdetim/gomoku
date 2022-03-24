@@ -104,6 +104,8 @@ int			branch_narrowing(int depth)
 		return NARROWING[depth];
 }
 
+bool PV_TABLE;
+
 int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
 {
 	TableEntry tt_entry;
@@ -112,6 +114,8 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	bool is_finished;
 	int best_move = -1;
 
+	if (initial_call)
+		PV_TABLE = true;
 	// check if timeout occured
 	if (timer.elapsedMilliseconds() >= TIMEOUT)
 		throw "time limit reached";
@@ -151,16 +155,17 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		TOTAL_LEAVES += 1;
 		// node.print();
 
+		PV_TABLE = false;
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
 		if (is_finished)
 		{
 			if (node.winner == player)
-				value = WINNING_POINTS[0] + depth;
+				value = WINNING_POINTS[0] - (initial_depth - depth);
 			else if (node.winner == 1 - player)
-				value = -(WINNING_POINTS[0] + depth);
+				value = -(WINNING_POINTS[0] - (initial_depth - depth));
 			else
-				value = 0;
+				value = 0; //board is full
 		}
 		else
 			value = -heuristic::get_heuristic_total(node, 1 - player);
@@ -188,14 +193,16 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 
 	TableEntry pv;
 	bool node_seen_before = false;
-	if (t_table.retrieve(node, pv) && pv.flag == EXACT)
+	if (PV_TABLE && t_table.retrieve(node, pv) && pv.flag == EXACT)
 		node_seen_before = true;
 
-	// PV goes to the front of the queue
-	auto comp = [node_seen_before, pv](Board &a, Board &b)-> bool
+	// PV goes to the front of the queue. Using PV search, the performance is WORSE! the best line of previous depth is not the first we want to explore APPARENTLY
+	auto comp = [&node_seen_before, &pv](Board &a, Board &b)-> bool
 	{
-		if (node_seen_before && a.get_last_move() == pv.best_move)
-			return true;
+		// if (a.get_last_move() == b.get_last_move())
+		// 	return false;
+		// if (node_seen_before && a.get_last_move() == pv.best_move)
+		// 	return true;
 		return a.h > b.h;
 	};
 
@@ -217,34 +224,42 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 
 			    child.h = heuristic::get_heuristic_total(child, player);
 			    // child.h = -color * node.calc_heuristic(child);
-				ht_entry.value = child.h;
-				ht_entry.depth = depth - 1;
-				h_table.insert(child, ht_entry);
+				// ht_entry.value = child.h;
+				// ht_entry.depth = depth - 1;
+				// h_table.insert(child, ht_entry);
 			}
+			// if (node_seen_before && child.get_last_move() == pv.best_move)
+			// {
+			// 	PRINT(depth << "PV FOUND");
+			// 	child.show_last_move();
+			// }
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
 
+		// if (node_seen_before && child_nodes[0].get_last_move() == pv.best_move)
+		// 	PRINT(depth << "pv node :DDD");
 		// std::cout << child_nodes[0].h << std::endl;
 		// std::cout << (child_nodes.end() -1)->h << std::endl;
 		// for (auto &it : child_nodes)
 		// 	std::cout << it.get_last_move() << std::endl;
 		// exit(1);
 	}
-
+	// PRINT("curent depth:" << depth);
 	// if (t_table.retrieve(node, pv) && pv.flag == EXACT)
 	// {
 	// 	PRINT("depth: " << depth << "\nbest move: " << child_nodes[0].get_last_move());
 	// 	PRINT("PV move: " << pv.best_move);
 	// }
-
 	
 	best_move = child_nodes[0].get_last_move(); // ?
 
 	int counter = 0;
 	for (Board child : child_nodes)
 	{
-		if (counter >= branch_narrowing(initial_depth - depth))
-			break;
+		// child.show_last_move();
+		// PRINT(child.zobrist_hash);
+		// if (counter >= branch_narrowing(initial_depth - depth))
+		// 	break;
 		int old_value = value;
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
@@ -295,7 +310,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		// std::cout << value << std::endl;
 		// node.print();
 		// std::cout << h_entry.value << std::endl;
-	    // h_table.update(node, tt_entry);
+	    h_table.update(node, tt_entry);
 		// h_table.lookup(node, h_entry);
 		// std::cout << "new value: " << h_entry.value << std::endl;
 	}
@@ -303,8 +318,8 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	{
 		// PRINT("this actually ever occurs");
 		// node.show_last_move();
-		// h_entry.value = value;
-		// h_table.insert(node, tt_entry);
+		h_entry.value = value;
+		h_table.insert(node, tt_entry);
 	}
 
 	if (initial_call)

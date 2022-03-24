@@ -15,7 +15,7 @@ public:
     size_t hash32(BITBOARD board) const;
     uint64_t hash_diff(BITBOARD board) const;
     uint64_t default_hash(BITBOARD board) const;
-    uint64_t dumb_hash(BITBOARD board) const;
+    // uint64_t zobrist_hash(BITBOARD board) const;
     size_t operator()(const Board &Key) const;
 };
 
