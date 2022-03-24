@@ -3,6 +3,7 @@
 
 // #include "Board.hpp"
 #include "gomoku.hpp"
+#include "algorithm.hpp"
 
 class Board;
 
@@ -22,11 +23,9 @@ public:
 class TableEntry
 {
 public:
-    int value;
-    int depth;
-    int flag;
-    bool game_finished;
-    int best_move;
+    int                 depth;
+    int                 flag;
+    t_search_results    results;
 };
 
 class TranspositionTable

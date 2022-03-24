@@ -1,21 +1,22 @@
 #include "Board.hpp"
 #include "argument_parser.hpp"
-
 #include "misc.hpp"
 #include "TranspositionTable.hpp"
 
 void    iterative_deepening_negamax(Board &board, int player)
 {
     TIMEOUT_REACHED = false;
-    int best_move = -1;
     Timer timer;
-    timer.start();
-    int last_best_move;
     int depth = 1;
     int max_depth = 7;
 
+    t_search_results results;
+	t_search_results last_results;
     TranspositionTable h_table;
     TranspositionTable t_table;
+
+    timer.start();
+
     for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
     {
         
@@ -23,23 +24,22 @@ void    iterative_deepening_negamax(Board &board, int player)
         // TranspositionTable t_table;
         try
         {
-            last_best_move = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+            last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
         }
         catch(const char* e)
         {
             TIMEOUT_REACHED = true;
             PRINT("timeout reached during depth: " << depth << ".\nusing previous depth search results:");
             depth -= 1;
-            PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
+            PRINT("best move: " << misc::get_col(results.best_move) << ", " << misc::get_row(results.best_move) << " at depth: " << depth);
             misc::print_stats();
             return;
         }
-        best_move = last_best_move;
-        PRINT("best move: " << misc::get_col(best_move) << ", " << misc::get_row(best_move) << " at depth: " << depth);
-        // PRINT(last_best_move);
+        results = last_results;
+        PRINT("best move: " << misc::get_col(results.best_move) << ", " << misc::get_row(results.best_move) << " at depth: " << depth);
 
         Board node = board;
-        node.place(best_move, player);
+        node.place(results.best_move, player);
         node.show_last_move();
         // PRINCIPAL VARIATION RETRIEVAL:
         board.print_principal_variation(player, depth, t_table);
@@ -48,8 +48,10 @@ void    iterative_deepening_negamax(Board &board, int player)
         TableEntry tt_entry;
         t_table.retrieve(board, tt_entry);
         PRINT(tt_entry.depth);
-        PRINT(tt_entry.best_move);
-        
+        PRINT(tt_entry.results.best_move);
+
+        if (results.is_finished)
+            break;
     }    
 }
 

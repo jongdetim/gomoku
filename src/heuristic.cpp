@@ -77,7 +77,7 @@ int heuristic::score_remaining_patterns(Board const &board, int player)
         score += board.players[player].patterns[i] * REMAINING_SCORES[i];
     if (board.players[player].captures)
         score += pow(SCALING_CAPTURE_SCORE, board.players[player].captures) + CONSTANT_CAPTURE_SCORE;
-    score += (board.players[player].stones * 10);
+    // score += (board.players[player].stones * 10);
     return score;
 }
 
