@@ -296,22 +296,21 @@ void		GUI::highlight_last_move(int row, int col)
 
 void		GUI::draw_stones(void)
 {
-	SDL_Texture *texture;
-	int row, col, index;
+	int row, col;
 
-	for (index = 0; index < GUIBOARD.filled_pos.size(); index++)
+	for (int index = 0; index < GUIBOARD.filled_pos.size(); index++)
 	{
-		if (GUIBOARD.is_empty_place(index))
-			continue;
-
-		texture = GUIBOARD.get_player(index) == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
 		row = (misc::get_row(index) * this->config.size) + this->config.offset - (this->config.size >> 1);
 		col = (misc::get_col(index) * this->config.size) + this->config.offset - (this->config.size >> 1);
-
-		this->set_texture(texture, SDL_Rect{col, row, this->config.size, this->config.size});
-		if (index == GUIBOARD.get_last_move())
-			this->highlight_last_move(row, col);
-
+	
+		if (!GUIBOARD.is_empty_place(index))
+		{
+			this->set_texture(GUIBOARD.get_player(index) == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex], SDL_Rect{col, row, this->config.size, this->config.size});
+			if (index == GUIBOARD.get_last_move())
+				this->highlight_last_move(row, col);
+		}
+		else if (GUIBOARD.is_free_threes(index, GUIBOARD.get_current_player()))
+			this->set_texture(this->textures[cross_tex], SDL_Rect{col, row, this->config.size, this->config.size});
 	}
 	if (GUIBOARD.has_winner() && this->get_winner().wincondition())
 		this->highlight_5inarow();
@@ -348,6 +347,7 @@ void		GUI::load_textures(void)
     this->textures[p1_select_tex] = this->load_texture(P1_SELECT);
     this->textures[p2_select_tex] = this->load_texture(P2_SELECT);
     this->textures[winning_tex] = this->load_texture(WIN_SELECT);
+    this->textures[cross_tex] = this->load_texture(RED_CROSS);
 }
 
 void		GUI::load_fonts(void)

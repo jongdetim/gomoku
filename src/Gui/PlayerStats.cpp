@@ -20,7 +20,6 @@ void		PlayerStats::update(GuiPlayer &player)
 	this->texts[empty_text].update("-", this->font);
 	this->texts[player_text].update((player.ai ? "computer" : "player "), this->font);
 	this->texts[captures_text].update("captures  " + std::to_string(player.captures()), this->font);
-	this->texts[stones_text].update("stones  " + std::to_string(player.stones()), this->font);
 }
 
 void		PlayerStats::render(void)

@@ -30,7 +30,6 @@ typedef struct					s_player
 	int							captures		= 0;
 	uint8_t						patterns[8]		= {0};
 	bool						wincondition	= false;
-	int							stones			= 0;
 }								t_player;
 
 class	Board
@@ -63,7 +62,6 @@ public:
 	std::vector<Board>		generate_children(int player) const;
 
 	int						check_captures(int player, int index);
-	bool					is_free_threes(int move, int player) const;
 	int						check_wincondition_all_dir(int index, int player) const;
 	bool					is_capture(int player, int index) const;
 
@@ -84,6 +82,7 @@ public:
 	int						get_last_player(void) const;
 	int						get_current_player(void) const;
 
+	bool					is_free_threes(int move, int player) const;
 	bool					is_player_on_index(int index, int player) const;
 	bool					is_empty_place(int index) const;
 	bool					is_valid_move(int index) const;

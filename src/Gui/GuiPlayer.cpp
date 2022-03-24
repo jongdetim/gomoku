@@ -24,6 +24,4 @@ int							GuiPlayer::last_move(void) const { return this->player->last_move; }
 
 int							GuiPlayer::captures(void) const { return this->player->captures; }
 
-int							GuiPlayer::stones(void) const { return this->player->stones; }
-
 bool						GuiPlayer::wincondition(void) const { return this->player->wincondition; }

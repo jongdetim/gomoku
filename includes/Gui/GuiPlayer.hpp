@@ -20,7 +20,6 @@ public:
 	bool						wincondition(void) const;
 	int							captures(void) const;
 	int							last_move(void) const;
-	int							stones(void) const;
 	void						reset(void);
 
 private:

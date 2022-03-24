@@ -38,11 +38,12 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 	
 	timer.start();
 
+	TranspositionTable h_table;
+	TranspositionTable t_table;
+	
 	for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
 	{
 		
-		TranspositionTable h_table;
-		TranspositionTable t_table;
 		try
 		{
 			last_best_move = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);

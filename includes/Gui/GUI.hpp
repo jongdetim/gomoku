@@ -32,6 +32,7 @@
 # define P1_SELECT "resources/textures/select_black.png"
 # define P2_SELECT "resources/textures/select_white.png"
 # define WIN_SELECT "resources/textures/red_circle.png"
+# define RED_CROSS "resources/textures/red_cross.png"
 
 # define SANS_FONT "resources/fonts/OpenSans/Regular.ttf"
 # define SANS_FONT_BOLD "resources/fonts/OpenSans/Bold.ttf"
@@ -70,6 +71,7 @@ enum e_textures
 	p1_select_tex,
 	p2_select_tex,
 	winning_tex,
+	cross_tex,
 	/* ----- */
 	size_tex
 };

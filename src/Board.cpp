@@ -123,7 +123,6 @@ bool					Board::place(int index, int player)
 
 	this->state[INDEX + player] = 1;
 	this->players[player].captures += check_captures(player, index);
-	this->players[player].stones++;
 	return true;
 }
 
@@ -190,7 +189,6 @@ void					Board::remove(int index)
 
 	this->filled_pos[index] = 0;
 	this->state[INDEX + p] = 0;
-	this->players[p].stones--;
 	update_hash(index, p);
 }
 

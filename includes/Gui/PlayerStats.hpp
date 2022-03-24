@@ -12,7 +12,6 @@ enum e_playerstats
 	empty_text,
 	player_text,
 	captures_text,
-	stones_text,
 	/* ----- */
 	size_playertexts
 };
