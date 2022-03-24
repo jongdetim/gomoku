@@ -35,12 +35,14 @@
 # define RED_CROSS "resources/textures/red_cross.png"
 
 # define SANS_FONT "resources/fonts/OpenSans/Regular.ttf"
+# define SANS_FONT_SEMI "resources/fonts/OpenSans/SemiBold.ttf"
 # define SANS_FONT_BOLD "resources/fonts/OpenSans/Bold.ttf"
 # define ALLER_FONT "resources/fonts/Aller/Regular.ttf"
 # define POPPINS_FONT_BOLD "resources/fonts/Poppins/Bold.otf"
 
 # define BTN_FONT ALLER_FONT
 # define STATS_FONT SANS_FONT
+# define STATS_FONT_SELECT SANS_FONT_SEMI
 # define STATS_NAME_FONT SANS_FONT_BOLD
 # define STATUS_FONT POPPINS_FONT_BOLD
 # define TITLE_FONT "resources/fonts/Title.ttf"
@@ -56,6 +58,7 @@ enum e_fonts
 	btn_font,
 	aistats_font,
 	stats_font,
+	stats_select_font,
 	stats_name_font,
 	status_font,
 	title_font,
@@ -186,8 +189,8 @@ private:
 	void					undo_action(void);
 
 	/* Helper methods */
+	void					check_text_hover(void);
 	bool					current_is_ai(void) const;
-	void					update_texts(void);
 	void					check_game_state(void);
 	bool					mouse_on_board(int row, int col) const;
 	int						calc_board_placement(int x, int y) const;

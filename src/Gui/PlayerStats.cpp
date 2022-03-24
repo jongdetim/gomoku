@@ -14,6 +14,11 @@ void		PlayerStats::init(void)
 		this->texts[i] = Text(this->renderer, t_point {this->pos.x, this->pos.y + (i * this->textH)});
 }
 
+void		PlayerStats::update_font(int index, TTF_Font *font)
+{
+	this->texts[index].update(this->texts[index].text, font);
+}
+
 void		PlayerStats::update(GuiPlayer &player)
 {
 	this->texts[name_text].update(player.name, this->name_font);
@@ -33,4 +38,6 @@ t_point		PlayerStats::get_position(int index) const { return this->texts[index].
 
 t_point		PlayerStats::get_size(e_playerstats index) const  { return this->texts[index].get_size(); }
 
-bool		PlayerStats::on_text(int x, int y, e_playerstats index) const { return this->texts[index].on_text(x, y); }
+bool		PlayerStats::on_text(int x, int y, e_playerstats index) { return this->texts[index].on_text(x, y); }
+
+bool		PlayerStats::is_active(e_playerstats index) const { return this->texts[index].is_active(); }

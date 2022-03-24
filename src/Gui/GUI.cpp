@@ -132,6 +132,7 @@ void		GUI::gameloop(void)
 			this->place_stone();
 
 		this->check_buttons();
+		this->check_text_hover();
 		this->check_ai_clicked();
 
 		if (this->update)
@@ -242,11 +243,6 @@ void		GUI::update_renderer(void)
 	this->draw_stones();
 	this->render_buttons();
 
-	this->update_texts();
-
-	this->status.render();
-	this->title.render();
-
 	this->show_stats();
 
 	SDL_RenderPresent(this->renderer);
@@ -323,17 +319,25 @@ void		GUI::render_buttons(void)
 }
 
 void		GUI::show_stats(void)
-{	
-	this->player_stats[PLAYER1].render();
-	this->player_stats[PLAYER2].render();
+{
+	this->status.update(this->get_status_update(), this->fonts[status_font]);
 
 	for (int player = 0; player < 2; player++)
 	{
+		this->player_stats[player].update(this->guiboard.players[player]);
+
+		if (this->player_stats[player].is_active(player_text))
+			this->player_stats[player].update_font(player_text, this->fonts[stats_select_font]);
+
+		this->player_stats[player].render();
+
 		t_point pos = this->player_stats[player].get_position(size_playertexts - 1);
 		SDL_Texture *texture = player == PLAYER1 ? this->textures[p1_tex] : this->textures[p2_tex];
 		this->set_texture(texture, SDL_Rect{ pos.x , pos.y + this->config.size, (this->config.size>>1), (this->config.size>>1)});
 	}
 
+	this->status.render();
+	this->title.render();
 	this->ai_stats.render(this->ai_stats.stats);
 }
 
@@ -357,6 +361,7 @@ void		GUI::load_fonts(void)
 	this->fonts[aistats_font] = TTF_OpenFont(STATS_FONT, this->config.stats_size * 1.4);
 
 	this->fonts[stats_font] = TTF_OpenFont(STATS_FONT, this->config.stats_size);
+	this->fonts[stats_select_font] = TTF_OpenFont(STATS_FONT_SELECT, this->config.stats_size);
 	this->fonts[stats_name_font] = TTF_OpenFont(STATS_NAME_FONT, this->config.stats_size);
 	
 	this->fonts[status_font] = TTF_OpenFont(STATUS_FONT, this->config.status_size);
@@ -465,6 +470,15 @@ void		GUI::undo_action(void)
 
 /* Helper methods */
 
+void		GUI::check_text_hover(void)
+{
+	for (int player = 0; player < 2; player++)
+	{
+		if (this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
+			this->update = true;
+	}
+}
+
 int			GUI::get_ai_input(void)
 {
 	if (!this->task.valid())
@@ -486,15 +500,6 @@ void		GUI::reset_task(void)
 	this->button_pressed = false;
 }
 
-
-void		GUI::update_texts(void)
-{
-	this->status.update(this->get_status_update(), this->fonts[status_font]);
-
-	this->player_stats[PLAYER1].update(this->guiboard.players[PLAYER1]);
-	this->player_stats[PLAYER2].update(this->guiboard.players[PLAYER2]);
-}
-
 bool		GUI::is_valid_move(int index)
 {
 	int player = GUIBOARD.get_current_player();
@@ -508,12 +513,13 @@ void		GUI::check_ai_clicked(void)
 		return;
 	for (int i = 0; i < 2; i++)
 	{
-		if (this->player_stats[i].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
+		if (this->player_stats[i].is_active(player_text))
 		{
 			if (this->current_is_ai())
 				this->button_pressed = true;
 			this->set_ai(i);
 			this->ai_stats.stats = {0};
+			this->update = true;
 			break;
 		}
 	}
@@ -604,7 +610,6 @@ void		GUI::set_ai(int player)
 		this->guiboard.players[player].ai = NULL;
 	else
 		this->guiboard.players[player].ai = this->ai;
-	this->update = true;
 }
 
 void		GUI::wait_fps(int fps) const

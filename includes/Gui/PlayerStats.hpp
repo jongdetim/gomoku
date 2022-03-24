@@ -22,12 +22,14 @@ public:
 	PlayerStats(void);
 	PlayerStats(SDL_Renderer *renderer, t_point pos, TTF_Font *font, TTF_Font *name_font);
 
+	void				update_font(int index, TTF_Font *font);
 	void				update(GuiPlayer &player);
 	void				render(void);
 	void				init(void);
 	t_point				get_position(int index) const;
 	t_point				get_size(e_playerstats index) const;
-	bool				on_text(int x, int y, e_playerstats index) const;
+	bool				on_text(int x, int y, e_playerstats index);
+	bool				is_active(e_playerstats index) const;
 	
 private:
 
