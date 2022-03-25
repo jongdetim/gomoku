@@ -8,7 +8,7 @@ void                    argument_parser::set_options(argparse::ArgumentParser &p
     .help("GUI size (big|medium|small)");
 
     program.add_argument("--replay", "-r")
-    .help("Replay game from file [filename format: (id).board.data]");
+    .help("Replay game from log (starting board: log/(id).board.data)");
 }
 
 void					argument_parser::parse_args(argparse::ArgumentParser &program, int argc, char **argv)
