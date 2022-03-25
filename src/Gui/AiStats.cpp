@@ -40,5 +40,8 @@ void		AiStats::update(t_aistats stats)
 	this->depth.update("Depth:      " + std::to_string(stats.depth), this->font);
 	this->nodes.update("Visited:     " + std::to_string(stats.nodes_visited), this->font);
 	this->score.update("Score:       " + std::to_string(stats.score), this->font);
-	this->nodes_ps.update("Nodes/s:  " + std::to_string((int)(stats.nodes_visited * (1000.0 / (float)stats.duration))), this->font);
+	if (stats.duration > 0)
+		this->nodes_ps.update("Nodes/s:  " + std::to_string((int)(stats.nodes_visited * (1000.0 / (float)stats.duration))), this->font);
+	else
+		this->nodes_ps.update("Nodes/s:  ", this->font);
 }

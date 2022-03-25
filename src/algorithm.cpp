@@ -29,24 +29,23 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 	FOUND_IN_TABLE = 0;
 	TOTAL_BRANCHES_PRUNED = 0;
 	TIMEOUT_REACHED = false;
-	int best_move = -1;
-	Timer timer;
-	int last_best_move;
-	int depth = 1;
-	int max_depth = 100;
-	TranspositionTable last_t_table;
-	
-	timer.start();
 
+	Timer timer;
+	t_search_results results;
+	t_search_results last_results;
 	TranspositionTable h_table;
 	TranspositionTable t_table;
+
+	int depth = 1;
+	int max_depth = 100;
+	
+	timer.start();
 	
 	for (; depth <= max_depth && !TIMEOUT_REACHED; depth++)
 	{
-		
 		try
 		{
-			last_best_move = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
 		}
 		catch(const char* e)
 		{   
@@ -56,18 +55,16 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 			
 			// PRINT("heuristic: " << tt_entry.value);
 			// PRINT(timer.elapsed_ms);
-			// return best_move;
+			// return results.best_move;
 			depth--;
 			break;
 		}
-		best_move = last_best_move;
-		last_t_table = t_table;
+		results = last_results;
+		if (results.is_finished)
+			break;
 	}
-	board.place(best_move);
-	TableEntry tt_entry;
-	last_t_table.retrieve(board, tt_entry);
-	set_aistats(aistats, depth, -tt_entry.value, timer.elapsed_ms);
-	return best_move;
+	set_aistats(aistats, depth, results.heuristic, timer.elapsed_ms);
+	return results.best_move;
 }
 
 void		set_aistats(t_aistats &aistats, int depth, int heuristic, int duration)
@@ -83,18 +80,16 @@ inline bool	tt_lookup_is_valid(Board &node, TableEntry &tt_entry, int depth, Tra
 	return t_table.retrieve(node, tt_entry) && tt_entry.depth >= depth;
 }
 
-void		set_tt_entry_values(TableEntry &tt_entry, int value, int alpha_orig, int beta, int depth, bool is_finished, int best_move)
+void		set_tt_entry_values(TableEntry &tt_entry, t_search_results &results, int alpha_orig, int beta, int depth)
 {
-	tt_entry.value = value;
-	tt_entry.best_move = best_move;
-	if (value <= alpha_orig)
+	tt_entry.results = results;
+	if (results.heuristic <= alpha_orig)
 		tt_entry.flag = UPPERBOUND;
-	else if (value >= beta)
+	else if (results.heuristic >= beta)
 		tt_entry.flag = LOWERBOUND;
 	else
 		tt_entry.flag = EXACT;
 	tt_entry.depth = depth;
-	tt_entry.game_finished = is_finished;
 }
 
 int			branch_narrowing(int depth)
@@ -105,14 +100,16 @@ int			branch_narrowing(int depth)
 		return NARROWING[depth];
 }
 
+// just for debugging
 bool PV_TABLE;
 
-int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
+t_search_results     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
 {
 	TableEntry tt_entry;
+	t_search_results results;
+
 	int alpha_orig = alpha;
 	int value = -std::numeric_limits<int>::max();
-	bool is_finished;
 	int best_move = -1;
 
 	if (initial_call)
@@ -130,28 +127,28 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		if (tt_entry.flag == EXACT)
 		{
 			// std::cout << "EXACT FLAG FOUND IN TABLE " << std::endl;
-			return tt_entry.value;
+			return tt_entry.results;
 		}
 		else if (tt_entry.flag == LOWERBOUND)
 		{
 			// std::cout << "LOWERBOUND FLAG FOUND IN TABLE " << std::endl;
-			alpha = std::max(alpha, tt_entry.value);
+			alpha = std::max(alpha, tt_entry.results.heuristic);
 		}
 		else if (tt_entry.flag == UPPERBOUND)
 		{
 			// std::cout << "UPPERBOUND FLAG FOUND IN TABLE " << std::endl;
-			beta = std::min(beta, tt_entry.value);
+			beta = std::min(beta, tt_entry.results.heuristic);
 		}
 		if (alpha >= beta)
-			return tt_entry.value;
+			return tt_entry.results;
 	}
 
 	// this should happen during children node ordering, and should affect evaluation h to be + infinite
 	// should also check if a player has won! currently only checks if board is completely full
-	is_finished = node.is_game_finished(1 - player);
+	results.is_finished = node.is_game_finished(1 - player);
 
 
-	if (depth == 0 || is_finished)
+	if (depth == 0 || results.is_finished)
 	{
 		TOTAL_LEAVES += 1;
 		// node.print();
@@ -159,35 +156,35 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		PV_TABLE = false;
 		// if (h_table.lookup(node, tt_entry))
 		// 	std::cout << "impossible ding" << std::endl;
-		if (is_finished)
+		if (results.is_finished)
 		{
 			if (node.winner == player)
-				value = WINNING_POINTS[0] - (initial_depth - depth);
+				results.heuristic = WINNING_POINTS[0] - (initial_depth - depth);
 			else if (node.winner == 1 - player)
-				value = -(WINNING_POINTS[0] - (initial_depth - depth));
+				results.heuristic = -(WINNING_POINTS[0] - (initial_depth - depth));
 			else
-				value = 0; //board is full
+				results.heuristic = 0; //board is full
 		}
 		else
-			value = -heuristic::get_heuristic_total(node, 1 - player);
-		// PRINT(value);
-		// value = color * node.calc_heuristic();
+			results.heuristic = -heuristic::get_heuristic_total(node, 1 - player);
+		// PRINT(results.heuristic);
+		// results.heuristic = color * node.calc_heuristic();
 
 		// node.print();
 		// PRINT("LEAF NODE");
-		// std::cout << "value: " << value << std::endl;
+		// std::cout << "results.heuristic: " << results.heuristic << std::endl;
 
-		tt_entry.value = value;
+		results.best_move = -1;
+
+		tt_entry.results = results;
 		tt_entry.flag = EXACT;
 		tt_entry.depth = depth;
-		tt_entry.game_finished = is_finished;
-		tt_entry.best_move = -1;
 		h_table.insert(node, tt_entry);
 		t_table.insert(node, tt_entry);
 		// std::cout << hashfn(node.get_state()) << std::endl;
 		// std::cout << node.get_state() << std::endl;
 
-		return (value);
+		return (results);
 	}
 
 	std::vector<Board> child_nodes = node.generate_children(player);
@@ -217,7 +214,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 			if (h_table.retrieve(child, ht_entry))
 			{
 				// std::cout << "already seen this child node" << std::endl;
-				child.h = -ht_entry.value; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
+				child.h = -ht_entry.results.heuristic; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
 			}
 			else
 			{
@@ -252,9 +249,9 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	// 	PRINT("PV move: " << pv.best_move);
 	// }
 	
-	best_move = child_nodes[0].get_last_move(); // ?
+	best_move = child_nodes[0].get_last_move();
+	bool is_finished = false;
 
-	int counter = 0;
 	for (Board child : child_nodes)
 	{
 		// child.show_last_move();
@@ -265,15 +262,15 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-		value = std::max(value, -negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, false, timer));
+		results = negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, false, timer);
+		value = std::max(value, -results.heuristic);
 		// int old_alpha = alpha; ==> UNUSED <==
 		alpha = std::max(alpha, value);
-		// if (alpha > old_alpha)
-		// {
-		// 	// 'beta cutoff'?
-		// }
 		if (value > old_value)
+		{
 			best_move = child.get_last_move();
+			is_finished = results.is_finished;
+		}
 
 		// if (node.get_state() == DEBUG_BOARD.get_state())
 		// 	PRINT("**** " << best_move << "*****");
@@ -285,10 +282,14 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 			// 	std::cout << "PRUNED SOME LEAVES" << std::endl;
 			break;
 		}
-		counter++;
 	}
+
+	results.heuristic = value;
+	results.best_move = best_move;
+	results.is_finished = is_finished;
+
 	// (* Transposition Table Store; node is the lookup key for tt_entry *)
-	set_tt_entry_values(tt_entry, value, alpha_orig, beta, depth, is_finished, best_move);
+	set_tt_entry_values(tt_entry, results, alpha_orig, beta, depth);
 	// PRINT(tt_entry.best_move);
 	if (t_table.contains(node))
 		t_table.update(node, tt_entry);
@@ -304,7 +305,6 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 
 	// this slightly reduces amount of visited nodes, but at the cost of table insertions. currently slows down the algo
 	// 10-01-2022 why does this increase the amount of visited nodes now??
-    TableEntry h_entry;
 	
     if (h_table.contains(node)) // apparently, updating is generally bad. but sometimes good. but sometimes bad?
 	{
@@ -317,22 +317,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 	}
 	else //why does this improve performance????
 	{
-		// PRINT("this actually ever occurs");
-		// node.show_last_move();
-		h_entry.value = value;
 		h_table.insert(node, tt_entry);
 	}
-
-	if (initial_call)
-	{
-		// std::cout << "depth: " << depth << std::endl;
-		// std::cout << "best move is: " << best_move << std::endl;
-		// std::cout << "heuristic value is: " << value << std::endl;
-		// if (best_move == -1)
-		// 	print_and_quit("no best move found. something seriously wrong");
-		// PRINT(best_move);
-		// if (best_move == -1)
-		return best_move;
-	}
-	return value;
+	return results;
 }

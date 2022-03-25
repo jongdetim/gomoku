@@ -20,16 +20,23 @@ typedef struct	s_aistats
 	int			move;
 }				t_aistats;
 
+typedef struct	s_search_results
+{
+	int 		heuristic;
+	int			best_move;
+	bool		is_finished;
+}				t_search_results;
+
 class NegamaxAi
 {
 public:
-	t_aistats	calculate(Board board);
+	t_aistats		calculate(Board board);
 
 private:
-    int			iterative_deepening_negamax(Board board, int player, t_aistats &aistats);
+    int				iterative_deepening_negamax(Board board, int player, t_aistats &aistats);
 };
 
-int				negamax(Board node, int depth, int initial_depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
-void			set_aistats(t_aistats &aistats, int depth, int heuristic, int duration);
+t_search_results	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
+void				set_aistats(t_aistats &aistats, int depth, int heuristic, int duration);
 
 #endif

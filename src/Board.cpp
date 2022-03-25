@@ -264,7 +264,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 	{
 		if (!t_table.retrieve(node, tt_entry))
 			misc::print_and_quit("can't find node in table! (Print PV)");
-		int best_move = tt_entry.best_move;
+		int best_move = tt_entry.results.best_move;
 		PRINT(best_move);
 		node.place(best_move, player);
 		node.show_last_move();
@@ -287,7 +287,7 @@ void					Board::print_principal_variation(int player, int depth, TranspositionTa
 		}
 		// PRINT(node.zobrist_hash);
 		std::cout << "heuristic value is: " << h << std::endl;
-		best_move = tt_entry.best_move;
+		best_move = tt_entry.results.best_move;
 		player = 1 - player;
 		if(node.is_game_finished())
 		{

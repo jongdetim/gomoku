@@ -1,5 +1,6 @@
 # include "Board.hpp"
 # include "TranspositionTable.hpp"
+# include "algorithm.hpp"
 
 bool		TranspositionTable::retrieve(Board &node, TableEntry &tt_entry)
 {
