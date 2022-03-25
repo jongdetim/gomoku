@@ -198,7 +198,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		node_seen_before = true;
 
 	// PV goes to the front of the queue. Using PV search, the performance is WORSE! the best line of previous depth is not the first we want to explore APPARENTLY
-	auto comp = [&node_seen_before, &pv](Board &a, Board &b)-> bool
+	auto comp = [/* &node_seen_before, &pv ==> UNUSED <== */](Board &a, Board &b)-> bool
 	{
 		// if (a.get_last_move() == b.get_last_move())
 		// 	return false;
@@ -266,7 +266,7 @@ int     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
 		value = std::max(value, -negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, false, timer));
-		int old_alpha = alpha;
+		// int old_alpha = alpha; ==> UNUSED <==
 		alpha = std::max(alpha, value);
 		// if (alpha > old_alpha)
 		// {

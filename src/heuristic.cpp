@@ -8,9 +8,9 @@ void               heuristic::cutout_pattern(const Board &board, int move, int d
 {
     int shift = DIRECTIONS[direction + 4];
     int pos = move - (pat.left_right[0] * shift);
-    int left = pat.left_right[0];
-    int right = pat.left_right[1];
-    int len = pat.length;
+    // int left = pat.left_right[0];  ===> UNUSED <===
+    // int right = pat.left_right[1]; ===> UNUSED <===
+    // int len = pat.length;          ===> UNUSED <===
     for (int i = 0; i < pat.length; i++)
     {
         pat.pattern += board.get_player(pos) == player;
