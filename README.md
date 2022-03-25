@@ -51,6 +51,7 @@ First player to get five in a row in any direction wins.
 • Game-ending capture : A player that manages to align five stones only wins if the opponent can not break this alignment by capturing a pair, or if he has already lost four pairs and the opponent can capture one more, therefore winning by capture. There is no need for the game to go on if there is no possibility of this happening.
 
 • No double-threes : It is forbidden to play a move that introduces two free-three alignments, which would guarantee a win by alignment. Marked on the board by a red cross.
+
 ![](resources/readme/double_threes.png)
 
 
