@@ -1,5 +1,0 @@
-* Alpha-Beta Pruning.
-* Hash table with visited states.
-* Table to store the values of all possible best paths.
-* Only place stones in "active playing area".
-* Only 

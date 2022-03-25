@@ -1,5 +1,4 @@
-cmake
-boost
+cmake>=3.10.2
 SDL2
 SDL2_image
 SDL2_ttf
