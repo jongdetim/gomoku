@@ -13,7 +13,7 @@ bool TIMEOUT_REACHED = false;
 
 t_aistats	NegamaxAi::calculate(Board board)
 {
-	t_aistats stats = {0};
+	t_aistats stats = {0,0,0,0,0};
 
 	if (board.is_empty())
 		stats.move = misc::calc_index(9,9);

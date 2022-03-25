@@ -10,12 +10,12 @@ uint64_t			Board::zobrist_map[MASKSIZE];
 
 Board::Board(void) :
 h(0),
-state(0),
 filled_pos(0),
 winner(-1),
+last_move_was_capture(false),
+state(0),
 current_player(PLAYER2),
-last_move(-1),
-last_move_was_capture(false)
+last_move(-1)
 {}
 
 Board::Board(const Board &rhs)
@@ -165,7 +165,7 @@ std::vector<Board>		Board::generate_children(int player) const
     std::vector<Board> nodes;
 
 	auto moves = get_moves();
-	for (int i = 0; i < moves.size(); i++)
+	for (size_t i = 0; i < moves.size(); i++)
 	{
 		if (!moves[i])
 			continue;
@@ -429,7 +429,7 @@ std::bitset<BOARDSIZE>	Board::get_moves(void) const
 {
 	std::bitset<BOARDSIZE> moves{0};
 
-	for (int index = 0; index < this->filled_pos.size(); index++)
+	for (size_t index = 0; index < this->filled_pos.size(); index++)
 	{
 		if (!this->filled_pos[index])
 			continue ;

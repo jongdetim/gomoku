@@ -14,7 +14,12 @@ GuiBoard::GuiBoard(const GuiBoard &rhs)
 }
 
 GuiBoard::GuiBoard(Board board) :
-board(board), players{GuiPlayer(this->board.players[PLAYER1]), GuiPlayer(this->board.players[PLAYER2])} {}
+	players{
+		GuiPlayer(this->board.players[PLAYER1]),
+		GuiPlayer(this->board.players[PLAYER2])
+	},
+	board(board)
+{}
 
 Board		&GuiBoard::get_board(void) { return this->board; }
 

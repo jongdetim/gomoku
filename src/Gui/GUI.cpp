@@ -10,7 +10,14 @@
 #include <iostream>
 #include <sys/stat.h>
 
-GUI::GUI(NegamaxAi *ai, e_gui_size size) : IGameEngine(ai), mouse(t_mouse{.clicked=false}), fonts{0}, textures{0}, ticks(0), replay_mode(false), button_pressed(false)
+GUI::GUI(NegamaxAi *ai, e_gui_size size) :
+	IGameEngine(ai),
+	fonts{0},
+	textures{0},
+	button_pressed(false),
+	ticks(0),
+	mouse(t_mouse{.clicked=false}),
+	replay_mode(false)
 {
 	int height;
 
@@ -102,6 +109,7 @@ bool		GUI::init(std::string title)
 
 	SDL_CreateWindowAndRenderer(this->config.screen_width, this->config.screen_height, SDL_WINDOW_SHOWN, &this->window, &this->renderer);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+	SDL_SetWindowTitle(this->window, title.c_str());
 
 	if (window == NULL) {
         SDL_Log("Unable to create window: %s", SDL_GetError());
@@ -171,7 +179,7 @@ void		GUI::init_game(void)
 
 	this->action = GUIBOARD.has_winner() ? pauze : def;
 	this->reset_ai();
-	this->ai_stats.stats = {0};
+	this->ai_stats.stats = {0,0,0,0,0};
 	
 	this->clear_log();
 	this->log_game_state();
@@ -293,7 +301,7 @@ void		GUI::draw_stones(void)
 {
 	int row, col;
 
-	for (int index = 0; index < GUIBOARD.filled_pos.size(); index++)
+	for (int index = 0; index < (int)GUIBOARD.filled_pos.size(); index++)
 	{
 		row = (misc::get_row(index) * this->config.size) + this->config.offset - (this->config.size >> 1);
 		col = (misc::get_col(index) * this->config.size) + this->config.offset - (this->config.size >> 1);
@@ -459,7 +467,7 @@ void		GUI::undo_action(void)
 	if (!GUIBOARD.has_winner())
 		this->unset_action(pauze);
 	this->unset_action(undo);
-	this->ai_stats.stats = {0};
+	this->ai_stats.stats = {0,0,0,0,0};
 
 	this->update = true;
 
@@ -492,7 +500,7 @@ void		GUI::check_ai_clicked(void)
 			if (player == GUIBOARD.get_current_player() && this->current_is_ai())
 				this->button_pressed = true;
 			this->set_ai(player);
-			this->ai_stats.stats = {0};
+			this->ai_stats.stats = {0,0,0,0,0};			
 			this->update = true;
 			break;
 		}
@@ -603,7 +611,7 @@ void		GUI::reset_ai(void)
 {
 	for (int i = 0; i < 2; i++)
 		this->guiboard.players[i].ai = NULL;
-	this->ai_stats.stats = {0};	
+	this->ai_stats.stats = {0,0,0,0,0};	
 }
 
 void		GUI::set_ai(int player)

@@ -1,7 +1,7 @@
 #include "Button.hpp"
 
 Button::Button(SDL_Renderer *renderer, int x, int y, std::string text, TTF_Font *font, SDL_Color colour, short action) :
-pos(t_point {x, y}), text(text), colour(colour), texture(NULL), active(false), renderer(renderer), action(action), font(font) { }
+active(false), texture(NULL), pos(t_point {x, y}), text(text), colour(colour), renderer(renderer), action(action), font(font) { }
 
 Button::~Button()
 {

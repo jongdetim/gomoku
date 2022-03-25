@@ -3,7 +3,7 @@
 AiStats::AiStats(void) : renderer(NULL) {}
 
 AiStats::AiStats(SDL_Renderer *renderer, SDL_Rect rect, TTF_Font *font) :
-renderer(renderer), pos{rect.x, rect.y}, font(font), rect(rect), stats{0}
+stats{0,0,0,0,0}, rect(rect), renderer(renderer), font(font), pos{rect.x, rect.y}
 {
 	TTF_SizeText(this->font, "", NULL, &this->textH);
 }

@@ -2,7 +2,13 @@
 
 Text::Text(void) : renderer(NULL), texture(NULL) { }
 
-Text::Text(SDL_Renderer *renderer, t_point pos) : renderer(renderer), texture(NULL), pos(pos), text(""), active(false) { }
+Text::Text(SDL_Renderer *renderer, t_point pos) :
+	text(""),
+	renderer(renderer),
+	texture(NULL),
+	pos(pos),
+	active(false)
+{ }
 
 Text::~Text()
 {
