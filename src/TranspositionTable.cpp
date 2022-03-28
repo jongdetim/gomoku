@@ -61,11 +61,8 @@ uint64_t MyHashFunction::hash(BITBOARD board) const
 		result = (result ^ (result >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
 		// result = (result ^ (result >> 27)) * UINT64_C(0x94d049bb133111eb);
 		// result = result ^ (result >> 31);
-		// result *= (chunk + 1) * ;
-		// cout << result << "   " << endl;
         board >>= 64;
 		mask = 1;
-		// cout << board << endl;
     }
     return result;
 }
@@ -87,11 +84,8 @@ size_t MyHashFunction::hash32(BITBOARD board) const
 			result = (result ^ (result >> 15)) * UINT64_C(0xbf58476d1ce4e5b9);
 		// result = (result ^ (result >> 27)) * UINT64_C(0x94d049bb133111eb);
 		// result = result ^ (result >> 31);
-		// result *= (chunk + 1) * ;
-		// cout << result << "   " << endl;
         board >>= 32;
 		mask = 1;
-		// cout << board << endl;
     }
     return result;
 }
@@ -106,10 +100,7 @@ uint64_t MyHashFunction::hash_diff(BITBOARD board) const
 		result ^= mask.to_ullong();
 		result = (result ^ (result >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
 		// result = result ^ (result >> 31);
-		// result *= (chunk + 1) * ;
-		// cout << result << "   " << endl;
         board >>= 64;
-		// cout << board << endl;
     }
     return result;
 }
@@ -119,8 +110,3 @@ uint64_t MyHashFunction::default_hash(BITBOARD board) const
 	std::hash<BITBOARD> dhash;
     return dhash(board);
 }
-
-// uint64_t MyHashFunction::zobrist_hash(BITBOARD board) const
-// {
-//     return 0;
-// }

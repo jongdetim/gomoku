@@ -154,6 +154,16 @@ bool					Board::is_valid_move(int index) const
 	return (index >= 0 && index < BOARDSIZE && is_empty_place(index));
 }
 
+void 					Board::init_zobrist_map()
+{
+    std::random_device rd;
+    std::mt19937_64 gen(rd()); //Using the 64-bit Mersenne Twister 19937 generator
+    std::uniform_int_distribution<unsigned long long> distrib;
+
+    for (int i = 0; i < MASKSIZE; i++)
+		Board::zobrist_map[i] = distrib(gen);
+}
+
 void					Board::update_hash(int index, int player)
 {
 	this->zobrist_hash ^= zobrist_map[INDEX + player];
