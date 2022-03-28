@@ -49,7 +49,7 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 	{
 		try
 		{
-			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, true, timer);
+			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, timer);
 		}
 		catch(const char* e)
 		{
@@ -97,7 +97,7 @@ int			branch_narrowing(int depth)
 		return NARROWING[depth];
 }
 
-t_search_results     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, bool initial_call, Timer &timer)
+t_search_results     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, Timer &timer)
 {
 	TableEntry tt_entry;
 	t_search_results results;
@@ -205,7 +205,7 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-		results = negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, false, timer);
+		results = negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, timer);
 		value = std::max(value, -results.heuristic);
 		alpha = std::max(alpha, value);
 		if (value > old_value)
