@@ -36,7 +36,7 @@ private:
     int				iterative_deepening_negamax(Board board, int player, t_aistats &aistats);
 };
 
-t_search_results	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int color, TranspositionTable &t_table,TranspositionTable &h_table, bool initial_call, Timer &timer);
+t_search_results	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int color, TranspositionTable &t_table, TranspositionTable &h_table, Timer &timer);
 void				set_aistats(t_aistats &aistats, int depth, int heuristic, int duration);
 
 #endif
