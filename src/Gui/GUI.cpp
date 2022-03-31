@@ -522,7 +522,7 @@ void		GUI::check_ai_clicked(void)
 			if (player == GUIBOARD.get_current_player() && this->current_is_ai())
 				this->button_pressed = true;
 			this->set_ai(player);
-			this->ai_stats.stats = {0,0,0,0,0};			
+			this->ai_stats.stats = {0,0,0,0,0};
 			this->update = true;
 			break;
 		}
