@@ -534,7 +534,6 @@ void		GUI::reset_ai(void)
 {
 	for (int i = 0; i < 2; i++)
 		this->guiboard.players[i].ai = NULL;
-	this->ai_stats.stats = {0,0,0,0,0};	
 }
 
 void		GUI::set_ai(int player)
@@ -727,14 +726,13 @@ void		GUI::load_replay(int id)
 		this->load_aistats(file_path);
 		this->replay_settings.current_id = id;
 		this->update = true;
-		PRINT(this->ai_stats.stats.duration);
 	}
 	catch(const char *e) {}
 }
 
 void		GUI::load_aistats(std::string file_path)
 {
-	this->ai_stats.stats.duration = this->load_bytes<int>(file_path, sizeof(Board));
+	this->ai_stats.stats = this->load_bytes<s_aistats>(file_path, sizeof(Board));
 }
 
 void		GUI::load_board_from_file(std::string file_path)
@@ -802,7 +800,7 @@ void		GUI::log_game_state(void)
 
 	auto file_name = "log/" + std::to_string(id) + BOARD_DATA_FILE_EXT;
 	GUIBOARD.save(file_name);
-	this->save_bytes<int>(file_name, this->ai_stats.stats.duration);
+	this->save_bytes<s_aistats>(file_name, this->ai_stats.stats);
 	id++;
 }
 
