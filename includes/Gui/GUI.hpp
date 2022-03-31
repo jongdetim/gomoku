@@ -204,6 +204,14 @@ private:
 	void					check_buttons_clicked(void);
 	void					check_buttons_action(void);
 
+	/* AI methods */
+	int						get_ai_input(void);
+	void					check_ai_clicked(void);
+	void					set_ai(int player);
+	void					reset_ai(void);
+	bool					current_is_ai(void) const;
+	int						get_amount_ai_playing(void) const;
+
 	/* GameAction methods */
 	bool					check_action(int action);
 	void					set_action(int action);
@@ -212,15 +220,10 @@ private:
 
 	/* Helper methods */
 	void					check_text_hover(void);
-	bool					current_is_ai(void) const;
 	void					check_game_state(void);
 	bool					mouse_on_board(int row, int col) const;
 	int						calc_board_placement(int x, int y) const;
 	int						get_player_input(void);
-	int						get_ai_input(void);
-	void					check_ai_clicked(void);
-	void					set_ai(int player);
-	void					reset_ai(void);
 	bool					is_valid_move(int index);
 	void					wait_fps(int fps) const;
 	void					reset_task(void);

@@ -472,6 +472,74 @@ void		GUI::check_buttons_action(void)
 		this->undo_action();
 }
 
+/* AI methods */
+
+bool		GUI::current_is_ai(void) const { return this->guiboard.current_player().ai; }
+
+void		GUI::check_ai_clicked(void)
+{
+	this->check_text_hover();
+
+	if (!this->mouse.clicked)
+		return;
+	
+	for (int player = 0; player < 2; player++)
+	{
+		if (this->player_stats[player].is_active(player_text))
+		{
+			if (player == GUIBOARD.get_current_player() && this->current_is_ai())
+				this->button_pressed = true;
+			this->set_ai(player);
+			if (this->get_amount_ai_playing() == 0)
+				this->ai_stats.stats = {0,0,0,0,0};
+			this->update = true;
+			break;
+		}
+	}
+}
+
+int			GUI::get_amount_ai_playing(void) const
+{
+	int players = 0;
+
+	for (int i = 0; i < 2; i++)
+	{
+		if (this->guiboard.players[i].ai)
+			players++;
+	}
+	return players;
+}
+
+int			GUI::get_ai_input(void)
+{
+	if (!this->task.valid())
+		this->task = std::async(std::launch::async, &NegamaxAi::calculate, this->guiboard.current_player().ai, this->guiboard.get_board());
+
+	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		if (this->button_pressed)
+			this->reset_task();
+		else
+			return (this->ai_stats.stats = this->task.get()).move;
+	}
+	return -1;
+}
+
+void		GUI::reset_ai(void)
+{
+	for (int i = 0; i < 2; i++)
+		this->guiboard.players[i].ai = NULL;
+	this->ai_stats.stats = {0,0,0,0,0};	
+}
+
+void		GUI::set_ai(int player)
+{
+	if (this->guiboard.players[player].ai)
+		this->guiboard.players[player].ai = NULL;
+	else
+		this->guiboard.players[player].ai = this->ai;
+}
+
 /* GameAction methods */
 
 bool		GUI::check_action(int action) { return ((this->action & action) == action); }
@@ -506,42 +574,6 @@ void		GUI::check_text_hover(void)
 		if (this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
 			this->update = true;
 	}
-}
-
-void		GUI::check_ai_clicked(void)
-{
-	this->check_text_hover();
-
-	if (!this->mouse.clicked)
-		return;
-	
-	for (int player = 0; player < 2; player++)
-	{
-		if (this->player_stats[player].is_active(player_text))
-		{
-			if (player == GUIBOARD.get_current_player() && this->current_is_ai())
-				this->button_pressed = true;
-			this->set_ai(player);
-			this->ai_stats.stats = {0,0,0,0,0};
-			this->update = true;
-			break;
-		}
-	}
-}
-
-int			GUI::get_ai_input(void)
-{
-	if (!this->task.valid())
-		this->task = std::async(std::launch::async, &NegamaxAi::calculate, this->guiboard.current_player().ai, this->guiboard.get_board());
-
-	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-	{
-		if (this->button_pressed)
-			this->reset_task();
-		else
-			return (this->ai_stats.stats = this->task.get()).move;
-	}
-	return -1;
 }
 
 void		GUI::reset_task(void)
@@ -607,8 +639,6 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 	return texture;
 }
 
-bool		GUI::current_is_ai(void) const { return this->guiboard.current_player().ai; }
-
 std::string	GUI::random_name(void)
 {
 	std::string value, name("");
@@ -628,21 +658,6 @@ std::string	GUI::random_name(void)
 }
 
 GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
-
-void		GUI::reset_ai(void)
-{
-	for (int i = 0; i < 2; i++)
-		this->guiboard.players[i].ai = NULL;
-	this->ai_stats.stats = {0,0,0,0,0};	
-}
-
-void		GUI::set_ai(int player)
-{
-	if (this->guiboard.players[player].ai)
-		this->guiboard.players[player].ai = NULL;
-	else
-		this->guiboard.players[player].ai = this->ai;
-}
 
 void		GUI::wait_fps(int fps) const
 {
