@@ -230,6 +230,10 @@ private:
 	void					hint_action(void);
 
 	/* Helper methods */
+	template<typename T>
+	T						load_bytes(std::string file_name, int skip_bytes) const;
+	template<typename T>
+	void					save_bytes(std::string file_name, T bytes) const;
 	void					check_text_hover(void);
 	void					check_game_state(void);
 	bool					mouse_on_board(int row, int col) const;
@@ -242,11 +246,13 @@ private:
 	std::string				random_name(void);
 	std::string				get_status_update(void);
 	SDL_Texture				*load_texture(std::string img_path);
-
+	
 	/* Replay methods */
 	void					set_replay_settings(std::string board_data_path);
 	std::string 			get_board_path(int id) const;
-	void		 			load_board_from_id(int id);
+	void		 			load_board_from_file(std::string file_path);
+	void					load_aistats(std::string file_path);
+	void					load_replay(int id);
 
 	/* Log methods */
 	void					clear_log(void);

@@ -211,7 +211,7 @@ void		GUI::init_game(void)
 void		GUI::reset(void)
 {
 	if (this->replay_mode)
-		this->load_board_from_id(this->replay_settings.starting_id);
+		this->load_replay(this->replay_settings.starting_id);
 	else
 		GUIBOARD.reset();
 	this->init_game();
@@ -252,7 +252,7 @@ void		GUI::key_press(int key)
 			if (this->replay_mode)
 			{
 				int id = key == SDLK_RIGHT ? this->replay_settings.current_id + 1 : this->replay_settings.current_id - 1;
-				this->load_board_from_id(id);
+				this->load_replay(id);
 				this->reset_ai();
 			}
 			break;
@@ -677,6 +677,31 @@ void		GUI::wait_fps(int fps) const
 		SDL_Delay(delay);
 }
 
+template<typename T>
+T			GUI::load_bytes(std::string file_name, int skip_bytes) const
+{
+    std::ifstream	file;
+	T				object;
+
+    file.open(file_name, std::ios::in);
+	if (file.fail())
+		throw ("failed to open file: " + file_name).c_str();
+    file.seekg(skip_bytes);
+    file.read((char*)&object, sizeof(object));
+    file.close();
+	return object;
+}
+
+template<typename T>
+void		GUI::save_bytes(std::string file_name, T bytes) const
+{
+	std::ofstream file;
+	file.open(file_name, std::ios::app);
+	file.write((char*)&bytes, sizeof(bytes));
+	file.close();
+}
+
+
 /* Replay methods */
 
 void		GUI::set_replay_settings(std::string board_data_path)
@@ -692,20 +717,33 @@ void		GUI::set_replay_settings(std::string board_data_path)
 	this->replay_settings.current_id = this->replay_settings.starting_id = atoi(file_name.c_str());
 }
 
-void		GUI::load_board_from_id(int id)
+void		GUI::load_replay(int id)
 {
-	std::string board_path = this->get_board_path(id);
+	std::string file_path = this->get_board_path(id);
+
 	try
 	{
-		GUIBOARD.load(board_path);
+		this->load_board_from_file(file_path);
+		this->load_aistats(file_path);
 		this->replay_settings.current_id = id;
 		this->update = true;
-		if (GUIBOARD.has_winner())
-			this->set_action(pauze);
-		else if (this->check_action(pauze))
-			this->unset_action(pauze);
+		PRINT(this->ai_stats.stats.duration);
 	}
 	catch(const char *e) {}
+}
+
+void		GUI::load_aistats(std::string file_path)
+{
+	this->ai_stats.stats.duration = this->load_bytes<int>(file_path, sizeof(Board));
+}
+
+void		GUI::load_board_from_file(std::string file_path)
+{
+	GUIBOARD.load(file_path);
+	if (GUIBOARD.has_winner())
+		this->set_action(pauze);
+	else if (this->check_action(pauze))
+		this->unset_action(pauze);
 }
 
 std::string GUI::get_board_path(int id) const { return this->replay_settings.dir + std::to_string(id) + (std::string)BOARD_DATA_FILE_EXT; }
@@ -761,7 +799,10 @@ void		GUI::log_game_state(void)
 	}
 	log << std::endl;
     log.close();
-	GUIBOARD.save("log/" + std::to_string(id) + BOARD_DATA_FILE_EXT);
+
+	auto file_name = "log/" + std::to_string(id) + BOARD_DATA_FILE_EXT;
+	GUIBOARD.save(file_name);
+	this->save_bytes<int>(file_name, this->ai_stats.stats.duration);
 	id++;
 }
 

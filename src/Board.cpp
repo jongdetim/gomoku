@@ -387,12 +387,12 @@ void					Board::save(std::string file_name) const
 
 void					Board::load(std::string file_name)
 {
-    Board board;
+    std::ifstream	file;
+    Board			board;
 
-    std::ifstream file;
     file.open(file_name, std::ios::in);
 	if (file.fail())
-		throw "failed to load board state from file";
+		throw ("failed to load board state from file: " + file_name).c_str();
     file.seekg(0);
     file.read((char*)&board, sizeof(board));
     file.close();

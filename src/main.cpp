@@ -22,8 +22,6 @@ SOFTWARE.
  */
 #include "Board.hpp"
 #include "argument_parser.hpp"
-#include "misc.hpp"
-#include "TranspositionTable.hpp"
 
 int                     main(int argc, char **argv)
 {
@@ -51,7 +49,5 @@ int                     main(int argc, char **argv)
     }
     else
         gui.play(Board());
-    
-    // test();
     return 0;
 }
