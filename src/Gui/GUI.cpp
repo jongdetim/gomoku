@@ -435,6 +435,9 @@ void		GUI::set_buttons(void)
 	this->buttons.push_back(
 		Button(this->renderer, w + btn_w, h, " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
 
+	this->buttons.push_back(
+		Button(this->renderer, this->config.screen_height, this->config.size * 10, " ? ", this->fonts[btn_font], BG_COLOUR, hint));
+
 	for (auto &btn : this->buttons)
 		btn.init();
 }
@@ -470,6 +473,8 @@ void		GUI::check_buttons_action(void)
 		this->reset();
 	else if (this->check_action(undo))
 		this->undo_action();
+	else if (this->check_action(hint))
+		this->hint_action();
 }
 
 /* AI methods */
@@ -562,7 +567,12 @@ void		GUI::undo_action(void)
 	this->update = true;
 
 	this->log_game_state();
-	
+}
+
+void		GUI::hint_action(void)
+{
+	PRINT("HINT");
+	this->unset_action(hint);
 }
 
 /* Helper methods */

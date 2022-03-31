@@ -75,6 +75,16 @@ SOFTWARE.
 
 class	NegamaxAi;
 
+enum e_action 
+{
+	def = 0,
+	restart = 1,
+	quit = (1<<1),
+	pauze = (1<<2),
+	undo = (1<<3),
+	hint = (1<<4)
+};
+
 enum e_fonts
 {
 	btn_font,
@@ -217,6 +227,7 @@ private:
 	void					set_action(int action);
 	void					unset_action(int action);
 	void					undo_action(void);
+	void					hint_action(void);
 
 	/* Helper methods */
 	void					check_text_hover(void);

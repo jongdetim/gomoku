@@ -25,15 +25,6 @@ SOFTWARE.
 
 class NegamaxAi;
 
-enum e_action 
-{
-	def = 0,
-	restart = 1,
-	quit = (1<<1),
-	pauze = (1<<2),
-	undo = (1<<3)
-};
-
 class Board;
 
 class IGameEngine
