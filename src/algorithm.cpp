@@ -55,7 +55,7 @@ void		reset_globals()
 
 int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats &aistats)
 {
-	Timer timer;
+	Timer timer(TIMEOUT);
 	t_search_results results;
 	t_search_results last_results;
 	TranspositionTable h_table;
@@ -63,8 +63,6 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 
 	int depth = 1;
 	int max_depth = 100;
-	int results_found_ms = 0;
-
 	reset_globals();	
 	timer.start();
 	
@@ -73,7 +71,6 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 		try
 		{
 			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, timer);
-			results_found_ms = timer.elapsedMilliseconds();
 		}
 		catch(const char* e)
 		{
@@ -84,7 +81,7 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 		if (results.is_finished)
 			break;
 	}
-	set_aistats(aistats, depth, results.heuristic, results_found_ms);
+	set_aistats(aistats, depth, results.heuristic, timer.elapsed_ms);
 	return results.best_move;
 }
 
@@ -131,7 +128,7 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 	int best_move = -1;
 
 	// check if timeout occured
-	if (timer.elapsedMilliseconds() >= TIMEOUT)
+	if (timer.timeout_reached())
 		throw "time limit reached";
 
 	TOTAL_NODES += 1;

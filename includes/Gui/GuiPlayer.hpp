@@ -37,6 +37,7 @@ public:
 
 	std::string					name;
 	NegamaxAi					*ai;
+	bool						hint_active;
 
 	void						print(void) const;
 	bool						wincondition(void) const;

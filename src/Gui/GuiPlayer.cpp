@@ -25,7 +25,11 @@ SOFTWARE.
 GuiPlayer::GuiPlayer(void) {}
 
 GuiPlayer::GuiPlayer(t_player &player) :
-name(""), ai(NULL), player(&player) { }
+name(""),
+ai(NULL),
+hint_active(false),
+player(&player)
+{ }
 
 void						GuiPlayer::print(void) const
 {
@@ -39,6 +43,7 @@ void						GuiPlayer::reset(void)
 	this->player->last_move = -1;
 	this->player->captures = 0;
 	this->player->wincondition = false;
+	this->hint_active = false;
 }
 
 int							GuiPlayer::last_move(void) const { return this->player->last_move; }

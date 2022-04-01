@@ -201,6 +201,7 @@ private:
 	void					draw_stones(void);
 	void					render_buttons(void);
 	void					show_stats(void);
+	void					show_hint(void);
 
 	/* Init methods */
 	void					load_textures(void);

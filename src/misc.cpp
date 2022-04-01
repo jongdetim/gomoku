@@ -23,6 +23,12 @@ SOFTWARE.
 #include "misc.hpp"
 #include "Board.hpp"
 
+Timer::Timer(int timeout) :
+timeout(timeout)
+{}
+
+bool						Timer::timeout_reached(void) { return this->elapsedMilliseconds() >= this->timeout; }
+
 void						Timer::start()
 {
 	this->elapsed_ms = 0;

@@ -340,8 +340,19 @@ void		GUI::draw_stones(void)
 		else if (GUIBOARD.is_free_threes(index, GUIBOARD.get_current_player()))
 			this->set_texture(this->textures[cross_tex], SDL_Rect{col, row, this->config.size, this->config.size});
 	}
+	if (this->guiboard.current_player().hint_active && this->move_highlight >= 0)
+		this->show_hint();
 	if (GUIBOARD.has_winner() && this->get_winner().wincondition())
 		this->highlight_5inarow();
+}
+
+void		GUI::show_hint(void)
+{
+	int row = (misc::get_row(this->move_highlight) * this->config.size) + this->config.offset - (this->config.size >> 1);
+	int col = (misc::get_col(this->move_highlight) * this->config.size) + this->config.offset - (this->config.size >> 1);
+
+	SDL_Texture *texture = GUIBOARD.get_current_player() == PLAYER1 ? this->textures[p2_select_tex] : this->textures[p1_select_tex];
+	this->set_texture(texture, SDL_Rect{col, row, this->config.size, this->config.size});
 }
 
 void		GUI::render_buttons(void)
@@ -573,7 +584,8 @@ void		GUI::undo_action(void)
 
 void		GUI::hint_action(void)
 {
-	PRINT("HINT");
+	int player = GUIBOARD.get_current_player();
+	this->guiboard.players[player].hint_active ^= 1;
 	this->unset_action(hint);
 }
 
