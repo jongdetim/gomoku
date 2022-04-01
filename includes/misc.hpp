@@ -21,11 +21,15 @@ class Timer
 public:
 	int elapsed_ms = 0;
 
+	Timer(int timeout);
+
     void start();
     void stop();
     int elapsedMilliseconds();
     double elapsedSeconds();
+	bool	timeout_reached(void);
 private:
+	int timeout;
     std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
     std::chrono::time_point<std::chrono::steady_clock> m_EndTime;
     bool                                               m_bRunning = false;

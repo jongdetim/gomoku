@@ -50,6 +50,7 @@
 # define BOARD_DATA_FILE_EXT ".board.data"
 
 # define FPS 20
+# define HINT_TIMEOUT 20000
 
 class	NegamaxAi;
 
@@ -132,6 +133,8 @@ private:
 
 	t_config				config;
 	std::future<t_aistats>	task;
+	std::atomic<int>		move_highlight = -1;
+	std::atomic<bool>		stop_search = false;
 	
 	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];
@@ -206,6 +209,8 @@ private:
 	std::string				random_name(void);
 	std::string				get_status_update(void);
 	SDL_Texture				*load_texture(std::string img_path);
+	void					get_hint(void);
+	void					reset_hint(void);
 
 	/* Replay methods */
 	void					set_replay_settings(std::string board_data_path);

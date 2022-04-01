@@ -1,6 +1,5 @@
 #include "GuiPlayer.hpp"
 
-
 GuiPlayer::GuiPlayer(void) {}
 
 GuiPlayer::GuiPlayer(t_player &player) :

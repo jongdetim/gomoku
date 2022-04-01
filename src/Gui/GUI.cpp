@@ -144,7 +144,7 @@ void		GUI::gameloop(void)
 
 		if (this->update)
 			this->update_renderer();
-
+			
 		this->wait_fps(FPS);
     }
 }
@@ -161,7 +161,10 @@ void		GUI::place_stone(void)
 	if (this->is_valid_move(index))
 	{
 		if (!this->guiboard.current_player().ai)
+		{
 			this->prev = this->guiboard;
+			this->reset_hint();
+		}
 		GUIBOARD.place(index);
 		this->check_game_state();
 
@@ -435,8 +438,8 @@ void		GUI::check_buttons_clicked(void)
 		if (btn.is_active())
 		{
 			this->set_action(btn.get_action());
-			if (this->current_is_ai())
-				this->button_pressed = true;
+			// if (this->current_is_ai())
+			this->stop_search = this->button_pressed = true;
 			break;
 		}
 	}
@@ -497,8 +500,8 @@ void		GUI::check_ai_clicked(void)
 	{
 		if (this->player_stats[player].is_active(player_text))
 		{
-			if (player == GUIBOARD.get_current_player() && this->current_is_ai())
-				this->button_pressed = true;
+			if (player == GUIBOARD.get_current_player())
+				this->reset_hint();
 			this->set_ai(player);
 			this->ai_stats.stats = {0,0,0,0,0};			
 			this->update = true;
@@ -510,22 +513,27 @@ void		GUI::check_ai_clicked(void)
 int			GUI::get_ai_input(void)
 {
 	if (!this->task.valid())
-		this->task = std::async(std::launch::async, &NegamaxAi::calculate, this->guiboard.current_player().ai, this->guiboard.get_board());
+		this->task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), TIMEOUT, &(this->move_highlight), &(this->stop_search));
 
 	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
 		if (this->button_pressed)
 			this->reset_task();
 		else
+		{
+			this->move_highlight = -1;
 			return (this->ai_stats.stats = this->task.get()).move;
+		}
 	}
 	return -1;
 }
 
 void		GUI::reset_task(void)
 {
+	PRINT("RESET");
 	this->task.get();
 	this->button_pressed = false;
+	this->stop_search = false;
 }
 
 bool		GUI::is_valid_move(int index)
@@ -535,8 +543,28 @@ bool		GUI::is_valid_move(int index)
 	return (GUIBOARD.is_valid_move(index) && !GUIBOARD.is_free_threes(index, player));
 }
 
+void		GUI::get_hint(void)
+{
+	if (!this->task.valid())
+		this->task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), HINT_TIMEOUT, &(this->move_highlight), &(this->stop_search));
+
+	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		if (this->button_pressed)
+			this->reset_task();
+	}
+}
+
+void		GUI::reset_hint(void)
+{
+	this->stop_search = true;
+	this->move_highlight = -1;
+	this->reset_task();
+}
+
 int			GUI::get_player_input(void)
 {
+	this->get_hint();
 	if (this->mouse.clicked && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
 		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
 	return -1;

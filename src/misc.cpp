@@ -1,6 +1,10 @@
 #include "misc.hpp"
 #include "Board.hpp"
 
+Timer::Timer(int timeout) :
+timeout(timeout)
+{}
+
 void						Timer::start()
 {
 	this->elapsed_ms = 0;
@@ -24,6 +28,8 @@ int							Timer::elapsedMilliseconds()
 		endTime = m_EndTime; 
 	return this->elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
 }
+
+bool						Timer::timeout_reached(void) { return this->elapsedMilliseconds() >= this->timeout; }
 
 double						Timer::elapsedSeconds()
 {
