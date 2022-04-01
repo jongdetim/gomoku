@@ -13,10 +13,6 @@ Use requirements.txt to install the right dependencies.
 ```bash
 xargs brew install < requirements.txt
 ```
-or
-```bash
-pip install -r requirements.txt
-```
 
 ## Usage
 
