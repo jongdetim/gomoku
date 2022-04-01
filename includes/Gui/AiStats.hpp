@@ -38,6 +38,7 @@ public:
 
 	void				render(t_aistats stats);
 	void				init(int offset);
+	void				reset_stats(void);
 	
 private:
 	void				update(t_aistats stats);

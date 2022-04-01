@@ -183,7 +183,10 @@ void		GUI::place_stone(void)
 	if (this->is_valid_move(index))
 	{
 		if (!this->guiboard.current_player().ai)
+		{
 			this->prev = this->guiboard;
+			this->ai_stats.reset_stats();
+		}
 		GUIBOARD.place(index);
 		this->check_game_state();
 
@@ -201,7 +204,7 @@ void		GUI::init_game(void)
 
 	this->action = GUIBOARD.has_winner() ? pauze : def;
 	this->reset_ai();
-	this->ai_stats.stats = {0,0,0,0,0};
+	this->ai_stats.reset_stats();
 	
 	this->clear_log();
 	this->log_game_state();
@@ -496,7 +499,7 @@ void		GUI::check_ai_clicked(void)
 				this->button_pressed = true;
 			this->set_ai(player);
 			if (this->get_amount_ai_playing() == 0)
-				this->ai_stats.stats = {0,0,0,0,0};
+				this->ai_stats.reset_stats();
 			this->update = true;
 			break;
 		}
@@ -561,7 +564,7 @@ void		GUI::undo_action(void)
 	if (!GUIBOARD.has_winner())
 		this->unset_action(pauze);
 	this->unset_action(undo);
-	this->ai_stats.stats = {0,0,0,0,0};
+	this->ai_stats.reset_stats();
 
 	this->update = true;
 

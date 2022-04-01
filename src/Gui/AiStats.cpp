@@ -67,3 +67,5 @@ void		AiStats::update(t_aistats stats)
 	else
 		this->nodes_ps.update("Nodes/s:  ", this->font);
 }
+
+void	AiStats::reset_stats(void) { this->stats = {0,0,0,0,0}; }
