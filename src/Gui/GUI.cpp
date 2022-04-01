@@ -1,3 +1,25 @@
+/* MIT License
+
+Copyright (c) 2022 Flint Louis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 #include <chrono>
 #include <thread>
 #include "GUI.hpp"
@@ -65,6 +87,12 @@ GUI::~GUI()
 			SDL_DestroyTexture(this->textures[i]);
 	}
     
+	for (int i = 0; i < (int)this->buttons.size(); i++)
+		this->buttons[i].free();
+    
+	for (int i = 0; i < 2; i++)
+		this->player_stats[i].free();
+
 	if (this->renderer)
 		SDL_DestroyRenderer(this->renderer);
 	if (this->window)
@@ -72,6 +100,7 @@ GUI::~GUI()
 	IMG_Quit();
 	TTF_Quit();
 	SDL_Quit();
+	exit(0);
 }
 
 void		GUI::play(Board board)
@@ -142,9 +171,8 @@ void		GUI::gameloop(void)
 		this->check_buttons();
 		this->check_ai_clicked();
 
-		if (this->update)
-			this->update_renderer();
-
+		this->update_renderer();
+			
 		this->wait_fps(FPS);
     }
 }
@@ -161,7 +189,11 @@ void		GUI::place_stone(void)
 	if (this->is_valid_move(index))
 	{
 		if (!this->guiboard.current_player().ai)
+		{
 			this->prev = this->guiboard;
+			this->reset_hint();
+			this->ai_stats.reset_stats();
+		}
 		GUIBOARD.place(index);
 		this->check_game_state();
 
@@ -175,11 +207,10 @@ void		GUI::init_game(void)
 	while ( (this->guiboard.players[PLAYER2].name = random_name()).length() > 14);
 
 	this->prev = this->guiboard;
-	this->update = true;
 
 	this->action = GUIBOARD.has_winner() ? pauze : def;
 	this->reset_ai();
-	this->ai_stats.stats = {0,0,0,0,0};
+	this->ai_stats.reset_stats();
 	
 	this->clear_log();
 	this->log_game_state();
@@ -189,7 +220,7 @@ void		GUI::init_game(void)
 void		GUI::reset(void)
 {
 	if (this->replay_mode)
-		this->load_board_from_id(this->replay_settings.starting_id);
+		this->load_replay(this->replay_settings.starting_id);
 	else
 		GUIBOARD.reset();
 	this->init_game();
@@ -230,7 +261,7 @@ void		GUI::key_press(int key)
 			if (this->replay_mode)
 			{
 				int id = key == SDLK_RIGHT ? this->replay_settings.current_id + 1 : this->replay_settings.current_id - 1;
-				this->load_board_from_id(id);
+				this->load_replay(id);
 				this->reset_ai();
 			}
 			break;
@@ -253,7 +284,6 @@ void		GUI::update_renderer(void)
 	this->show_stats();
 
 	SDL_RenderPresent(this->renderer);
-	this->update = false;
 }
 
 void		GUI::clear_render(void)
@@ -315,8 +345,19 @@ void		GUI::draw_stones(void)
 		else if (GUIBOARD.is_free_threes(index, GUIBOARD.get_current_player()))
 			this->set_texture(this->textures[cross_tex], SDL_Rect{col, row, this->config.size, this->config.size});
 	}
+	if (this->guiboard.current_player().hint_active && this->move_highlight >= 0)
+		this->show_hint();
 	if (GUIBOARD.has_winner() && this->get_winner().wincondition())
 		this->highlight_5inarow();
+}
+
+void		GUI::show_hint(void)
+{
+	int row = (misc::get_row(this->move_highlight) * this->config.size) + this->config.offset - (this->config.size >> 1);
+	int col = (misc::get_col(this->move_highlight) * this->config.size) + this->config.offset - (this->config.size >> 1);
+
+	SDL_Texture *texture = GUIBOARD.get_current_player() == PLAYER1 ? this->textures[p2_select_tex] : this->textures[p1_select_tex];
+	this->set_texture(texture, SDL_Rect{col, row, this->config.size, this->config.size});
 }
 
 void		GUI::render_buttons(void)
@@ -413,6 +454,9 @@ void		GUI::set_buttons(void)
 	this->buttons.push_back(
 		Button(this->renderer, w + btn_w, h, " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
 
+	this->buttons.push_back(
+		Button(this->renderer, this->config.screen_height, this->config.size * 10, " ? ", this->fonts[btn_font], BG_COLOUR, hint));
+
 	for (auto &btn : this->buttons)
 		btn.init();
 }
@@ -420,10 +464,7 @@ void		GUI::set_buttons(void)
 void		GUI::check_buttons_hover(void)
 {
 	for (auto &btn : this->buttons)
-	{
-		if (btn.on_button(this->mouse.pos.x, this->mouse.pos.y))
-			this->update = true;
-	}
+		btn.on_button(this->mouse.pos.x, this->mouse.pos.y);
 }
 
 void		GUI::check_buttons_clicked(void)
@@ -435,8 +476,7 @@ void		GUI::check_buttons_clicked(void)
 		if (btn.is_active())
 		{
 			this->set_action(btn.get_action());
-			if (this->current_is_ai())
-				this->button_pressed = true;
+			this->stop_search = this->button_pressed = true;
 			break;
 		}
 	}
@@ -448,6 +488,77 @@ void		GUI::check_buttons_action(void)
 		this->reset();
 	else if (this->check_action(undo))
 		this->undo_action();
+	else if (this->check_action(hint))
+		this->hint_action();
+}
+
+/* AI methods */
+
+bool		GUI::current_is_ai(void) const { return this->guiboard.current_player().ai; }
+
+void		GUI::check_ai_clicked(void)
+{
+	this->check_text_hover();
+
+	if (!this->mouse.clicked)
+		return;
+	
+	for (int player = 0; player < 2; player++)
+	{
+		if (this->player_stats[player].is_active(player_text))
+		{
+			if (player == GUIBOARD.get_current_player())
+				this->reset_hint();
+			this->set_ai(player);
+			if (this->get_amount_ai_playing() == 0)
+				this->ai_stats.reset_stats();
+			break;
+		}
+	}
+}
+
+int			GUI::get_amount_ai_playing(void) const
+{
+	int players = 0;
+
+	for (int i = 0; i < 2; i++)
+	{
+		if (this->guiboard.players[i].ai)
+			players++;
+	}
+	return players;
+}
+
+int			GUI::get_ai_input(void)
+{
+	if (!this->task.valid())
+		this->task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), TIMEOUT, &(this->move_highlight), &(this->stop_search));
+
+	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		if (this->button_pressed)
+			this->reset_task();
+		else
+		{
+			this->move_highlight = -1;
+			return (this->ai_stats.stats = this->task.get()).move;
+		}
+	}
+	return -1;
+}
+
+void		GUI::reset_ai(void)
+{
+	for (int i = 0; i < 2; i++)
+		this->guiboard.players[i].ai = NULL;
+}
+
+void		GUI::set_ai(int player)
+{
+	if (this->guiboard.players[player].ai)
+		this->guiboard.players[player].ai = NULL;
+	else
+		this->guiboard.players[player].ai = this->ai;
 }
 
 /* GameAction methods */
@@ -467,12 +578,15 @@ void		GUI::undo_action(void)
 	if (!GUIBOARD.has_winner())
 		this->unset_action(pauze);
 	this->unset_action(undo);
-	this->ai_stats.stats = {0,0,0,0,0};
-
-	this->update = true;
-
+	this->ai_stats.reset_stats();
 	this->log_game_state();
-	
+}
+
+void		GUI::hint_action(void)
+{
+	int player = GUIBOARD.get_current_player();
+	this->guiboard.players[player].hint_active ^= 1;
+	this->unset_action(hint);
 }
 
 /* Helper methods */
@@ -480,52 +594,14 @@ void		GUI::undo_action(void)
 void		GUI::check_text_hover(void)
 {
 	for (int player = 0; player < 2; player++)
-	{
-		if (this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
-			this->update = true;
-	}
-}
-
-void		GUI::check_ai_clicked(void)
-{
-	this->check_text_hover();
-
-	if (!this->mouse.clicked)
-		return;
-	
-	for (int player = 0; player < 2; player++)
-	{
-		if (this->player_stats[player].is_active(player_text))
-		{
-			if (player == GUIBOARD.get_current_player() && this->current_is_ai())
-				this->button_pressed = true;
-			this->set_ai(player);
-			this->ai_stats.stats = {0,0,0,0,0};			
-			this->update = true;
-			break;
-		}
-	}
-}
-
-int			GUI::get_ai_input(void)
-{
-	if (!this->task.valid())
-		this->task = std::async(std::launch::async, &NegamaxAi::calculate, this->guiboard.current_player().ai, this->guiboard.get_board());
-
-	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-	{
-		if (this->button_pressed)
-			this->reset_task();
-		else
-			return (this->ai_stats.stats = this->task.get()).move;
-	}
-	return -1;
+		this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text);
 }
 
 void		GUI::reset_task(void)
 {
 	this->task.get();
 	this->button_pressed = false;
+	this->stop_search = false;
 }
 
 bool		GUI::is_valid_move(int index)
@@ -535,8 +611,28 @@ bool		GUI::is_valid_move(int index)
 	return (GUIBOARD.is_valid_move(index) && !GUIBOARD.is_free_threes(index, player));
 }
 
+void		GUI::get_hint(void)
+{
+	if (!this->task.valid())
+		this->task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), HINT_TIMEOUT, &(this->move_highlight), &(this->stop_search));
+
+	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		if (this->button_pressed)
+			this->reset_task();
+	}
+}
+
+void		GUI::reset_hint(void)
+{
+	this->stop_search = true;
+	this->move_highlight = -1;
+	this->button_pressed = true;
+}
+
 int			GUI::get_player_input(void)
 {
+	this->get_hint();
 	if (this->mouse.clicked && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
 		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
 	return -1;
@@ -548,7 +644,7 @@ void		GUI::check_game_state(void)
 		this->set_action(pauze);
 	else
 		GUIBOARD.next_player();
-	this->update = true;
+	
 }
 
 std::string	GUI::get_status_update(void)
@@ -585,8 +681,6 @@ SDL_Texture	*GUI::load_texture(std::string img_path)
 	return texture;
 }
 
-bool		GUI::current_is_ai(void) const { return this->guiboard.current_player().ai; }
-
 std::string	GUI::random_name(void)
 {
 	std::string value, name("");
@@ -607,21 +701,6 @@ std::string	GUI::random_name(void)
 
 GuiPlayer	GUI::get_winner(void) { return this->guiboard.players[GUIBOARD.winner]; }
 
-void		GUI::reset_ai(void)
-{
-	for (int i = 0; i < 2; i++)
-		this->guiboard.players[i].ai = NULL;
-	this->ai_stats.stats = {0,0,0,0,0};	
-}
-
-void		GUI::set_ai(int player)
-{
-	if (this->guiboard.players[player].ai)
-		this->guiboard.players[player].ai = NULL;
-	else
-		this->guiboard.players[player].ai = this->ai;
-}
-
 void		GUI::wait_fps(int fps) const
 {
 	int ms = 1000.0f / fps + .5;
@@ -629,6 +708,31 @@ void		GUI::wait_fps(int fps) const
 	if (delay > 0)
 		SDL_Delay(delay);
 }
+
+template<typename T>
+T			GUI::load_bytes(std::string file_name, int skip_bytes) const
+{
+    std::ifstream	file;
+	T				object;
+
+    file.open(file_name, std::ios::in);
+	if (file.fail())
+		throw ("failed to open file: " + file_name).c_str();
+    file.seekg(skip_bytes);
+    file.read((char*)&object, sizeof(object));
+    file.close();
+	return object;
+}
+
+template<typename T>
+void		GUI::save_bytes(std::string file_name, T bytes) const
+{
+	std::ofstream file;
+	file.open(file_name, std::ios::app);
+	file.write((char*)&bytes, sizeof(bytes));
+	file.close();
+}
+
 
 /* Replay methods */
 
@@ -645,20 +749,32 @@ void		GUI::set_replay_settings(std::string board_data_path)
 	this->replay_settings.current_id = this->replay_settings.starting_id = atoi(file_name.c_str());
 }
 
-void		GUI::load_board_from_id(int id)
+void		GUI::load_replay(int id)
 {
-	std::string board_path = this->get_board_path(id);
+	std::string file_path = this->get_board_path(id);
+
 	try
 	{
-		GUIBOARD.load(board_path);
+		this->load_board_from_file(file_path);
+		this->load_aistats(file_path);
 		this->replay_settings.current_id = id;
-		this->update = true;
-		if (GUIBOARD.has_winner())
-			this->set_action(pauze);
-		else if (this->check_action(pauze))
-			this->unset_action(pauze);
+		
 	}
 	catch(const char *e) {}
+}
+
+void		GUI::load_aistats(std::string file_path)
+{
+	this->ai_stats.stats = this->load_bytes<s_aistats>(file_path, sizeof(Board));
+}
+
+void		GUI::load_board_from_file(std::string file_path)
+{
+	GUIBOARD.load(file_path);
+	if (GUIBOARD.has_winner())
+		this->set_action(pauze);
+	else if (this->check_action(pauze))
+		this->unset_action(pauze);
 }
 
 std::string GUI::get_board_path(int id) const { return this->replay_settings.dir + std::to_string(id) + (std::string)BOARD_DATA_FILE_EXT; }
@@ -714,7 +830,10 @@ void		GUI::log_game_state(void)
 	}
 	log << std::endl;
     log.close();
-	GUIBOARD.save("log/" + std::to_string(id) + BOARD_DATA_FILE_EXT);
+
+	auto file_name = "log/" + std::to_string(id) + BOARD_DATA_FILE_EXT;
+	GUIBOARD.save(file_name);
+	this->save_bytes<s_aistats>(file_name, this->ai_stats.stats);
 	id++;
 }
 

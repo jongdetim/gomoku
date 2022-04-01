@@ -1,3 +1,25 @@
+/* MIT License
+
+Copyright (c) 2022 Flint Louis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 #include "algorithm.hpp"
 #include "Board.hpp"
 #include "misc.hpp"
@@ -11,14 +33,14 @@ int	FOUND_IN_TABLE = 0;
 int TOTAL_BRANCHES_PRUNED = 0;
 bool TIMEOUT_REACHED = false;
 
-t_aistats	NegamaxAi::calculate(Board board)
+t_aistats	NegamaxAi::calculate_move(Board board, int timeout, std::atomic<int> *move_highlight, std::atomic<bool> *stop_search)
 {
 	t_aistats stats = {0,0,0,0,0};
 
 	if (board.is_empty())
-		stats.move = misc::calc_index(9,9);
+		stats.move = *move_highlight = misc::calc_index(9,9);
 	else
-		stats.move = this->iterative_deepening_negamax(board, board.get_current_player(), stats);
+		stats.move = this->iterative_deepening_negamax(board, board.get_current_player(), stats, timeout, move_highlight, stop_search);
 	return stats;
 }
 
@@ -31,9 +53,9 @@ void		reset_globals()
 	TIMEOUT_REACHED = false;
 }
 
-int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats &aistats)
+int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats &aistats, int timeout, std::atomic<int> *move_highlight, std::atomic<bool> *stop_search)
 {
-	Timer timer;
+	Timer timer(timeout);
 	t_search_results results;
 	t_search_results last_results;
 	TranspositionTable h_table;
@@ -41,7 +63,6 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 
 	int depth = 1;
 	int max_depth = 100;
-
 	reset_globals();	
 	timer.start();
 	
@@ -49,7 +70,8 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 	{
 		try
 		{
-			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, timer);
+			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, timer, stop_search);
+			*move_highlight = last_results.best_move;
 		}
 		catch(const char* e)
 		{
@@ -97,7 +119,7 @@ int			branch_narrowing(int depth)
 		return NARROWING[depth];
 }
 
-t_search_results     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, Timer &timer)
+t_search_results     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, Timer &timer, std::atomic<bool> *stop_search)
 {
 	TableEntry tt_entry;
 	t_search_results results;
@@ -107,8 +129,8 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 	int best_move = -1;
 
 	// check if timeout occured
-	if (timer.elapsedMilliseconds() >= TIMEOUT)
-		throw "time limit reached";
+	if (timer.timeout_reached() || *stop_search)
+		throw "time limit reached or search stopped";
 
 	TOTAL_NODES += 1;
 
@@ -127,7 +149,6 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 	}
 
 	// this should happen during children node ordering, and should affect evaluation h to be + infinite
-	// should also check if a player has won! currently only checks if board is completely full
 	results.is_finished = node.is_game_finished(1 - player);
 
 	// leaf nodes
@@ -205,7 +226,7 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-		results = negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, timer);
+		results = negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, timer, stop_search);
 		value = std::max(value, -results.heuristic);
 		alpha = std::max(alpha, value);
 		if (value > old_value)

@@ -1,3 +1,25 @@
+/* MIT License
+
+Copyright (c) 2022 Flint Louis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 #ifndef GUI_HPP
 # define GUI_HPP
 
@@ -50,8 +72,19 @@
 # define BOARD_DATA_FILE_EXT ".board.data"
 
 # define FPS 20
+# define HINT_TIMEOUT 60000
 
 class	NegamaxAi;
+
+enum e_action 
+{
+	def = 0,
+	restart = 1,
+	quit = (1<<1),
+	pauze = (1<<2),
+	undo = (1<<3),
+	hint = (1<<4)
+};
 
 enum e_fonts
 {
@@ -132,6 +165,8 @@ private:
 
 	t_config				config;
 	std::future<t_aistats>	task;
+	std::atomic<int>		move_highlight = -1;
+	std::atomic<bool>		stop_search = false;
 	
 	TTF_Font				*fonts[size_font];
 	SDL_Texture				*textures[size_tex];
@@ -142,7 +177,6 @@ private:
 	Text					status;
 
 	bool					button_pressed;
-	bool					update;
 	int						action;
 	Uint32					ticks;
 	t_mouse					mouse;
@@ -169,6 +203,7 @@ private:
 	void					draw_stones(void);
 	void					render_buttons(void);
 	void					show_stats(void);
+	void					show_hint(void);
 
 	/* Init methods */
 	void					load_textures(void);
@@ -182,23 +217,31 @@ private:
 	void					check_buttons_clicked(void);
 	void					check_buttons_action(void);
 
+	/* AI methods */
+	int						get_ai_input(void);
+	void					check_ai_clicked(void);
+	void					set_ai(int player);
+	void					reset_ai(void);
+	bool					current_is_ai(void) const;
+	int						get_amount_ai_playing(void) const;
+
 	/* GameAction methods */
 	bool					check_action(int action);
 	void					set_action(int action);
 	void					unset_action(int action);
 	void					undo_action(void);
+	void					hint_action(void);
 
 	/* Helper methods */
+	template<typename T>
+	T						load_bytes(std::string file_name, int skip_bytes) const;
+	template<typename T>
+	void					save_bytes(std::string file_name, T bytes) const;
 	void					check_text_hover(void);
-	bool					current_is_ai(void) const;
 	void					check_game_state(void);
 	bool					mouse_on_board(int row, int col) const;
 	int						calc_board_placement(int x, int y) const;
 	int						get_player_input(void);
-	int						get_ai_input(void);
-	void					check_ai_clicked(void);
-	void					set_ai(int player);
-	void					reset_ai(void);
 	bool					is_valid_move(int index);
 	void					wait_fps(int fps) const;
 	void					reset_task(void);
@@ -206,11 +249,15 @@ private:
 	std::string				random_name(void);
 	std::string				get_status_update(void);
 	SDL_Texture				*load_texture(std::string img_path);
+	void					get_hint(void);
+	void					reset_hint(void);
 
 	/* Replay methods */
 	void					set_replay_settings(std::string board_data_path);
 	std::string 			get_board_path(int id) const;
-	void		 			load_board_from_id(int id);
+	void		 			load_board_from_file(std::string file_path);
+	void					load_aistats(std::string file_path);
+	void					load_replay(int id);
 
 	/* Log methods */
 	void					clear_log(void);
