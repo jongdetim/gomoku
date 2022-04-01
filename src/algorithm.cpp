@@ -130,10 +130,7 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 
 	// check if timeout occured
 	if (timer.timeout_reached() || *stop_search)
-	{
-		PRINT("STOPPED");
 		throw "time limit reached or search stopped";
-	}
 
 	TOTAL_NODES += 1;
 

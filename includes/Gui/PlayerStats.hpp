@@ -52,6 +52,7 @@ public:
 	t_point				get_size(e_playerstats index) const;
 	bool				on_text(int x, int y, e_playerstats index);
 	bool				is_active(e_playerstats index) const;
+	void				free(void);
 	
 private:
 

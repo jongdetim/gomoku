@@ -1,3 +1,0 @@
-/Users/tide-jon/Desktop/github/gomoku/CMakeFiles/rebuild_cache.dir
-/Users/tide-jon/Desktop/github/gomoku/CMakeFiles/edit_cache.dir
-/Users/tide-jon/Desktop/github/gomoku/CMakeFiles/gomoku.dir

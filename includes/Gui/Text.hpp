@@ -33,7 +33,6 @@ class Text
 public:
 	Text(void);
 	Text(SDL_Renderer *renderer, t_point pos);
-	~Text();
 
 	std::string		text;
 	
@@ -43,6 +42,7 @@ public:
 	t_point			get_size(void) const;
 	bool			on_text(int x, int y);
 	bool			is_active(void) const;
+	void			free(void);
 	
 private:
 	SDL_Renderer	*renderer;

@@ -87,6 +87,12 @@ GUI::~GUI()
 			SDL_DestroyTexture(this->textures[i]);
 	}
     
+	for (int i = 0; i < (int)this->buttons.size(); i++)
+		this->buttons[i].free();
+    
+	for (int i = 0; i < 2; i++)
+		this->player_stats[i].free();
+
 	if (this->renderer)
 		SDL_DestroyRenderer(this->renderer);
 	if (this->window)
@@ -94,6 +100,7 @@ GUI::~GUI()
 	IMG_Quit();
 	TTF_Quit();
 	SDL_Quit();
+	exit(0);
 }
 
 void		GUI::play(Board board)
@@ -164,8 +171,7 @@ void		GUI::gameloop(void)
 		this->check_buttons();
 		this->check_ai_clicked();
 
-		if (this->update)
-			this->update_renderer();
+		this->update_renderer();
 			
 		this->wait_fps(FPS);
     }
@@ -201,7 +207,6 @@ void		GUI::init_game(void)
 	while ( (this->guiboard.players[PLAYER2].name = random_name()).length() > 14);
 
 	this->prev = this->guiboard;
-	this->update = true;
 
 	this->action = GUIBOARD.has_winner() ? pauze : def;
 	this->reset_ai();
@@ -279,7 +284,6 @@ void		GUI::update_renderer(void)
 	this->show_stats();
 
 	SDL_RenderPresent(this->renderer);
-	this->update = false;
 }
 
 void		GUI::clear_render(void)
@@ -460,10 +464,7 @@ void		GUI::set_buttons(void)
 void		GUI::check_buttons_hover(void)
 {
 	for (auto &btn : this->buttons)
-	{
-		if (btn.on_button(this->mouse.pos.x, this->mouse.pos.y))
-			this->update = true;
-	}
+		btn.on_button(this->mouse.pos.x, this->mouse.pos.y);
 }
 
 void		GUI::check_buttons_clicked(void)
@@ -475,7 +476,6 @@ void		GUI::check_buttons_clicked(void)
 		if (btn.is_active())
 		{
 			this->set_action(btn.get_action());
-			// if (this->current_is_ai())
 			this->stop_search = this->button_pressed = true;
 			break;
 		}
@@ -512,7 +512,6 @@ void		GUI::check_ai_clicked(void)
 			this->set_ai(player);
 			if (this->get_amount_ai_playing() == 0)
 				this->ai_stats.reset_stats();
-			this->update = true;
 			break;
 		}
 	}
@@ -580,9 +579,6 @@ void		GUI::undo_action(void)
 		this->unset_action(pauze);
 	this->unset_action(undo);
 	this->ai_stats.reset_stats();
-
-	this->update = true;
-
 	this->log_game_state();
 }
 
@@ -598,15 +594,11 @@ void		GUI::hint_action(void)
 void		GUI::check_text_hover(void)
 {
 	for (int player = 0; player < 2; player++)
-	{
-		if (this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text))
-			this->update = true;
-	}
+		this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text);
 }
 
 void		GUI::reset_task(void)
 {
-	PRINT("RESET");
 	this->task.get();
 	this->button_pressed = false;
 	this->stop_search = false;
@@ -635,7 +627,7 @@ void		GUI::reset_hint(void)
 {
 	this->stop_search = true;
 	this->move_highlight = -1;
-	this->reset_task();
+	this->button_pressed = true;
 }
 
 int			GUI::get_player_input(void)
@@ -652,7 +644,7 @@ void		GUI::check_game_state(void)
 		this->set_action(pauze);
 	else
 		GUIBOARD.next_player();
-	this->update = true;
+	
 }
 
 std::string	GUI::get_status_update(void)
@@ -766,7 +758,7 @@ void		GUI::load_replay(int id)
 		this->load_board_from_file(file_path);
 		this->load_aistats(file_path);
 		this->replay_settings.current_id = id;
-		this->update = true;
+		
 	}
 	catch(const char *e) {}
 }

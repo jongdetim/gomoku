@@ -69,3 +69,12 @@ void		AiStats::update(t_aistats stats)
 }
 
 void	AiStats::reset_stats(void) { this->stats = {0,0,0,0,0}; }
+
+void	AiStats::free(void)
+{
+	this->duration.free();
+	this->depth.free();
+	this->nodes.free();
+	this->score.free();
+	this->nodes_ps.free();
+}

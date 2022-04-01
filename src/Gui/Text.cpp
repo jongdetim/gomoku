@@ -32,12 +32,6 @@ Text::Text(SDL_Renderer *renderer, t_point pos) :
 	active(false)
 { }
 
-Text::~Text()
-{
-	if (this->texture)
-		SDL_DestroyTexture(this->texture);
-}
-
 void		Text::update(std::string text, TTF_Font *font)
 {
 	if (this->texture)
@@ -69,3 +63,9 @@ bool		Text::on_text(int x, int y)
 }
 
 bool		Text::is_active(void) const { return this->active; }
+
+void		Text::free(void)
+{
+	if (this->texture)
+		SDL_DestroyTexture(this->texture);
+}

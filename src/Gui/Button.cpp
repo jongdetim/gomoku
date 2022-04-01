@@ -25,12 +25,6 @@ SOFTWARE.
 Button::Button(SDL_Renderer *renderer, int x, int y, std::string text, TTF_Font *font, SDL_Color colour, short action) :
 active(false), texture(NULL), pos(t_point {x, y}), text(text), colour(colour), renderer(renderer), action(action), font(font) { }
 
-Button::~Button()
-{
-	if (this->texture)
-		SDL_DestroyTexture(this->texture);
-}
-
 void		Button::init(void)
 {
 	int texW, texH;
@@ -84,4 +78,10 @@ t_point		Button::get_button_size(void)
 
 	TTF_SizeText(this->font, this->text.c_str(), &size.x, &size.y);
 	return size;
+}
+
+void		Button::free(void)
+{
+	if (this->texture)
+		SDL_DestroyTexture(this->texture);
 }

@@ -40,7 +40,6 @@ class Button
 {
 public:
 	Button(SDL_Renderer *renderer, int x, int y, std::string text, TTF_Font *font, SDL_Color colour, short action);
-	~Button();
 
 	void					render(void);
 	bool					on_button(int x, int y);
@@ -48,6 +47,7 @@ public:
 	short					get_action(void);
 	void					init(void);
 	t_point					get_button_size(void);
+	void					free(void);
 
 private:
 	bool					active;

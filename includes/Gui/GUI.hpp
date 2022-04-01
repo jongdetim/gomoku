@@ -72,7 +72,7 @@ SOFTWARE.
 # define BOARD_DATA_FILE_EXT ".board.data"
 
 # define FPS 20
-# define HINT_TIMEOUT 20000
+# define HINT_TIMEOUT 60000
 
 class	NegamaxAi;
 
@@ -177,7 +177,6 @@ private:
 	Text					status;
 
 	bool					button_pressed;
-	bool					update;
 	int						action;
 	Uint32					ticks;
 	t_mouse					mouse;

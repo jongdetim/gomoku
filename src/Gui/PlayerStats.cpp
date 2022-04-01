@@ -44,7 +44,7 @@ void		PlayerStats::update_font(int index, TTF_Font *font)
 void		PlayerStats::update(GuiPlayer &player)
 {
 	this->texts[name_text].update(player.name, this->name_font);
-	this->texts[empty_text].update("-", this->font);
+	this->texts[empty_text].update(player.hint_active ? "*" : "-", this->font);
 	this->texts[player_text].update((player.ai ? "computer" : "player "), this->font);
 	this->texts[captures_text].update("captures  " + std::to_string(player.captures()), this->font);
 }
@@ -63,3 +63,9 @@ t_point		PlayerStats::get_size(e_playerstats index) const  { return this->texts[
 bool		PlayerStats::on_text(int x, int y, e_playerstats index) { return this->texts[index].on_text(x, y); }
 
 bool		PlayerStats::is_active(e_playerstats index) const { return this->texts[index].is_active(); }
+
+void		PlayerStats::free(void)
+{
+	for (int i = 0; i < size_playertexts; i++)
+		this->texts[i].free();
+}
