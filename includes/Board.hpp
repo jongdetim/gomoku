@@ -21,8 +21,9 @@
 
 class TranspositionTable;
 class IGameEngine;
-
 class TableEntry;
+
+void init_zobrist_map();
 
 typedef struct					s_player
 {
@@ -100,8 +101,10 @@ public:
 	bool					operator!=(int const rhs) const;
 
 	void					update_hash(int index, int player);
-	static uint64_t			zobrist_map[MASKSIZE];
+	static void				init_zobrist_map();
+
 	uint64_t				zobrist_hash;
+	static uint64_t			zobrist_map[MASKSIZE];
 
 private:
 	BITBOARD				state;

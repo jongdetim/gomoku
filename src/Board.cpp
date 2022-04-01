@@ -137,12 +137,7 @@ void					Board::print_values(void) const
 	printf("            P1   P2\n");
 	printf("%-*s: %-*d %d\n", 10, "lastMove", 4, this->players[0].last_move, this->players[1].last_move);
 	printf("%-*s: %-*d %d\n", 10, "captures", 4, this->players[0].captures, this->players[1].captures);
-	// int p1score = heuristic::score_remaining_patterns(*this, PLAYER1);
-	// int p2score = heuristic::score_remaining_patterns(*this, PLAYER2);
-	// printf("%-*s: %-*d %d\n", 10, "score", 4, p1score, p2score);
-	// p1score = this->current_player == PLAYER1 ? p1score * 1.5 : p1score;
-	// p2score = this->current_player == PLAYER2 ? p2score * 1.5 : p2score;
-	// printf("%-*s: %-*d %d\n\n", 10, "gameScore", 4, p1score, p2score);
+
 	for (int j = 1; j < 8; j++)
 		printf("%-*s: %-*d %d\n", 10, PatternNames[j], 4, this->players[0].patterns[j], this->players[1].patterns[j]);
 
@@ -152,6 +147,16 @@ void					Board::print_values(void) const
 bool					Board::is_valid_move(int index) const
 {
 	return (index >= 0 && index < BOARDSIZE && is_empty_place(index));
+}
+
+void 					Board::init_zobrist_map()
+{
+    std::random_device rd;
+    std::mt19937_64 gen(rd()); //Using the 64-bit Mersenne Twister 19937 generator
+    std::uniform_int_distribution<unsigned long long> distrib;
+
+    for (int i = 0; i < MASKSIZE; i++)
+		Board::zobrist_map[i] = distrib(gen);
 }
 
 void					Board::update_hash(int index, int player)
@@ -172,8 +177,6 @@ std::vector<Board>		Board::generate_children(int player) const
 		board_copy = *this;
 		board_copy.place(i, player);
 		nodes.push_back(board_copy);
-		// de volgorde hier heeft invloed op de search, ondanks dat deze children nodes nog worden resorteerd. komt dit door gelijke heuristic values en pruning?
-		// nodes.insert(nodes.begin(), board_copy);
 	}
     return nodes;
 }
@@ -184,9 +187,7 @@ void					Board::remove(int index)
 {
 	if (is_empty_place(index))
 		return ;
-
 	int p = get_player(index);
-
 	this->filled_pos[index] = 0;
 	this->state[INDEX + p] = 0;
 	update_hash(index, p);
@@ -309,7 +310,7 @@ void					Board::print_players_patterns(void) const
 
 void					Board::print_player_patterns(int player) const
 {
-	PRINT("player" << player);
+	PRINT("player:" << player);
 	for (uint8_t pattern = 1; pattern < 8; pattern++) // skip first index which is none
 		printf("%-*s: %d\n", 8, PatternNames[pattern], (int)this->players[player].patterns[pattern]);
 }
