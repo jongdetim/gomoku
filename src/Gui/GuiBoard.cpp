@@ -32,6 +32,7 @@ GuiBoard::GuiBoard(const GuiBoard &rhs)
 		this->players[i] = GuiPlayer(this->board.players[i]);
 		this->players[i].name = rhs.players[i].name;
 		this->players[i].ai = rhs.players[i].ai;
+		this->players[i].hint_active = rhs.players[i].hint_active;
 	}
 }
 
@@ -55,6 +56,7 @@ GuiBoard	&GuiBoard::operator=(GuiBoard const &rhs)
 		this->players[i] = GuiPlayer(this->board.players[i]);
 		this->players[i].name = rhs.players[i].name;
 		this->players[i].ai = rhs.players[i].ai;
+		this->players[i].hint_active = rhs.players[i].hint_active;
 	}
 	
 	return *this;

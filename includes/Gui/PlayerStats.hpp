@@ -31,7 +31,7 @@ SOFTWARE.
 enum e_playerstats
 {
 	name_text,
-	empty_text,
+	hint_text,
 	player_text,
 	captures_text,
 	/* ----- */

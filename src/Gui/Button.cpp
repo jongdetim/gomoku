@@ -23,7 +23,10 @@ SOFTWARE.
 #include "Button.hpp"
 
 Button::Button(SDL_Renderer *renderer, int x, int y, std::string text, TTF_Font *font, SDL_Color colour, short action) :
-active(false), texture(NULL), pos(t_point {x, y}), text(text), colour(colour), renderer(renderer), action(action), font(font) { }
+active(false), texture(NULL), pos(t_point {x, y}), text(text), colour(colour), renderer(renderer), action(action), font(font)
+{
+	TTF_SizeText(font, text.c_str(), &this->size.x, &this->size.y);
+}
 
 void		Button::init(void)
 {
@@ -72,13 +75,7 @@ bool		Button::on_button(int x, int y)
 
 short		Button::get_action(void) { return this->action; }
 
-t_point		Button::get_button_size(void)
-{
-	t_point size;
-
-	TTF_SizeText(this->font, this->text.c_str(), &size.x, &size.y);
-	return size;
-}
+t_point		Button::get_button_size(void) { return this->size; }
 
 void		Button::free(void)
 {

@@ -42,7 +42,8 @@ void					argument_parser::parse_args(argparse::ArgumentParser &program, int argc
         if (program.is_used("--size"))
         {
             auto size = program.get<std::string>("--size");
-            if (size != "small" || size != "medium" || size != "big")
+
+            if (size != "small" && size != "medium" && size != "big")
                 throw "--size: no acceptable value provided.";
         }
     }

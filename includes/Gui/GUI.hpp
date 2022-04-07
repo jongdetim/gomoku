@@ -72,7 +72,7 @@ SOFTWARE.
 # define BOARD_DATA_FILE_EXT ".board.data"
 
 # define FPS 20
-# define HINT_TIMEOUT 60000
+# define HINT_TIMEOUT 20000
 
 class	NegamaxAi;
 
@@ -216,6 +216,7 @@ private:
 	void					check_buttons_hover(void);
 	void					check_buttons_clicked(void);
 	void					check_buttons_action(void);
+	void					check_text_clicked(void);
 
 	/* AI methods */
 	int						get_ai_input(void);
@@ -251,6 +252,7 @@ private:
 	SDL_Texture				*load_texture(std::string img_path);
 	void					get_hint(void);
 	void					reset_hint(void);
+	void					check_hint_clicked(void);
 
 	/* Replay methods */
 	void					set_replay_settings(std::string board_data_path);
