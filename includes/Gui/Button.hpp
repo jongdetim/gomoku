@@ -59,6 +59,7 @@ private:
 	SDL_Renderer			*renderer;
 	short					action;
 	TTF_Font				*font;
+	t_point					size;
 
 	SDL_Colour				subtract_colour(SDL_Colour col, int amount) const;
 };

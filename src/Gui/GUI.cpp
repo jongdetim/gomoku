@@ -169,12 +169,14 @@ void		GUI::gameloop(void)
 			this->place_stone();
 
 		this->check_buttons();
-		this->check_ai_clicked();
+		this->check_text_hover();
+		this->check_text_clicked();
 
 		this->update_renderer();
 			
 		this->wait_fps(FPS);
     }
+	this->stop_search = true;
 }
 
 void		GUI::place_stone(void)
@@ -267,6 +269,13 @@ void		GUI::key_press(int key)
 			break;
 		case SDLK_ESCAPE:
 			this->set_action(quit);
+			break;
+		case SDLK_r:
+			this->set_action(restart);
+			break;
+		case SDLK_1:
+		case SDLK_2:
+			this->guiboard.players[key - SDLK_1].hint_active ^= 1;
 			break;
 	}
 }
@@ -377,6 +386,9 @@ void		GUI::show_stats(void)
 		if (this->player_stats[player].is_active(player_text))
 			this->player_stats[player].update_font(player_text, this->fonts[stats_select_font]);
 
+		if (this->player_stats[player].is_active(hint_text))
+			this->player_stats[player].update_font(hint_text, this->fonts[stats_select_font]);
+
 		this->player_stats[player].render();
 
 		t_point pos = this->player_stats[player].get_position(size_playertexts - 1);
@@ -454,9 +466,6 @@ void		GUI::set_buttons(void)
 	this->buttons.push_back(
 		Button(this->renderer, w + btn_w, h, " QUIT ", this->fonts[btn_font], BG_COLOUR, quit));
 
-	this->buttons.push_back(
-		Button(this->renderer, this->config.screen_height, this->config.size * 10, " ? ", this->fonts[btn_font], BG_COLOUR, hint));
-
 	for (auto &btn : this->buttons)
 		btn.init();
 }
@@ -492,17 +501,20 @@ void		GUI::check_buttons_action(void)
 		this->hint_action();
 }
 
+void		GUI::check_text_clicked(void)
+{
+	if (!this->mouse.clicked)
+		return;
+	this->check_ai_clicked();
+	this->check_hint_clicked();
+}
+
 /* AI methods */
 
 bool		GUI::current_is_ai(void) const { return this->guiboard.current_player().ai; }
 
 void		GUI::check_ai_clicked(void)
 {
-	this->check_text_hover();
-
-	if (!this->mouse.clicked)
-		return;
-	
 	for (int player = 0; player < 2; player++)
 	{
 		if (this->player_stats[player].is_active(player_text))
@@ -591,10 +603,25 @@ void		GUI::hint_action(void)
 
 /* Helper methods */
 
+void		GUI::check_hint_clicked(void)
+{
+	for (int player = 0; player < 2; player++)
+	{
+		if (this->player_stats[player].is_active(hint_text))
+		{
+			this->guiboard.players[player].hint_active ^= 1;
+			break;
+		}
+	}	
+}
+
 void		GUI::check_text_hover(void)
 {
 	for (int player = 0; player < 2; player++)
+	{
 		this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, player_text);
+		this->player_stats[player].on_text(this->mouse.pos.x, this->mouse.pos.y, hint_text);
+	}
 }
 
 void		GUI::reset_task(void)
@@ -632,7 +659,8 @@ void		GUI::reset_hint(void)
 
 int			GUI::get_player_input(void)
 {
-	this->get_hint();
+	if (this->guiboard.current_player().hint_active)
+		this->get_hint();
 	if (this->mouse.clicked && this->mouse_on_board(this->mouse.pos.x, this->mouse.pos.y))
 		return this->calc_board_placement(this->mouse.pos.x, this->mouse.pos.y);
 	return -1;

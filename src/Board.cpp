@@ -28,7 +28,7 @@ SOFTWARE.
 #include "TranspositionTable.hpp"
 #include <fstream>
 
-uint64_t			Board::zobrist_map[MASKSIZE];
+uint64_t				Board::zobrist_map[MASKSIZE];
 
 Board::Board(void) :
 h(0),
@@ -53,7 +53,6 @@ Board::Board(const Board &rhs)
 	this->last_move_was_capture = rhs.last_move_was_capture;
 	this->zobrist_hash = rhs.zobrist_hash;
 }
-
 
 Board::~Board() {}
 
@@ -165,7 +164,6 @@ void					Board::print_values(void) const
 
 }
 
-// Add check free threes
 bool					Board::is_valid_move(int index) const
 {
 	return (index >= 0 && index < BOARDSIZE && is_empty_place(index));

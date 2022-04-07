@@ -35,9 +35,12 @@ Optional arguments:
 
 ### Ai
 
-Toggle ai by pressing 'player/computer' text.
+Toggle ai by pressing on 'player/computer' text.
 
 ![](resources/readme/GomokuAi.gif)
+
+Toggle hint mode by pressing on 'hint' text.
+
 
 ## Rules
 First player to get five in a row in any direction wins.
