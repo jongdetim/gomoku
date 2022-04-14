@@ -203,7 +203,7 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 		for (Board &child : child_nodes)
 		{
 			TableEntry ht_entry;
-			if (h_table.retrieve(child, ht_entry))
+			if (t_table.retrieve(child, ht_entry))
 				child.h = -ht_entry.results.heuristic; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
 			else
 			{
@@ -252,9 +252,9 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 	else
 		t_table.insert(node, tt_entry);
 	
-    if (h_table.contains(node)) // still not sure if updating values improves performance
-	    h_table.update(node, tt_entry);
-	else
-		h_table.insert(node, tt_entry);
+    // if (h_table.contains(node)) // still not sure if updating values improves performance
+	//     h_table.update(node, tt_entry);
+	// else
+	// 	h_table.insert(node, tt_entry);
 	return results;
 }

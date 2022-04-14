@@ -32,6 +32,9 @@ SOFTWARE.
 #include <iostream>
 #include <sys/stat.h>
 
+//debug remove
+Timer timer(1);
+
 GUI::GUI(NegamaxAi *ai, e_gui_size size) :
 	IGameEngine(ai),
 	fonts{0},
@@ -68,6 +71,9 @@ GUI::GUI(NegamaxAi *ai, e_gui_size size) :
 	this->config.stats_size = height * STATS_SIZE / (double)SCREEN_HEIGHT;
 	this->config.status_size = height * STATUS_SIZE / (double)SCREEN_HEIGHT;
 	this->config.title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
+
+// debug remove
+	timer.start();
 }
 
 GUI::GUI(void) : GUI(NULL, big) {}
@@ -196,6 +202,10 @@ void		GUI::place_stone(void)
 			this->reset_hint();
 			this->ai_stats.reset_stats();
 		}
+
+		// debug remove
+		PRINT("placing the stone: " << timer.elapsedMilliseconds());
+
 		GUIBOARD.place(index);
 		this->check_game_state();
 
@@ -544,8 +554,13 @@ int			GUI::get_amount_ai_playing(void) const
 int			GUI::get_ai_input(void)
 {
 	if (!this->task.valid())
+	{
+		// debug remove
+		PRINT("dispatching AI thread: " << timer.elapsedMilliseconds());
 		this->task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), TIMEOUT, &(this->move_highlight), &(this->stop_search));
-
+	}
+	// debug remove
+		PRINT("check if thread is finished: " << timer.elapsedMilliseconds());
 	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
 		if (this->button_pressed)
@@ -626,7 +641,11 @@ void		GUI::check_text_hover(void)
 
 void		GUI::reset_task(void)
 {
+	// debug remove
+		PRINT("getting task: " << timer.elapsedMilliseconds());
 	this->task.get();
+	// debug remove
+		PRINT("got task: " << timer.elapsedMilliseconds());
 	this->button_pressed = false;
 	this->stop_search = false;
 }
@@ -641,10 +660,17 @@ bool		GUI::is_valid_move(int index)
 void		GUI::get_hint(void)
 {
 	if (!this->task.valid())
+	{
+		// debug remove
+		PRINT("dispatching HINT thread: " << timer.elapsedMilliseconds());
 		this->task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), HINT_TIMEOUT, &(this->move_highlight), &(this->stop_search));
-
+	}
+	// debug remove
+		PRINT("checking if hint thread if finished: " << timer.elapsedMilliseconds());
 	if (this->task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
+		// debug remove
+		PRINT("hint thread finished: " << timer.elapsedMilliseconds());
 		if (this->button_pressed)
 			this->reset_task();
 	}
@@ -652,6 +678,8 @@ void		GUI::get_hint(void)
 
 void		GUI::reset_hint(void)
 {
+	// debug remove
+		PRINT("resetting hint related variables: " << timer.elapsedMilliseconds());
 	this->stop_search = true;
 	this->move_highlight = -1;
 	this->button_pressed = true;
