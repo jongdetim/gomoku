@@ -32,11 +32,6 @@ SOFTWARE.
 #include <iostream>
 #include <sys/stat.h>
 
-//debug remove
-Timer	timer(1);
-int		game_loop = 0;
-int		last_stone_placed = 0;
-
 GUI::GUI(NegamaxAi *ai, e_gui_size size) :
 	IGameEngine(ai),
 	fonts{0},
@@ -74,8 +69,7 @@ GUI::GUI(NegamaxAi *ai, e_gui_size size) :
 	this->config.status_size = height * STATUS_SIZE / (double)SCREEN_HEIGHT;
 	this->config.title_size = height * TITLE_SIZE / (double)SCREEN_HEIGHT;
 
-// debug remove
-	timer.start();
+
 }
 
 GUI::GUI(void) : GUI(NULL, big) {}
@@ -135,8 +129,8 @@ void		GUI::replay(std::string board_data_path)
 
 bool		GUI::init(std::string title)
 {
-
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
         return false;
 	}
@@ -169,7 +163,6 @@ void		GUI::gameloop(void)
 {
     while (!this->check_action(quit))
     {
-		game_loop++;
 		this->ticks = SDL_GetTicks();
 	
 		this->handle_events();
@@ -184,7 +177,6 @@ void		GUI::gameloop(void)
 		this->update_renderer();
 			
 		this->wait_fps(FPS);
-		this->print_duration();
     }
 	this->stop_search = true;
 }
@@ -211,24 +203,13 @@ void		GUI::place_stone(void)
 			}
 			this->ai_stats.reset_stats();
 		}
-
-		// debug remove
-		PRINT(game_loop << " - placing the stone: " << timer.elapsedMilliseconds() << " time between placements: " << (SDL_GetTicks() - last_stone_placed));
-		last_stone_placed = SDL_GetTicks();
-
 		GUIBOARD.place(index);
 		this->check_game_state();
-
 
 		this->log_game_state();
 	}
 	if (this->current_is_ai()  && !this->ai_task.valid())
-	{
-		// debug remove
-		PRINT(game_loop << " - dispatching AI thread: " << timer.elapsedMilliseconds());
-		PRINT("stop_search : " << stop_search);
 		this->ai_task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), TIMEOUT, &(this->move_highlight), &(this->stop_search));
-	}
 }
 
 void		GUI::init_game(void)
@@ -572,13 +553,8 @@ int			GUI::get_amount_ai_playing(void) const
 int			GUI::get_ai_input(void)
 {
 	if (!this->ai_task.valid())
-	{
-		// debug remove
-		PRINT(game_loop << " - dispatching AI thread: " << timer.elapsedMilliseconds());
 		this->ai_task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), TIMEOUT, &(this->move_highlight), &(this->stop_search));
-	}
-	// debug remove
-		PRINT(game_loop << " - check if thread is finished: " << timer.elapsedMilliseconds());
+
 	if (this->ai_task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
 		if (this->button_pressed)
@@ -662,11 +638,9 @@ void		GUI::check_text_hover(void)
 
 void		GUI::reset_task(void)
 {
-	// debug remove
-		PRINT(game_loop << " - getting task: " << timer.elapsedMilliseconds());
+	
 	this->ai_task.get();
-	// debug remove
-		PRINT(game_loop << " - got task: " << timer.elapsedMilliseconds());
+	
 	this->button_pressed = false;
 	this->stop_search = false;
 }
@@ -681,17 +655,10 @@ bool		GUI::is_valid_move(int index)
 void		GUI::get_hint(void)
 {
 	if (!this->ai_task.valid())
-	{
-		// debug remove
-		PRINT(game_loop << " - dispatching HINT thread: " << timer.elapsedMilliseconds());
 		this->ai_task = std::async(std::launch::async, &NegamaxAi::calculate_move, this->guiboard.current_player().ai, this->guiboard.get_board(), TIMEOUT, &(this->move_highlight), &(this->stop_search));
-	}
-	// debug remove
-		PRINT(game_loop << " - checking if hint thread if finished: " << timer.elapsedMilliseconds());
+	
 	if (this->ai_task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
-		// debug remove
-		PRINT(game_loop << " - hint thread finished: " << timer.elapsedMilliseconds());
 		if (this->button_pressed)
 			this->reset_task();
 	}
@@ -699,8 +666,7 @@ void		GUI::get_hint(void)
 
 void		GUI::reset_hint(void)
 {
-	// debug remove
-		PRINT(game_loop << " - resetting hint related variables: " << timer.elapsedMilliseconds());
+	
 	this->stop_search = true;
 	this->move_highlight = -1;
 	this->button_pressed = true;
