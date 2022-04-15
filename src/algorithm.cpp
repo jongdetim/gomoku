@@ -1,6 +1,6 @@
 /* MIT License
 
-Copyright (c) 2022 Flint Louis
+Copyright (c) 2022 Flint Louis, Tim de Jong
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,6 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 	Timer timer(timeout);
 	t_search_results results;
 	t_search_results last_results;
-	TranspositionTable h_table;
 	TranspositionTable t_table;
 
 	int depth = 1;
@@ -70,7 +69,7 @@ int			NegamaxAi::iterative_deepening_negamax(Board board, int player, t_aistats 
 	{
 		try
 		{
-			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, h_table, timer, stop_search);
+			last_results = negamax(board, depth, depth, -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), player, t_table, timer, stop_search);
 			*move_highlight = last_results.best_move;
 		}
 		catch(const char* e)
@@ -119,7 +118,7 @@ int			branch_narrowing(int depth)
 		return NARROWING[depth];
 }
 
-t_search_results     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, TranspositionTable &h_table, Timer &timer, std::atomic<bool> *stop_search)
+t_search_results     	negamax(Board node, int depth, int initial_depth, int alpha, int beta, int player, TranspositionTable &t_table, Timer &timer, std::atomic<bool> *stop_search)
 {
 	TableEntry tt_entry;
 	t_search_results results;
@@ -173,7 +172,6 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 		tt_entry.results = results;
 		tt_entry.flag = EXACT;
 		tt_entry.depth = depth;
-		h_table.insert(node, tt_entry);
 		t_table.insert(node, tt_entry);
 
 		return (results);
@@ -206,13 +204,7 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 			if (t_table.retrieve(child, ht_entry))
 				child.h = -ht_entry.results.heuristic; //have to flip the sign again, because currently heuristics are stored with flipped sign at the leaf nodes
 			else
-			{
 			    child.h = heuristic::get_heuristic_total(child, player);
-			    // child.h = -color * node.calc_heuristic(child);
-				// ht_entry.value = child.h;
-				// ht_entry.depth = depth - 1;
-				// h_table.insert(child, ht_entry);
-			}
 		}
 		std::sort(child_nodes.begin(), child_nodes.end(), comp);
 	}
@@ -226,7 +218,7 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 
 		if (child.is_free_threes(child.get_last_move(), child.get_last_player())) // Welke last move wil je hier hebben?
 			continue;
-		results = negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, h_table, timer, stop_search);
+		results = negamax(child, depth - 1, initial_depth, -beta, -alpha, 1 - player, t_table, timer, stop_search);
 		value = std::max(value, -results.heuristic);
 		alpha = std::max(alpha, value);
 		if (value > old_value)
@@ -251,10 +243,6 @@ t_search_results     	negamax(Board node, int depth, int initial_depth, int alph
 		t_table.update(node, tt_entry);
 	else
 		t_table.insert(node, tt_entry);
-	
-    // if (h_table.contains(node)) // still not sure if updating values improves performance
-	//     h_table.update(node, tt_entry);
-	// else
-	// 	h_table.insert(node, tt_entry);
+
 	return results;
 }
