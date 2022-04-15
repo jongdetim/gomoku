@@ -44,7 +44,7 @@ void		PlayerStats::update_font(int index, TTF_Font *font)
 void		PlayerStats::update(GuiPlayer &player)
 {
 	this->texts[name_text].update(player.name, this->name_font);
-	this->texts[hint_text].update((std::string)"hint " + (player.hint_active ? "*" : "-"), this->font);
+	this->texts[hint_text].update((std::string)"hint " + (player.hint_active ? "on" : "off"), this->font);
 	this->texts[player_text].update((player.ai ? "computer" : "player "), this->font);
 	this->texts[captures_text].update("captures  " + std::to_string(player.captures()), this->font);
 }

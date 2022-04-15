@@ -72,7 +72,6 @@ SOFTWARE.
 # define BOARD_DATA_FILE_EXT ".board.data"
 
 # define FPS 20
-# define HINT_TIMEOUT 20000
 
 class	NegamaxAi;
 
@@ -164,7 +163,7 @@ private:
 	SDL_Renderer			*renderer;
 
 	t_config				config;
-	std::future<t_aistats>	task;
+	std::future<t_aistats>	ai_task;
 	std::atomic<int>		move_highlight = -1;
 	std::atomic<bool>		stop_search = false;
 	
